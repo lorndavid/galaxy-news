@@ -194,44 +194,125 @@ p, li, input, textarea, select, button {
 }
 
 /* ============================================================
-   NAVATRA 4K TV PROMO BANNERS — two clean images side by side
-   (banner2.png + banner3.png) on the header-mid right.
+   HEADER BOTTOM — clean black navigation bar (white text)
+   Replaces the template's oversized white bar: tighter padding,
+   modern look, fully responsive on mobile / tablet / desktop.
+   ============================================================ */
+.header-area .header-bottom {
+    /* The template used huge 185px side padding — trim it so the
+       nav hugs the container cleanly. */
+    padding: 0 30px !important;
+    background: #000000 !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+/* Menu links: white text on black, modest padding */
+.main-header .main-menu ul li a {
+    color: #ffffff !important;
+    padding: 20px 18px !important;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+/* Hover: keep the clean underline, now in white */
+.main-header .main-menu ul li a::after {
+    background: #ffffff;
+}
+
+.main-header .main-menu ul li:hover > a {
+    color: #ffffff !important;
+    opacity: 0.85;
+}
+
+/* Dropdown submenu stays a readable white panel over the black bar */
+.main-header .main-menu ul ul.submenu {
+    border-top: 3px solid #ffffff;
+    background: #ffffff;
+}
+
+.main-header .main-menu ul ul.submenu > li > a {
+    color: #0b1c39 !important;
+}
+
+.main-header .main-menu ul ul.submenu > li > a:hover {
+    color: #0d3fa9 !important;
+}
+
+/* Search icon on the black bar */
+.header-right-btn .special-tag {
+    color: #ffffff !important;
+}
+
+.header-right-btn .search-box input {
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.header-right-btn .search-box input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Sticky state keeps the same black bar with white text */
+.header-sticky.sticky-bar.sticky {
+    background: #000000 !important;
+}
+
+.header-sticky.sticky-bar.sticky .main-menu ul > li > a {
+    padding: 18px 18px !important;
+    color: #ffffff !important;
+}
+
+@media (max-width: 1199px) {
+    .header-area .header-bottom {
+        padding: 0 20px !important;
+    }
+}
+
+@media (max-width: 991px) {
+    .main-header .main-menu ul li a {
+        padding: 16px 12px !important;
+    }
+}
+
+/* ============================================================
+   NAVATRA 4K TV HERO BANNER — single wide hero image
+   (assets/img/hero/banner4.png) on the header-mid right.
    ============================================================ */
 .header-area .header-mid .navatra-promo {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 12px;
+    display: block;
+    width: 100%;
     background: transparent;
     border-radius: 0;
     padding: 0;
     box-shadow: none;
-    height: 100%;
+    line-height: 0;
 }
 
 .navatra-promo .promo-banner {
-    max-height: 78px;
-    width: auto;
+    width: 100%;
+    height: auto;
+    max-height: none;
     display: block;
     border: 0 !important;
     box-shadow: none !important;
     object-fit: contain;
-    border-radius: 10px;
+    border-radius: 12px;
 }
 
 @media (max-width: 991px) {
     .header-area .header-mid .navatra-promo {
         padding: 0;
-        gap: 8px;
     }
 
     .navatra-promo .promo-banner {
-        max-height: 44px !important;
+        border-radius: 8px;
     }
 }
 
 /* ============================================================
-   TRENDING / TICKER — polished red label
+   TRENDING / TICKER — polished red label + Khmer font
    ============================================================ */
 .trending-tittle strong {
     background: linear-gradient(135deg, #000000 0%, #3a3a3a 100%);
@@ -239,6 +320,15 @@ p, li, input, textarea, select, button {
     border-radius: 30px;
     letter-spacing: 0.5px;
     padding: 12px 22px;
+}
+
+/* The ticker plugin wraps each headline in <p class="ticker-content">,
+   and ticker-style.css forces "Roboto" on it — bring it back to the
+   Khmer font so the scrolling headlines match the rest of the site. */
+.ticker-content,
+.ticker-content a,
+.ticker-title {
+    font-family: 'Noto Sans Khmer', 'Kantumruy', 'Roboto', sans-serif !important;
 }
 
 /* ============================================================
@@ -1724,34 +1814,209 @@ img, iframe, video, embed {
     }
 }
 
-/* Mobile menu (slicknav): clean navy bar instead of default colors */
-.slicknav_menu {
-    background: #0b1c39 !important;
-    border-radius: 8px;
-    padding: 6px 10px;
-    margin-top: 10px;
+/* ============================================================
+   MOBILE NAVBAR — clean app-style header (slicknav, ≤767px)
+   ------------------------------------------------------------
+   On phones the template hides header-mid (the logo bar), so we
+   turn the black header-bottom into a compact bar: brand logo on
+   the left, a white hamburger on the right, and a clean white
+   dropdown panel with the Khmer font underneath. Fully sticky.
+   ============================================================ */
+@media (max-width: 767px) {
+
+    /* The black bar becomes one clean flex row */
+    .header-area .header-bottom {
+        position: relative;
+        min-height: 60px;
+        padding: 0 16px !important;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .header-area .header-bottom .row {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        margin: 0;
+    }
+
+    /* The search column is hidden below lg, but its empty wrapper still
+       takes a full row inside the bar — hide it so the bar stays one line */
+    .header-area .header-bottom .col-xl-2 {
+        display: none !important;
+    }
+
+    .header-area .header-bottom .header-flex {
+        display: flex;
+        align-items: center;
+        flex: 1 1 auto;
+        padding: 0;
+    }
+
+    /* Always show the brand logo on mobile (template hides it until sticky) */
+    .header-area .header-bottom .sticky-logo {
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .header-area .header-bottom .sticky-logo img {
+        max-height: 38px !important;
+        width: auto !important;
+        display: block;
+    }
+
+    /* Mobile menu container sits at the right of the bar */
+    .header-area .header-bottom .col-12 {
+        position: static;
+        flex: 0 0 auto;
+        width: auto;
+        padding: 0;
+        margin-left: auto;
+    }
+
+    .header-area .header-bottom .mobile_menu {
+        position: static;
+        width: auto;
+        z-index: 99;
+    }
+
+    /* Slicknav wrapper: transparent so it blends into the black bar */
+    .slicknav_menu {
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border-radius: 0;
+    }
+
+    /* Hamburger: clean white rounded button, no text label */
+    .header-area .slicknav_btn {
+        top: auto !important;
+        right: auto !important;
+        float: none;
+        background: #ffffff !important;
+        border-radius: 10px;
+        padding: 10px 12px !important;
+        margin: 0 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .slicknav_menu .slicknav_menutxt {
+        display: none !important;
+    }
+
+    .slicknav_menu .slicknav_icon {
+        margin: 0 !important;
+    }
+
+    .slicknav_menu .slicknav_icon-bar {
+        background: #000000 !important;
+        width: 18px;
+        height: 2px;
+        border-radius: 2px;
+        margin-top: 4px !important;
+    }
+
+    .slicknav_menu .slicknav_icon-bar:first-child {
+        margin-top: 0 !important;
+    }
+
+    /* Dropdown panel: clean white card floating under the bar */
+    .slicknav_nav {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 12px;
+        right: 12px;
+        background: #ffffff;
+        border: 1px solid #eef0f4;
+        border-radius: 14px;
+        padding: 8px !important;
+        margin: 0 !important;
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.28);
+        max-height: calc(100vh - 90px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .slicknav_nav a {
+        color: #0b1c39 !important;
+        font-family: 'Noto Sans Khmer', 'Kantumruy', 'Roboto', sans-serif !important;
+        font-size: 15px;
+        font-weight: 500;
+        padding: 14px 16px !important;
+        border-radius: 8px;
+        border-bottom: none !important;
+        margin: 2px 0 !important;
+        transition: background 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+    }
+
+    .slicknav_nav a:hover,
+    .slicknav_nav .slicknav_row:hover {
+        background: #f0f4ff !important;
+        color: #0d3fa9 !important;
+        padding-left: 22px !important;
+    }
+
+    /* Submenu: subtle indent + divider */
+    .slicknav_nav ul {
+        margin: 4px 0 4px 12px !important;
+        padding: 0 0 0 8px !important;
+        border-left: 2px solid #eef0f4;
+    }
+
+    .slicknav_nav ul a {
+        font-size: 14px;
+        color: #44506b !important;
+    }
+
+    .slicknav_nav .slicknav_arrow {
+        color: #0d3fa9 !important;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    /* Sticky: keep the same compact bar + logo when scrolled */
+    .header-sticky.sticky-bar.sticky {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 9999;
+        min-height: 60px;
+        padding: 0 16px !important;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-sticky.sticky-bar.sticky .sticky-logo {
+        display: block !important;
+    }
 }
 
-.slicknav_btn {
-    background: #ffffff !important;
-    border-radius: 6px;
-}
+/* Tablet (768–991px): desktop menu already shows; keep the black bar tidy */
+@media (min-width: 768px) and (max-width: 991px) {
+    .header-area .header-bottom {
+        padding: 0 24px !important;
+        display: flex;
+        align-items: center;
+        min-height: 60px;
+    }
 
-.slicknav_icon-bar {
-    background: #0b1c39 !important;
-}
+    /* Compact links so all 7 items fit on one line */
+    .main-header .main-menu ul li a {
+        padding: 18px 9px !important;
+        font-size: 13px;
+        letter-spacing: 0.2px;
+    }
 
-.slicknav_nav a {
-    color: #ffffff !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
-
-.slicknav_nav a:hover,
-.slicknav_nav .slicknav_row:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-    color: #ffffff !important;
-}
-
-.slicknav_nav .slicknav_arrow {
-    color: rgba(255, 255, 255, 0.6);
+    /* Same compact sizing while stuck at the top */
+    .header-sticky.sticky-bar.sticky .main-menu ul > li > a {
+        padding: 18px 9px !important;
+        font-size: 13px;
+        letter-spacing: 0.2px;
+    }
 }
