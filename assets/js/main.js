@@ -264,6 +264,22 @@
       }
     });
 
+/* 7b. Hero banner strip — hide on scroll down, slide back on scroll up,
+        so a clean sticky-only header remains while browsing. */
+    (function () {
+      var lastY = $(window).scrollTop();
+      var HIDE_AT = 160;
+      $(window).on('scroll', function () {
+        var y = $(window).scrollTop();
+        if (y > HIDE_AT && y > lastY) {
+          $('body').addClass('banner-hidden');
+        } else if (y <= HIDE_AT || y < lastY) {
+          $('body').removeClass('banner-hidden');
+        }
+        lastY = y;
+      });
+    })();
+
 
 
 /* 8. sildeBar scroll */

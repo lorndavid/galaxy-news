@@ -279,9 +279,14 @@ p, li, input, textarea, select, button {
 /* ============================================================
    NAVATRA 4K TV HERO BANNER — single wide hero image
    (assets/img/hero/banner4.png) on the header-mid right.
+   The strip slides away on scroll (body.banner-hidden) so the
+   sticky header is the only thing left while browsing.
    ============================================================ */
 .header-area .header-mid .navatra-promo {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
     width: 100%;
     background: transparent;
     border-radius: 0;
@@ -290,15 +295,58 @@ p, li, input, textarea, select, button {
     line-height: 0;
 }
 
-.navatra-promo .promo-banner {
-    width: 100%;
+/* Smooth collapse for the banner strip when scrolling down */
+.header-area .header-mid {
+    max-height: 400px;
+    transition: max-height 0.45s ease, opacity 0.3s ease, padding 0.45s ease;
+}
+
+body.banner-hidden .header-area .header-mid {
+    max-height: 0 !important;
+    opacity: 0;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Higher specificity than the template's .header-banner img{width:100%}
+   so the banner shrink-wraps to its capped height instead of stretching. */
+.header-mid .navatra-promo .promo-banner {
+    width: auto;
+    max-width: 100%;
+    max-height: 84px;
     height: auto;
-    max-height: none;
     display: block;
     border: 0 !important;
     box-shadow: none !important;
     object-fit: contain;
     border-radius: 12px;
+}
+
+/* Banner link: shrink-wraps the image so the promo stays compact,
+   whole banner clickable, block-level, soft hover fade + zoom. */
+.hero-banner-link {
+    flex: 0 0 auto;
+    display: block;
+    line-height: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: opacity 0.25s ease;
+}
+
+.hero-banner-link:hover {
+    opacity: 0.88;
+}
+
+.hero-banner-link .promo-banner {
+    border-radius: 12px;
+    transition: transform 0.35s ease;
+    will-change: transform;
+}
+
+.hero-banner-link:hover .promo-banner {
+    transform: scale(1.06);
 }
 
 @media (max-width: 991px) {
@@ -1811,6 +1859,51 @@ img, iframe, video, embed {
     .section-padding2 {
         padding-top: 55px;
         padding-bottom: 55px;
+    }
+}
+
+/* ============================================================
+   MOBILE HERO BANNER — show the hero banner on phones too,
+   above the nav bar. The template hides header-mid on mobile;
+   we re-show it but hide its logo column (the black bar already
+   shows the logo) and let the banner span the full width.
+   ============================================================ */
+@media (max-width: 767px) {
+    .header-area .header-mid {
+        display: block !important;
+        padding: 10px 0 6px;
+    }
+
+    .header-area .header-mid .logo,
+    .header-area .header-mid .col-xl-3,
+    .header-area .header-mid .col-lg-3,
+    .header-area .header-mid .col-md-3 {
+        display: none !important;
+    }
+
+    .header-area .header-mid .col-xl-9,
+    .header-area .header-mid .col-lg-9,
+    .header-area .header-mid .col-md-9 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .header-area .header-mid .navatra-promo {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    /* In the stacked column layout the link must size to its content
+       (flex-basis 0 + overflow:hidden would collapse it to zero height) */
+    .header-area .header-mid .navatra-promo .hero-banner-link {
+        flex: 0 0 auto;
+    }
+
+    .header-area .header-mid .promo-banner {
+        max-height: 50px;
+        margin: 0 auto;
+        border-radius: 10px;
     }
 }
 
