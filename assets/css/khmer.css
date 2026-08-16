@@ -98,11 +98,44 @@ p, li, input, textarea, select, button {
 .header-area .header-top {
     background: #ffffff !important;
     border-bottom: 1px solid #eef0f3;
+    /* The template's huge side padding (185px) squeezes the
+       Khmer date and clips the year — tighten it so the full
+       date always fits. */
+    padding: 12px 30px !important;
+    overflow: visible !important;
+}
+
+.header-area .header-top .container {
+    max-width: 100%;
+}
+
+.header-area .header-top .header-info-left ul {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 26px;
 }
 
 .header-area .header-top .header-info-left ul li {
     color: #111111 !important;
-    letter-spacing: 0.2px;
+    font-family: 'Kantumruy', 'Noto Sans Khmer', 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+    margin-right: 0;
+    display: inline-flex;
+    align-items: center;
+}
+
+@media (max-width: 991px) {
+    .header-area .header-top {
+        padding: 10px 20px !important;
+    }
+
+    .header-area .header-top .header-info-left ul li {
+        font-size: 13px;
+    }
 }
 
 .header-area .header-top .header-info-right .header-social li a {
