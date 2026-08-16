@@ -7,10 +7,12 @@
           <div class="trending-tittle">
             <strong>កំពុងពេញនិយម</strong>
             <div class="trending-animated">
-              <ul class="breaking-ticker">
-                <li v-for="a in breaking" :key="a.id" class="news-item">
-                  <RouterLink :to="`/article/${a.slug}`">{{ a.title }}</RouterLink>
-                </li>
+              <ul class="breaking-ticker" aria-label="ព័ត៌មានកំពុងពេញនិយម">
+                <Transition name="ticker" mode="out-in">
+                  <li v-if="breaking.length" :key="tickerIndex" class="news-item">
+                    <RouterLink :to="`/article/${breaking[tickerIndex].slug}`">{{ breaking[tickerIndex].title }}</RouterLink>
+                  </li>
+                </Transition>
               </ul>
             </div>
           </div>
@@ -50,7 +52,7 @@
             <div class="news-body">
               <p v-if="article.excerpt" class="news-lead">{{ article.excerpt }}</p>
               <!-- Article content -->
-              <div class="news-content" v-html="sanitizedContent"></div>
+              <div class="news-content news-content-read" v-html="sanitizedContent"></div>
 
               <div v-if="article.tags?.length" class="news-tags">
                 <RouterLink
@@ -113,17 +115,20 @@
 
         <!-- Sidebar -->
         <div class="col-lg-4">
+          <AdSlot position="sidebar" />
           <SidebarPopular :articles="popular" />
           <NavatraPoster />
         </div>
       </div>
 
       <!-- Related -->
-      <div v-if="related.length" class="news-related">
-        <SectionTitle title="ព័ត៌មានពាក់ព័ន្ធ" />
+      <div v-if="related.length" v-reveal class="news-related">
+        <SectionTitle title="ព័ត៌មានពាក់ព័ន្ធ" to="/news" />
         <div class="row">
-          <div v-for="a in related" :key="a.id" class="col-lg-4 col-md-6">
-            <ArticleCard :article="a" />
+          <div v-for="(a, i) in related" :key="a.id" class="col-lg-4 col-md-6">
+            <div v-reveal="i">
+              <ArticleCard :article="a" />
+            </div>
           </div>
         </div>
       </div>
@@ -145,6 +150,7 @@ import ErrorState from "@/components/common/ErrorState.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
 import ArticleCard from "@/components/article/ArticleCard.vue";
 import SidebarPopular from "@/components/article/SidebarPopular.vue";
+import AdSlot from "@/components/ads/AdSlot.vue";
 import NavatraPoster from "@/components/article/NavatraPoster.vue";
 import { formatKhmerDate, formatKhmerDateFull, formatViews, readingTime, toKhmerDigits } from "@/utils/format";
 
@@ -158,6 +164,22 @@ const breaking = ref<Article[]>([]);
 const comments = ref<Comment[]>([]);
 const loading = ref(true);
 const error = ref("");
+const tickerIndex = ref(0);
+let tickerTimer: number | undefined;
+
+function startTicker() {
+  if (!breaking.value.length) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (tickerTimer) window.clearInterval(tickerTimer);
+  tickerTimer = window.setInterval(() => {
+    tickerIndex.value = (tickerIndex.value + 1) % breaking.value.length;
+  }, 4000);
+}
+
+function stopTicker() {
+  if (tickerTimer) window.clearInterval(tickerTimer);
+  tickerTimer = undefined;
+}
 
 const commentForm = reactive({ name: "", email: "", content: "" });
 const commentSending = ref(false);
@@ -257,6 +279,7 @@ async function load() {
     popular.value = pop;
     breaking.value = br;
     comments.value = await articleService.comments(a.id).catch(() => []);
+    startTicker();
   } catch (e) {
     error.value = e instanceof Error ? e.message : "មិនអាចផ្ទុកអត្ថបទបានទេ";
   } finally {
@@ -287,6 +310,10 @@ async function submitComment() {
 onMounted(() => {
   settingsStore.load();
   load();
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stopTicker();
+    else startTicker();
+  });
 });
 </script>
 
@@ -354,6 +381,19 @@ onMounted(() => {
 .news-content h3 {
   color: #0b1c39;
   margin: 20px 0 10px;
+}
+
+/* Reading width — keep paragraphs comfortable instead of full-column wide */
+.news-content-read {
+  max-width: 720px;
+}
+.news-content-read p {
+  text-wrap: pretty;
+}
+.news-content-read img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 .news-content blockquote {
   border-left: 4px solid #0d3fa9;

@@ -9,7 +9,7 @@
           <div class="mt-2 h-6 w-14 rounded bg-slate-200"></div>
         </div>
       </div>
-      <div class="grid gap-5 lg:grid-cols-2">
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div v-for="i in 2" :key="i" class="card h-64 animate-pulse bg-slate-100"></div>
       </div>
       <div class="card h-64 animate-pulse bg-slate-100"></div>
@@ -58,7 +58,7 @@
         <p v-else class="text-sm text-slate-400">មិនទាន់មានទិន្នន័យទេ</p>
       </div>
 
-      <div class="grid gap-5 lg:grid-cols-2">
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <!-- Recent activity -->
         <div class="card p-5">
           <h3 class="mb-4 text-sm font-semibold text-slate-700">សកម្មភាពថ្មីៗ</h3>
@@ -66,11 +66,11 @@
             <li v-for="a in stats.recentActivity" :key="a.id" class="flex items-start gap-3 text-sm">
               <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-500"></span>
               <div class="min-w-0">
-                <p class="text-slate-700">
+                <p class="break-words text-slate-700">
                   <span class="font-medium">{{ a.user?.name ?? "ប្រព័ន្ធ" }}</span>
                   <span class="text-slate-500"> — {{ actionLabel(a.action) }}</span>
                 </p>
-                <p class="text-xs text-slate-400">{{ new Date(a.createdAt).toLocaleString() }}</p>
+                <p class="break-words text-xs text-slate-400">{{ new Date(a.createdAt).toLocaleString() }}</p>
               </div>
             </li>
           </ul>
@@ -97,24 +97,26 @@
           <h3 class="text-sm font-semibold text-slate-700">អត្ថបទថ្មីៗ</h3>
           <RouterLink to="/articles" class="text-xs font-medium text-brand-600 hover:underline">មើលទាំងអស់</RouterLink>
         </div>
-        <table class="w-full text-left text-sm">
-          <thead class="bg-slate-50 text-xs uppercase text-slate-500">
-            <tr>
-              <th class="px-5 py-3">ចំណងជើង</th>
-              <th class="px-5 py-3">ស្ថានភាព</th>
-              <th class="px-5 py-3">អ្នកនិពន្ធ</th>
-              <th class="px-5 py-3">កែប្រែចុងក្រោយ</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100">
-            <tr v-for="a in stats?.recentArticles" :key="a.id">
-              <td class="max-w-xs truncate px-5 py-3 font-medium text-slate-700">{{ a.title }}</td>
-              <td class="px-5 py-3"><StatusBadge :status="a.status" /></td>
-              <td class="px-5 py-3 text-slate-500">{{ a.author.name }}</td>
-              <td class="px-5 py-3 text-slate-400">{{ new Date(a.updatedAt).toLocaleDateString() }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+              <tr>
+                <th class="px-5 py-3">ចំណងជើង</th>
+                <th class="px-5 py-3">ស្ថានភាព</th>
+                <th class="hidden px-5 py-3 sm:table-cell">អ្នកនិពន្ធ</th>
+                <th class="hidden px-5 py-3 md:table-cell">កែប្រែចុងក្រោយ</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr v-for="a in stats?.recentArticles" :key="a.id">
+                <td class="max-w-[240px] truncate px-5 py-3 font-medium text-slate-700">{{ a.title }}</td>
+                <td class="px-5 py-3"><StatusBadge :status="a.status" /></td>
+                <td class="hidden px-5 py-3 text-slate-500 sm:table-cell">{{ a.author.name }}</td>
+                <td class="hidden px-5 py-3 text-slate-400 md:table-cell">{{ new Date(a.updatedAt).toLocaleDateString() }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </template>
   </div>
@@ -153,15 +155,39 @@ function barWidth(views: number) {
 function actionLabel(action: string) {
   const map: Record<string, string> = {
     LOGIN: "បានចូលប្រព័ន្ធ",
+    USER_LOGGED_IN: "បានចូលប្រព័ន្ធ",
+    TOKEN_REFRESHED: "បានធ្វើឱ្យសម័យថ្មី",
     ARTICLE_CREATED: "បានបង្កើតអត្ថបទ",
     ARTICLE_UPDATED: "បានកែសម្រួលអត្ថបទ",
     ARTICLE_PUBLISHED: "បានផ្សាយអត្ថបទ",
     ARTICLE_DELETED: "បានលុបអត្ថបទ",
     CATEGORY_CREATED: "បានបង្កើតប្រភេទ",
     CATEGORY_UPDATED: "បានកែសម្រួលប្រភេទ",
+    CATEGORY_DELETED: "បានលុបប្រភេទ",
+    CATEGORIES_REORDERED: "បានរៀបចំលំដាប់ប្រភេទ",
+    TAG_CREATED: "បានបង្កើតស្លាក",
+    TAG_UPDATED: "បានកែសម្រួលស្លាក",
+    TAG_DELETED: "បានលុបស្លាក",
     MEDIA_UPLOADED: "បានផ្ទុកមេឌា",
-    SETTINGS_UPDATED: "បានកែសម្រួលការកំណត់",
+    MEDIA_DELETED: "បានលុបមេឌា",
+    USER_CREATED: "បានបង្កើតអ្នកប្រើប្រាស់",
+    USER_UPDATED: "បានកែសម្រួលអ្នកប្រើប្រាស់",
     USER_ROLE_CHANGED: "បានផ្លាស់ប្តូរតួនាទី",
+    USER_DELETED: "បានលុបអ្នកប្រើប្រាស់",
+    COMMENT_MODERATED: "បានត្រួតពិនិត្យមតិ",
+    COMMENT_SUBMITTED: "បានផ្ញើមតិ",
+    COMMENT_DELETED: "បានលុបមតិ",
+    SETTINGS_UPDATED: "បានកែសម្រួលការកំណត់",
+    AD_CREATED: "បានបង្កើតផ្សាយពាណិជ្ជកម្ម",
+    AD_UPDATED: "បានកែសម្រួលផ្សាយពាណិជ្ជកម្ម",
+    AD_DELETED: "បានលុបផ្សាយពាណិជ្ជកម្ម",
+    HOMEPAGE_REORDERED: "បានរៀបចំលំដាប់ទំព័រដើម",
+    HOMEPAGE_SECTIONS_UPDATED: "បានកែសម្រួលផ្នែកទំព័រដើម",
+    NAV_CREATED: "បានបង្កើតម៉ឺនុយ",
+    NAV_UPDATED: "បានកែសម្រួលម៉ឺនុយ",
+    NAV_DELETED: "បានលុបម៉ឺនុយ",
+    NAV_REORDERED: "បានរៀបចំលំដាប់ម៉ឺនុយ",
+    PROFILE_UPDATED: "បានកែសម្រួលប្រវត្តិរូប",
   };
   return map[action] ?? action;
 }

@@ -12,7 +12,15 @@
 
           <template v-else-if="items.length">
             <NewsRowCard v-for="a in items" :key="a.id" :article="a" />
-            <Pagination :page="page" :total-pages="totalPages" @change="goToPage" />
+            <!-- Load more + pagination fallback -->
+            <div v-if="!loadingMore && hasMore" class="text-center mt-4">
+              <button class="btn boxed-btn" @click="loadMore">ផ្ទុកបន្ថែម</button>
+            </div>
+            <div v-if="loadingMore" class="text-center mt-4">
+              <span class="spinner-border text-primary" role="status" aria-label="កំពុងផ្ទុក..."></span>
+            </div>
+            <p v-if="!hasMore && items.length" class="text-center text-muted mt-3">មិនមានអត្ថបទទៀតទេ</p>
+            <Pagination v-if="totalPages > 3" :page="page" :total-pages="totalPages" @change="goToPage" />
           </template>
           <EmptyState v-else message="មិនទាន់មានអត្ថបទទេ" />
         </div>
@@ -46,7 +54,10 @@ const popular = ref<Article[]>([]);
 const page = ref(1);
 const totalPages = ref(1);
 const loading = ref(true);
+const loadingMore = ref(false);
 const error = ref("");
+
+const hasMore = computed(() => page.value < totalPages.value);
 
 const isLatest = computed(() => route.name === "latest");
 const title = computed(() => (isLatest.value ? "ព័ត៌មានថ្មីៗ" : "បញ្ជីព័ត៌មាន"));
@@ -79,6 +90,24 @@ async function goToPage(p: number) {
   page.value = p;
   await load();
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function loadMore() {
+  if (loadingMore.value || !hasMore.value) return;
+  loadingMore.value = true;
+  try {
+    const next = page.value + 1;
+    const data = isLatest.value
+      ? await articleService.list({ page: next, pageSize: 10, sort: "latest" })
+      : await articleService.list({ page: next, pageSize: 10 });
+    items.value = [...items.value, ...data.items];
+    page.value = data.page;
+    totalPages.value = data.totalPages;
+  } catch {
+    /* keep current list on error; the pagination fallback remains available */
+  } finally {
+    loadingMore.value = false;
+  }
 }
 
 onMounted(async () => {

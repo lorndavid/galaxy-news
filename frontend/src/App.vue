@@ -14,11 +14,22 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from "vue";
 import { useRoute } from "vue-router";
 import SiteHeader from "@/components/layout/SiteHeader.vue";
 import SiteFooter from "@/components/layout/SiteFooter.vue";
+import { useSettingsStore } from "@/stores/settings";
+import { useTheme } from "@/composables/useTheme";
 
 const route = useRoute();
+const settingsStore = useSettingsStore();
+useTheme();
+
+// Load settings once at app start so the theme applies before first paint
+// of content sections (store is cached, so later loads are no-ops).
+onMounted(() => {
+  settingsStore.load();
+});
 </script>
 
 <style scoped>

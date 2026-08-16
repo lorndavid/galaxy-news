@@ -357,6 +357,67 @@ async function seedAds() {
   });
 }
 
+// Homepage sections — the order here defines the default layout.
+const homepageSections = [
+  { key: "breaking", label: "បន្ទាត់ព័ត៌មានក្តៅ", enabled: true, sortOrder: 1 },
+  { key: "hero", label: "ព័ត៌មានកំពូល (Hero)", enabled: true, sortOrder: 2 },
+  { key: "weekly", label: "ព័ត៌មានប្រចាំសប្តាហ៍", enabled: true, sortOrder: 3 },
+  { key: "whats-new", label: "អ្វីដែលថ្មី", enabled: true, sortOrder: 4 },
+  { key: "latest", label: "ព័ត៌មានថ្មីៗ", enabled: true, sortOrder: 5 },
+  { key: "video", label: "វីដេអូ", enabled: true, sortOrder: 6 },
+  { key: "recent", label: "អត្ថបទថ្មីៗ", enabled: true, sortOrder: 7 },
+];
+
+async function seedHomepageSections() {
+  for (const s of homepageSections) {
+    await prisma.homepageSection.upsert({
+      where: { key: s.key },
+      update: { label: s.label, enabled: s.enabled, sortOrder: s.sortOrder },
+      create: s,
+    });
+  }
+}
+
+// Default navigation — mirrors the header order in the original design.
+const navigationItems = [
+  { label: "ទំព័រដើម", type: "home", value: "/", sortOrder: 1 },
+  { label: "ព័ត៌មានជាតិ", type: "category", value: "national-news", sortOrder: 2 },
+  { label: "នយោបាយ", type: "category", value: "politics", sortOrder: 3 },
+  { label: "អន្តរជាតិ", type: "category", value: "international", sortOrder: 4 },
+  { label: "បញ្ជីព័ត៌មាន", type: "page", value: "news", sortOrder: 5 },
+  { label: "អំពីយើង", type: "page", value: "about", sortOrder: 6 },
+  { label: "ទំនាក់ទំនង", type: "page", value: "contact", sortOrder: 7 },
+  { label: "ប្រភេទ", type: "page", value: "categories", sortOrder: 8 },
+];
+
+async function seedNavigation() {
+  for (const [i, n] of navigationItems.entries()) {
+    await prisma.navigationItem.upsert({
+      where: { id: i + 1 },
+      update: { label: n.label, type: n.type, value: n.value, sortOrder: n.sortOrder, isActive: true },
+      create: { id: i + 1, ...n, isActive: true },
+    });
+  }
+}
+
+/**
+ * The seed writes rows with explicit ids (settings=1, ad=1, nav=1..8).
+ * Postgres autoincrement sequences are NOT advanced by explicit-id inserts,
+ * so the next unseeded create would collide (e.g. nav create → 500).
+ * Resync every sequence to MAX(id) so new rows get fresh ids.
+ */
+async function syncSequences() {
+  const tables = ["SiteSettings", "Advertisement", "NavigationItem", "HomepageSection"];
+  for (const table of tables) {
+    const [{ maxId }] = (await prisma.$queryRawUnsafe(
+      `SELECT COALESCE(MAX(id), 0)::int AS "maxId" FROM "${table}"`
+    )) as { maxId: number }[];
+    await prisma.$executeRawUnsafe(
+      `SELECT setval(pg_get_serial_sequence('"${table}"', 'id'), ${maxId + 1}, false)`
+    );
+  }
+}
+
 async function seedComments() {
   const article = await prisma.article.findUnique({ where: { slug: "aot-inspects-preah-vihear-homes" } });
   if (!article) return;
@@ -380,6 +441,9 @@ async function main() {
   await seedArticles(users, categories, tags);
   await seedSettings();
   await seedAds();
+  await seedHomepageSections();
+  await seedNavigation();
+  await syncSequences();
   await seedComments();
   await prisma.activityLog.create({
     data: {

@@ -22,7 +22,14 @@
 
           <template v-else-if="items.length">
             <NewsRowCard v-for="a in items" :key="a.id" :article="a" />
-            <Pagination :page="page" :total-pages="totalPages" @change="goToPage" />
+            <div v-if="!loadingMore && hasMore" class="text-center mt-4">
+              <button class="btn boxed-btn" @click="loadMore">ផ្ទុកបន្ថែម</button>
+            </div>
+            <div v-if="loadingMore" class="text-center mt-4">
+              <span class="spinner-border text-primary" role="status" aria-label="កំពុងផ្ទុក..."></span>
+            </div>
+            <p v-if="!hasMore && items.length" class="text-center text-muted mt-3">មិនមានអត្ថបទទៀតទេ</p>
+            <Pagination v-if="totalPages > 3" :page="page" :total-pages="totalPages" @change="goToPage" />
           </template>
 
           <EmptyState v-else-if="searched" message="មិនមានលទ្ធផលសម្រាប់ការស្វែងរកនេះទេ" />
@@ -37,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useSeo } from "@/composables/useSeo";
 import { articleService } from "@/services/article.service";
@@ -64,8 +71,11 @@ const page = ref(1);
 const totalPages = ref(1);
 const total = ref(0);
 const loading = ref(false);
+const loadingMore = ref(false);
 const searched = ref(false);
 const error = ref("");
+
+const hasMore = computed(() => page.value < totalPages.value);
 
 let debounceTimer: number | undefined;
 
@@ -105,6 +115,22 @@ async function goToPage(p: number) {
   page.value = p;
   await runSearch();
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function loadMore() {
+  if (loadingMore.value || !hasMore.value) return;
+  loadingMore.value = true;
+  try {
+    const next = page.value + 1;
+    const data = await articleService.list({ q: originalQuery.value, page: next, pageSize: 10 });
+    items.value = [...items.value, ...data.items];
+    page.value = data.page;
+    totalPages.value = data.totalPages;
+  } catch {
+    /* keep current results */
+  } finally {
+    loadingMore.value = false;
+  }
 }
 
 onMounted(async () => {

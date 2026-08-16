@@ -1,34 +1,36 @@
 <template>
   <div>
-    <!-- Trending Area -->
-    <div class="trending-area fix">
+    <!-- Trending Area (breaking ticker + hero + trending list) -->
+    <div v-if="showSection('breaking') || showSection('hero')" v-reveal class="trending-area fix">
       <div class="container">
         <div class="trending-main">
           <!-- Breaking ticker -->
-          <div class="row">
+          <div v-if="showSection('breaking')" class="row">
             <div class="col-lg-12">
               <div class="trending-tittle">
                 <strong>កំពុងពេញនិយម</strong>
                 <div class="trending-animated">
-                  <ul class="breaking-ticker">
-                    <li v-for="a in breaking" :key="a.id" class="news-item">
-                      <RouterLink :to="`/article/${a.slug}`">{{ a.title }}</RouterLink>
-                    </li>
+                  <ul class="breaking-ticker" aria-label="ព័ត៌មានកំពុងពេញនិយម">
+                    <Transition name="ticker" mode="out-in">
+                      <li v-if="breaking.length" :key="tickerIndex" class="news-item">
+                        <RouterLink :to="`/article/${breaking[tickerIndex].slug}`">{{ breaking[tickerIndex].title }}</RouterLink>
+                      </li>
+                    </Transition>
                   </ul>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="row">
+          <div v-if="showSection('hero')" class="row">
             <div class="col-lg-8">
               <!-- Hero -->
               <TrendingTopCard v-if="hero" :article="hero" is-hero />
               <!-- Bottom 3 -->
               <div class="trending-bottom">
                 <div class="row">
-                  <div v-for="a in bottomThree" :key="a.id" class="col-lg-4">
-                    <div class="single-bottom mb-35">
+                  <div v-for="(a, i) in bottomThree" :key="a.id" class="col-lg-4">
+                    <div v-reveal="i" class="single-bottom mb-35">
                       <div class="trend-bottom-img mb-30">
                         <RouterLink :to="`/article/${a.slug}`">
                           <ArticleThumb :src="a.featuredImage" :alt="a.title" />
@@ -55,10 +57,10 @@
     </div>
 
     <!-- Weekly News -->
-    <div class="weekly-news-area pt-50">
+    <div v-if="showSection('weekly')" v-reveal class="weekly-news-area pt-50">
       <div class="container">
         <div class="weekly-wrapper">
-          <SectionTitle title="ព័ត៌មានប្រចាំសប្តាហ៍" />
+          <SectionTitle title="ព័ត៌មានប្រចាំសប្តាហ៍" to="/news" />
           <div class="row">
             <div class="col-12">
               <CarouselScroll>
@@ -83,13 +85,13 @@
     </div>
 
     <!-- What's New with category tabs -->
-    <section class="whats-news-area pt-50 pb-20">
+    <section v-if="showSection('whats-new')" v-reveal class="whats-news-area pt-50 pb-20">
       <div class="container">
         <div class="row">
           <div class="col-lg-8">
             <div class="row d-flex justify-content-between">
               <div class="col-lg-3 col-md-3">
-                <SectionTitle title="អ្វីដែលថ្មី" />
+                <SectionTitle title="អ្វីដែលថ្មី" to="/news" />
               </div>
               <div class="col-lg-9 col-md-9">
                 <div class="properties__button">
@@ -120,8 +122,10 @@
               <div class="col-12">
                 <div class="whats-news-caption">
                   <div class="row">
-                    <div v-for="a in tabArticles" :key="a.id" class="col-lg-6 col-md-6">
-                      <ArticleCard :article="a" />
+                    <div v-for="(a, i) in tabArticles" :key="a.id" class="col-lg-6 col-md-6">
+                      <div v-reveal="i">
+                        <ArticleCard :article="a" />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -130,6 +134,7 @@
           </div>
           <!-- Sidebar -->
           <div class="col-lg-4">
+            <AdSlot position="sidebar" />
             <SidebarPopular :articles="popular" />
             <NavatraPoster />
           </div>
@@ -138,10 +143,10 @@
     </section>
 
     <!-- Weekly 2 (gray) -->
-    <div class="weekly2-news-area weekly2-pading gray-bg">
+    <div v-if="showSection('latest')" v-reveal class="weekly2-news-area weekly2-pading gray-bg">
       <div class="container">
         <div class="weekly2-wrapper">
-          <SectionTitle title="ព័ត៌មានថ្មីៗ" />
+          <SectionTitle title="ព័ត៌មានថ្មីៗ" to="/latest" />
           <div class="row">
             <div class="col-12">
               <CarouselScroll>
@@ -167,7 +172,7 @@
     </div>
 
     <!-- YouTube area -->
-    <div class="youtube-area video-padding">
+    <div v-if="showSection('video')" v-reveal class="youtube-area video-padding">
       <div class="container">
         <div class="row">
           <div class="col-12">
@@ -210,7 +215,7 @@
     </div>
 
     <!-- Recent Articles -->
-    <div class="recent-articles">
+    <div v-if="showSection('recent')" v-reveal class="recent-articles">
       <div class="container">
         <div class="recent-wrapper">
           <div class="row">
@@ -261,6 +266,7 @@ import ArticleCard from "@/components/article/ArticleCard.vue";
 import TrendingTopCard from "@/components/article/TrendingTopCard.vue";
 import TrendingRightCard from "@/components/article/TrendingRightCard.vue";
 import SidebarPopular from "@/components/article/SidebarPopular.vue";
+import AdSlot from "@/components/ads/AdSlot.vue";
 import NavatraPoster from "@/components/article/NavatraPoster.vue";
 import { formatKhmerDate } from "@/utils/format";
 
@@ -301,6 +307,29 @@ const categories = ref<Category[]>([]);
 const activeTab = ref("all");
 const tabCache = ref<Record<string, Article[]>>({});
 const tabLoading = ref(false);
+const tickerIndex = ref(0);
+const enabledSections = ref<Set<string>>(new Set());
+let tickerTimer: number | undefined;
+
+// Sections come from the admin Homepage Builder (cached by the API).
+function showSection(key: string) {
+  return enabledSections.value.has(key);
+}
+
+// Rotate the breaking headline every 4s. Stops while the tab is hidden.
+function startTicker() {
+  if (!breaking.value.length) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (tickerTimer) window.clearInterval(tickerTimer);
+  tickerTimer = window.setInterval(() => {
+    tickerIndex.value = (tickerIndex.value + 1) % breaking.value.length;
+  }, 4000);
+}
+
+function stopTicker() {
+  if (tickerTimer) window.clearInterval(tickerTimer);
+  tickerTimer = undefined;
+}
 
 const hero = computed(() => featured.value[0] ?? null);
 const bottomThree = computed(() => featured.value.slice(1, 4));
@@ -334,10 +363,13 @@ onMounted(async () => {
   categoryStore.load();
   settingsStore.load();
   try {
-    categories.value = await contentService.categories();
+    const keys = await contentService.homepageSections();
+    enabledSections.value = new Set(keys);
   } catch {
-    categories.value = [];
+    enabledSections.value = new Set(["breaking", "hero", "weekly", "whats-new", "latest", "video", "recent"]);
   }
+  // Reuse the store's cached categories instead of a second API call.
+  categories.value = categoryStore.categories;
   const [br, feat, lat, pop] = await Promise.all([
     articleService.breaking().catch(() => []),
     articleService.featured(6).catch(() => []),
@@ -351,5 +383,10 @@ onMounted(async () => {
   latest.value = lat.slice(0, 8);
   recent.value = lat.slice(0, 10);
   tabCache.value["all"] = lat.slice(0, 8);
+  startTicker();
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stopTicker();
+    else startTicker();
+  });
 });
 </script>

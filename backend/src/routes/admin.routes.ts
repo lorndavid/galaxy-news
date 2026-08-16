@@ -9,7 +9,9 @@ import * as mediaController from "../controllers/admin.media.controller";
 import * as userController from "../controllers/admin.user.controller";
 import * as moderationController from "../controllers/admin.moderation.controller";
 import * as systemController from "../controllers/admin.system.controller";
+import * as builderController from "../controllers/admin.builder.controller";
 import { adminArticleListQuery, articleCreateSchema, articleParamsSchema, articleUpdateSchema } from "../validators/article.validator";
+import { homepageReorderSchema, homepageSectionsUpdateSchema, navCreateSchema, navReorderSchema, navUpdateSchema } from "../validators/homepage.validator";
 import { categoryCreateSchema, categoryReorderSchema, categoryUpdateSchema, commentListQuery, commentStatusSchema, idParamsSchema, newsletterListQuery, tagCreateSchema, tagUpdateSchema, adCreateSchema, adUpdateSchema } from "../validators/content.validator";
 import { userCreateSchema, userListQuery, userUpdateSchema } from "../validators/user.validator";
 import { settingsUpdateSchema } from "../validators/settings.validator";
@@ -30,6 +32,18 @@ adminRouter.get("/stats", systemController.stats);
 adminRouter.get("/activity", requireAdmin, systemController.activityLogs);
 adminRouter.get("/settings", requireAdmin, systemController.getSettings);
 adminRouter.put("/settings", requireAdmin, validate(settingsUpdateSchema), systemController.updateSettings);
+
+// ---- Homepage builder ----
+adminRouter.get("/homepage/sections", requireEditor, builderController.listSections);
+adminRouter.put("/homepage/sections", requireEditor, validate(homepageSectionsUpdateSchema), builderController.updateSections);
+adminRouter.post("/homepage/sections/reorder", requireEditor, validate(homepageReorderSchema), builderController.reorderSections);
+
+// ---- Navigation builder ----
+adminRouter.get("/navigation", requireEditor, builderController.listNav);
+adminRouter.post("/navigation", requireEditor, validate(navCreateSchema), builderController.createNav);
+adminRouter.patch("/navigation/:id", requireEditor, validate(idParamsSchema), validate(navUpdateSchema), builderController.updateNav);
+adminRouter.post("/navigation/reorder", requireEditor, validate(navReorderSchema), builderController.reorderNav);
+adminRouter.delete("/navigation/:id", requireEditor, validate(idParamsSchema), builderController.deleteNav);
 
 // ---- Articles ----
 adminRouter.get("/articles", validate(adminArticleListQuery), articleController.list);

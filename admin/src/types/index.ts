@@ -168,4 +168,39 @@ export interface SiteSettings {
   contactEmail: string | null;
   contactPhone: string | null;
   address: string | null;
+
+  // Theme tokens
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  surfaceColor: string;
+  textColor: string;
+  mutedTextColor: string;
+  borderColor: string;
+  fontHeading: string;
+  fontBody: string;
+  fontArticle: string;
+  fontSizeHero: number;
+  fontSizeSection: number;
+  fontSizeCard: number;
+  fontSizeBody: number;
+  radiusPreset: "sharp" | "minimal" | "medium" | "rounded";
+  shadowPreset: "none" | "subtle" | "medium" | "strong";
+}
+
+export interface HomepageSection {
+  id: number;
+  key: string;
+  label: string;
+  enabled: boolean;
+  sortOrder: number;
+}
+
+export interface NavigationItem {
+  id: number;
+  label: string;
+  type: "home" | "category" | "page" | "link";
+  value: string | null;
+  sortOrder: number;
+  isActive: boolean;
 }

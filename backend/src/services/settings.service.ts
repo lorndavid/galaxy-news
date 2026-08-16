@@ -17,15 +17,35 @@ const PUBLIC_FIELDS = [
   "address",
 ] as const;
 
+// Theme tokens are safe, validated values — exposing them publicly lets the
+// frontend build its CSS variables from one cached settings payload.
+const THEME_FIELDS = [
+  "primaryColor",
+  "secondaryColor",
+  "accentColor",
+  "surfaceColor",
+  "textColor",
+  "mutedTextColor",
+  "borderColor",
+  "fontHeading",
+  "fontBody",
+  "fontArticle",
+  "fontSizeHero",
+  "fontSizeSection",
+  "fontSizeCard",
+  "fontSizeBody",
+  "radiusPreset",
+  "shadowPreset",
+] as const;
+
+const DEFAULT_SETTINGS = { siteName: "Navatra 4K TV" };
+
 export async function getPublic() {
   const settings = await prisma.siteSettings.findFirst();
-  if (!settings) {
-    return { siteName: "Navatra 4K TV" };
-  }
+  if (!settings) return DEFAULT_SETTINGS;
   const out: Record<string, unknown> = {};
-  for (const field of PUBLIC_FIELDS) {
-    out[field] = settings[field];
-  }
+  for (const field of PUBLIC_FIELDS) out[field] = settings[field];
+  for (const field of THEME_FIELDS) out[field] = settings[field];
   return out;
 }
 
@@ -38,7 +58,7 @@ export async function getAdmin() {
 export async function updateSettings(input: Record<string, unknown>, userId: number, ip?: string | null) {
   const current = await prisma.siteSettings.findFirst();
   const data: Record<string, unknown> = {};
-  for (const field of PUBLIC_FIELDS) {
+  for (const field of [...PUBLIC_FIELDS, ...THEME_FIELDS]) {
     if (input[field] !== undefined) data[field] = input[field];
   }
 

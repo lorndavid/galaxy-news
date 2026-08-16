@@ -74,6 +74,8 @@ import {
   Send,
   Megaphone,
   Settings,
+  LayoutTemplate,
+  MenuSquare,
   Activity,
   UserCircle,
   LogOut,
@@ -102,6 +104,8 @@ const navItems = computed(() => {
       { to: "/users", label: "អ្នកប្រើប្រាស់", icon: Users },
       { to: "/messages", label: "សារទំនាក់ទំនង", icon: Mail },
       { to: "/newsletter", label: "ព្រឹត្តិបត្រ", icon: Send },
+      { to: "/homepage-builder", label: "ទំព័រដើម Builder", icon: LayoutTemplate },
+      { to: "/navigation-builder", label: "ម៉ឺនុយ Builder", icon: MenuSquare },
       { to: "/settings", label: "ការកំណត់គេហទំព័រ", icon: Settings },
       { to: "/activity", label: "ប្រវត្តិសកម្មភាព", icon: Activity }
     );

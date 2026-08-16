@@ -64,20 +64,10 @@
                 <div class="main-menu d-none d-md-block">
                   <nav>
                     <ul id="navigation">
-                      <li><RouterLink to="/">ទំព័រដើម</RouterLink></li>
-                      <li v-for="cat in categories.slice(0, 4)" :key="cat.id">
-                        <RouterLink :to="`/category/${cat.slug}`">{{ cat.name }}</RouterLink>
-                      </li>
-                      <li><RouterLink to="/news">បញ្ជីព័ត៌មាន</RouterLink></li>
-                      <li><RouterLink to="/about">អំពីយើង</RouterLink></li>
-                      <li><RouterLink to="/contact">ទំនាក់ទំនង</RouterLink></li>
-                      <li v-if="categories.length > 4">
-                        <a href="#">ប្រភេទ</a>
-                        <ul class="submenu">
-                          <li v-for="cat in categories.slice(4)" :key="cat.id">
-                            <RouterLink :to="`/category/${cat.slug}`">{{ cat.name }}</RouterLink>
-                          </li>
-                        </ul>
+                      <li v-for="item in navItems" :key="item.id">
+                        <RouterLink v-if="item.type === 'category'" :to="`/category/${item.value ?? ''}`">{{ item.label }}</RouterLink>
+                        <a v-else-if="item.type === 'link'" :href="item.value ?? '#'" target="_blank" rel="noopener">{{ item.label }}</a>
+                        <RouterLink v-else :to="navPath(item)">{{ item.label }}</RouterLink>
                       </li>
                     </ul>
                   </nav>
@@ -135,14 +125,11 @@
             <button type="submit" aria-label="ស្វែងរក"><i class="fas fa-search"></i></button>
           </form>
           <ul class="mobile-nav-list">
-            <li><RouterLink to="/" @click="mobileOpen = false">ទំព័រដើម</RouterLink></li>
-            <li v-for="cat in categories" :key="cat.id">
-              <RouterLink :to="`/category/${cat.slug}`" @click="mobileOpen = false">{{ cat.name }}</RouterLink>
+            <li v-for="item in navItems" :key="item.id">
+              <RouterLink v-if="item.type === 'category'" :to="`/category/${item.value ?? ''}`" @click="mobileOpen = false">{{ item.label }}</RouterLink>
+              <a v-else-if="item.type === 'link'" :href="item.value ?? '#'" target="_blank" rel="noopener" @click="mobileOpen = false">{{ item.label }}</a>
+              <RouterLink v-else :to="navPath(item)" @click="mobileOpen = false">{{ item.label }}</RouterLink>
             </li>
-            <li><RouterLink to="/news" @click="mobileOpen = false">បញ្ជីព័ត៌មាន</RouterLink></li>
-            <li><RouterLink to="/latest" @click="mobileOpen = false">ព័ត៌មានថ្មីៗ</RouterLink></li>
-            <li><RouterLink to="/about" @click="mobileOpen = false">អំពីយើង</RouterLink></li>
-            <li><RouterLink to="/contact" @click="mobileOpen = false">ទំនាក់ទំនង</RouterLink></li>
           </ul>
         </div>
       </div>
@@ -154,16 +141,33 @@
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useSettingsStore } from "@/stores/settings";
-import { useCategoryStore } from "@/stores/categories";
+
 import { articleService } from "@/services/article.service";
 import type { Article } from "@/types";
+import { contentService } from "@/services/content.service";
+import type { NavigationItem } from "@/types";
 import { resolveImage, toKhmerDigits } from "@/utils/format";
 
 const router = useRouter();
 const settingsStore = useSettingsStore();
-const categoryStore = useCategoryStore();
 
 const searchInput = ref("");
+const navItems = ref<NavigationItem[]>([]);
+
+function navPath(item: NavigationItem) {
+  if (item.type === "home") return "/";
+  if (item.type === "page") {
+    const routeNames: Record<string, string> = {
+      news: "/news",
+      latest: "/latest",
+      about: "/about",
+      contact: "/contact",
+      categories: "/news",
+    };
+    return routeNames[item.value ?? ""] ?? item.value ?? "/news";
+  }
+  return item.value ?? "/";
+}
 const mobileOpen = ref(false);
 const isSticky = ref(false);
 const suggestions = ref<Article[]>([]);
@@ -174,7 +178,6 @@ let suggestTimer: number | undefined;
 let suggestSeq = 0;
 
 const settings = computed(() => settingsStore.settings);
-const categories = computed(() => categoryStore.categories);
 const logoUrl = computed(
   () =>
     settings.value?.logo ??
@@ -194,7 +197,12 @@ const todayLabel = computed(() => {
 function onScroll() {
   if (scrollTimer) window.clearTimeout(scrollTimer);
   scrollTimer = window.setTimeout(() => {
-    isSticky.value = window.scrollY > 80;
+    const sticky = window.scrollY > 80;
+    if (sticky !== isSticky.value) {
+      isSticky.value = sticky;
+      // Compensate the fixed bar so the page doesn't jump when it pins.
+      document.body.classList.toggle("has-sticky-nav", sticky);
+    }
   }, 50);
 }
 
@@ -244,13 +252,24 @@ watch(searchInput, (val) => {
 
 onMounted(() => {
   settingsStore.load();
-  categoryStore.load();
+  contentService.navigation().then((items) => {
+    navItems.value = items;
+  }).catch(() => {
+    // Fallback to the default menu if the API is unavailable.
+    navItems.value = [
+      { id: 0, label: "ទំព័រដើម", type: "home", value: "/", sortOrder: 1, isActive: true },
+      { id: 0, label: "បញ្ជីព័ត៌មាន", type: "page", value: "news", sortOrder: 2, isActive: true },
+      { id: 0, label: "អំពីយើង", type: "page", value: "about", sortOrder: 3, isActive: true },
+      { id: 0, label: "ទំនាក់ទំនង", type: "page", value: "contact", sortOrder: 4, isActive: true },
+    ];
+  });
   window.addEventListener("scroll", onScroll);
   document.addEventListener("click", onDocumentClick);
 });
 onUnmounted(() => {
   window.removeEventListener("scroll", onScroll);
   document.removeEventListener("click", onDocumentClick);
+  document.body.classList.remove("has-sticky-nav");
   if (scrollTimer) window.clearTimeout(scrollTimer);
   if (suggestTimer) window.clearTimeout(suggestTimer);
 });

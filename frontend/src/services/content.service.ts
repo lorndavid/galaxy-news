@@ -1,5 +1,5 @@
 import { api, unwrap } from "./api";
-import type { Advertisement, Category, SiteSettings, Tag } from "@/types";
+import type { Advertisement, Category, NavigationItem, SiteSettings, Tag } from "@/types";
 
 export const contentService = {
   settings() {
@@ -13,6 +13,12 @@ export const contentService = {
   },
   ads(position: string) {
     return unwrap<Advertisement[]>(api.get(`/ads/${position}`));
+  },
+  homepageSections() {
+    return unwrap<string[]>(api.get("/homepage/sections"));
+  },
+  navigation() {
+    return unwrap<NavigationItem[]>(api.get("/navigation"));
   },
   submitContact(payload: { name: string; email: string; subject?: string; message: string }) {
     return unwrap<{ id: number }>(api.post("/contact", payload));

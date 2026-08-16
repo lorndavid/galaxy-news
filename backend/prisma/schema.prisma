@@ -173,7 +173,7 @@ model Advertisement {
   @@index([position, isActive])
 }
 
-// ---------- Settings ----------
+// ---------- Settings & theme ----------
 
 model SiteSettings {
   id           Int      @id @default(autoincrement())
@@ -190,7 +190,58 @@ model SiteSettings {
   contactEmail String?
   contactPhone String?
   address      String?
-  updatedAt    DateTime @updatedAt
+
+  // --- Theme tokens (admin-configurable, validated server-side) ---
+  primaryColor    String  @default("#0d3fa9") // brand / primary
+  secondaryColor  String  @default("#0b1c39") // dark navy
+  accentColor     String  @default("#fc3f00") // highlights / breaking
+  surfaceColor    String  @default("#ffffff")
+  textColor       String  @default("#0b1c39")
+  mutedTextColor  String  @default("#667085")
+  borderColor     String  @default("#e5e7eb")
+
+  fontHeading String @default("Noto Sans Khmer") // headings & titles
+  fontBody    String @default("Noto Sans Khmer") // body & UI
+  fontArticle String @default("Noto Sans Khmer") // article content
+
+  fontSizeHero    Int @default(36) // desktop hero headline (px)
+  fontSizeSection Int @default(24) // section headings (px)
+  fontSizeCard    Int @default(18) // card titles (px)
+  fontSizeBody    Int @default(16) // article body (px)
+
+  radiusPreset String @default("medium") // sharp | minimal | medium | rounded
+  shadowPreset String @default("subtle") // none | subtle | medium | strong
+
+  updatedAt DateTime @updatedAt
+}
+
+// ---------- Homepage builder ----------
+
+model HomepageSection {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique // e.g. breaking, hero, weekly, whats-new, latest, video, recent
+  label     String
+  enabled   Boolean  @default(true)
+  sortOrder Int      @default(0)
+  config    String?  // optional JSON with per-section options (validated)
+  updatedAt DateTime @updatedAt
+
+  @@index([enabled, sortOrder])
+}
+
+// ---------- Navigation builder ----------
+
+model NavigationItem {
+  id        Int      @id @default(autoincrement())
+  label     String
+  type      String   @default("link") // home | category | page | link
+  value     String?  // slug/URL depending on type
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
 }
 
 // ---------- Activity & contact ----------

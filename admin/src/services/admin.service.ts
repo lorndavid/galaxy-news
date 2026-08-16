@@ -7,7 +7,9 @@ import type {
   Comment,
   ContactMessage,
   DashboardStats,
+  HomepageSection,
   Media,
+  NavigationItem,
   NewsletterSubscriber,
   Paginated,
   SiteSettings,
@@ -30,6 +32,34 @@ export const adminService = {
   },
   updateSettings(payload: Partial<SiteSettings>) {
     return unwrap<SiteSettings>(api.put("/admin/settings", payload));
+  },
+
+  // Homepage builder
+  homepageSections() {
+    return unwrap<HomepageSection[]>(api.get("/admin/homepage/sections"));
+  },
+  updateHomepageSections(sections: { key: string; enabled?: boolean; label?: string }[]) {
+    return unwrap<HomepageSection[]>(api.put("/admin/homepage/sections", { sections }));
+  },
+  reorderHomepageSections(order: { key: string; sortOrder: number }[]) {
+    return unwrap<HomepageSection[]>(api.post("/admin/homepage/sections/reorder", { order }));
+  },
+
+  // Navigation builder
+  navigation() {
+    return unwrap<NavigationItem[]>(api.get("/admin/navigation"));
+  },
+  createNavItem(payload: { label: string; type: string; value?: string | null; isActive?: boolean }) {
+    return unwrap<NavigationItem>(api.post("/admin/navigation", payload));
+  },
+  updateNavItem(id: number, payload: { label?: string; type?: string; value?: string | null; isActive?: boolean }) {
+    return unwrap<NavigationItem>(api.patch(`/admin/navigation/${id}`, payload));
+  },
+  reorderNav(order: { id: number; sortOrder: number }[]) {
+    return unwrap<NavigationItem[]>(api.post("/admin/navigation/reorder", { order }));
+  },
+  deleteNavItem(id: number) {
+    return api.delete(`/admin/navigation/${id}`);
   },
 
   // Articles

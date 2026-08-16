@@ -7,12 +7,12 @@
       <div v-for="a in items" :key="a.id" class="flex items-start gap-3 px-5 py-3">
         <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-500"></span>
         <div class="min-w-0 flex-1">
-          <p class="text-sm text-slate-700">
+          <p class="break-words text-sm text-slate-700">
             <span class="font-medium">{{ a.user?.name ?? "ប្រព័ន្ធ" }}</span>
             <span class="text-slate-500"> — {{ actionLabel(a.action) }}</span>
             <span v-if="a.entity" class="text-xs text-slate-400"> ({{ a.entity }} #{{ a.entityId }})</span>
           </p>
-          <p class="text-xs text-slate-400">{{ new Date(a.createdAt).toLocaleString() }}</p>
+          <p class="break-words text-xs text-slate-400">{{ new Date(a.createdAt).toLocaleString() }}</p>
         </div>
       </div>
     </div>
@@ -36,6 +36,8 @@ const total = ref(0);
 
 const labels: Record<string, string> = {
   LOGIN: "បានចូលប្រព័ន្ធ",
+  USER_LOGGED_IN: "បានចូលប្រព័ន្ធ",
+  TOKEN_REFRESHED: "បានធ្វើឱ្យសម័យថ្មី",
   ARTICLE_CREATED: "បានបង្កើតអត្ថបទ",
   ARTICLE_UPDATED: "បានកែសម្រួលអត្ថបទ",
   ARTICLE_PUBLISHED: "បានផ្សាយអត្ថបទ",
@@ -43,6 +45,7 @@ const labels: Record<string, string> = {
   CATEGORY_CREATED: "បានបង្កើតប្រភេទ",
   CATEGORY_UPDATED: "បានកែសម្រួលប្រភេទ",
   CATEGORY_DELETED: "បានលុបប្រភេទ",
+  CATEGORIES_REORDERED: "បានរៀបចំលំដាប់ប្រភេទ",
   TAG_CREATED: "បានបង្កើតស្លាក",
   TAG_UPDATED: "បានកែសម្រួលស្លាក",
   TAG_DELETED: "បានលុបស្លាក",
@@ -53,10 +56,19 @@ const labels: Record<string, string> = {
   USER_ROLE_CHANGED: "បានផ្លាស់ប្តូរតួនាទី",
   USER_DELETED: "បានលុបអ្នកប្រើប្រាស់",
   COMMENT_MODERATED: "បានត្រួតពិនិត្យមតិ",
+  COMMENT_SUBMITTED: "បានផ្ញើមតិ",
+  COMMENT_DELETED: "បានលុបមតិ",
   SETTINGS_UPDATED: "បានកែសម្រួលការកំណត់",
   AD_CREATED: "បានបង្កើតផ្សាយពាណិជ្ជកម្ម",
   AD_UPDATED: "បានកែសម្រួលផ្សាយពាណិជ្ជកម្ម",
   AD_DELETED: "បានលុបផ្សាយពាណិជ្ជកម្ម",
+  HOMEPAGE_REORDERED: "បានរៀបចំលំដាប់ទំព័រដើម",
+  HOMEPAGE_SECTIONS_UPDATED: "បានកែសម្រួលផ្នែកទំព័រដើម",
+  NAV_CREATED: "បានបង្កើតម៉ឺនុយ",
+  NAV_UPDATED: "បានកែសម្រួលម៉ឺនុយ",
+  NAV_DELETED: "បានលុបម៉ឺនុយ",
+  NAV_REORDERED: "បានរៀបចំលំដាប់ម៉ឺនុយ",
+  PROFILE_UPDATED: "បានកែសម្រួលប្រវត្តិរូប",
 };
 
 function actionLabel(action: string) {

@@ -26,7 +26,12 @@ export const categoryCreateSchema = z.object({
   }),
 });
 
-export const categoryUpdateSchema = categoryCreateSchema.partial();
+// Nested partial: `.partial()` on the outer object only makes `body`
+// optional — every field inside `body` would stay required, breaking
+// PATCH updates that touch a single field (e.g. only `description`).
+export const categoryUpdateSchema = z.object({
+  body: categoryCreateSchema.shape.body.partial(),
+});
 
 export const categoryReorderSchema = z.object({
   body: z.object({
@@ -43,7 +48,9 @@ export const tagCreateSchema = z.object({
   }),
 });
 
-export const tagUpdateSchema = tagCreateSchema.partial();
+export const tagUpdateSchema = z.object({
+  body: tagCreateSchema.shape.body.partial(),
+});
 
 // ---------- Comment ----------
 
@@ -85,7 +92,12 @@ export const adCreateSchema = z.object({
   }),
 });
 
-export const adUpdateSchema = adCreateSchema.partial();
+// NOTE: must make the fields INSIDE `body` optional — `adCreateSchema.partial()`
+// only makes the top-level `body` key optional, so a PATCH like {isActive:false}
+// would still demand name+image. This is the correct nested-partial form.
+export const adUpdateSchema = z.object({
+  body: adCreateSchema.shape.body.partial(),
+});
 
 // ---------- Contact ----------
 

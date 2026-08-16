@@ -7,6 +7,7 @@ import * as commentService from "../services/comment.service";
 import * as contactService from "../services/contact.service";
 import * as newsletterService from "../services/newsletter.service";
 import { prisma } from "../lib/prisma";
+import { ApiError } from "../utils/ApiError";
 import { asyncHandler } from "../utils/asyncHandler";
 import { created, ok } from "../utils/respond";
 
@@ -35,7 +36,10 @@ export const submitComment = asyncHandler(async (req: Request, res: Response) =>
 });
 
 export const getArticleComments = asyncHandler(async (req: Request, res: Response) => {
-  const articleId = Number(req.params.articleId);
+  const articleId = Number(req.query.articleId ?? req.params.articleId);
+  if (!Number.isInteger(articleId) || articleId <= 0) {
+    throw new ApiError(400, "A valid articleId query parameter is required");
+  }
   ok(res, await commentService.listApprovedByArticle(articleId));
 });
 

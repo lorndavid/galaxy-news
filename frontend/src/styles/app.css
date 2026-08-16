@@ -3,6 +3,267 @@
    The original stylesheets (style.css, khmer.css) carry the design.
 ------------------------------------------------------------------- */
 
+/* ------------------------------------------------------------------
+   Theme tokens (admin-configurable via Site Settings → Appearance).
+   Defaults match the original brand; useTheme() overrides these from
+   the API before first content paint.
+------------------------------------------------------------------- */
+:root {
+  --color-primary: #0d3fa9;
+  --color-secondary: #0b1c39;
+  --color-accent: #fc3f00;
+  --color-surface: #ffffff;
+  --color-text: #0b1c39;
+  --color-muted: #667085;
+  --color-border: #e5e7eb;
+  --font-heading: "Noto Sans Khmer", "Kantumruy", sans-serif;
+  --font-body: "Noto Sans Khmer", "Kantumruy", sans-serif;
+  --font-article: "Noto Sans Khmer", "Kantumruy", sans-serif;
+  --size-hero: 36px;
+  --size-section: 24px;
+  --size-card: 18px;
+  --size-body: 16px;
+  --radius-card: 10px;
+  --radius-button: 10px;
+  --shadow-card: 0 2px 8px rgba(11, 28, 57, 0.06), 0 1px 2px rgba(11, 28, 57, 0.04);
+}
+
+/* Fonts — headings and body use the admin-chosen families */
+h1, h2, h3, h4, h5, h6, .section-tittle h3, .trend-top-cap h1, .trend-top-cap h2 {
+  font-family: var(--font-heading);
+}
+body, p, li, input, textarea, select, button {
+  font-family: var(--font-body);
+}
+
+/* Brand color applied to links, accents and hover states */
+a:hover,
+.section-title-modern h3,
+.section-title-modern .section-title-line,
+.color1,
+.news-cat,
+.tag-chip {
+  color: var(--color-primary);
+}
+
+/* Cards use the configured radius + shadow */
+.what-img,
+.trend-bottom-img,
+.weekly-img,
+.weekly2-img,
+.trand-right-img,
+.news-row-thumb,
+.video-card,
+.news-detail-wrap,
+.card {
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+/* ------------------------------------------------------------------
+   Responsive typography — sizes interpolate smoothly between phone
+   and desktop via clamp() instead of jumping at a single breakpoint.
+   The admin size tokens remain the desktop ceiling; mobile floors are
+   set so text stays compact but readable on every screen.
+------------------------------------------------------------------- */
+.trend-top-cap h1 {
+  font-size: clamp(26px, 1.9vw + 1.05rem, var(--size-hero));
+  line-height: 1.3;
+}
+.section-tittle h3 {
+  font-size: clamp(19px, 1.1vw + 0.9rem, var(--size-section));
+}
+.what-cap h4,
+.what-cap h4 a,
+.trend-bottom-cap h4,
+.trend-bottom-cap h4 a,
+.weekly-caption h4,
+.weekly-caption h4 a,
+.weekly2-caption h4,
+.weekly2-caption h4 a,
+.trand-right-cap h4,
+.trand-right-cap h4 a,
+.news-row-title,
+.news-row-title a {
+  font-size: clamp(16px, 0.6vw + 0.85rem, var(--size-card));
+  line-height: 1.45;
+}
+.news-content,
+.news-content p {
+  font-size: clamp(15px, 0.35vw + 0.9rem, var(--size-body));
+}
+
+/* Card titles: keep grids aligned with 2-line clamps so long headlines
+   never blow a card out of shape (full title is always on the article). */
+.what-cap h4,
+.trend-bottom-cap h4,
+.trand-right-cap h4,
+.weekly2-caption h4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* Long words / URLs must never overflow the card or page */
+.what-cap h4,
+.trend-bottom-cap h4,
+.weekly-caption h4,
+.weekly2-caption h4,
+.trand-right-cap h4,
+.news-row-title,
+.trend-top-cap h1,
+.news-content,
+.breaking-ticker a,
+.section-tittle h3,
+.mobile-nav-list a {
+  overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------------
+   Compact section rhythm — the template shipped with 100-110px section
+   paddings and 100px card margins. Trim them to a tight editorial
+   rhythm so the page reads like a real news site, not a demo template.
+------------------------------------------------------------------- */
+.weekly2-news-area.weekly2-pading {
+  padding-top: 64px !important;
+  padding-bottom: 48px !important;
+}
+.youtube-area.video-padding {
+  padding-top: 60px !important;
+  padding-bottom: 36px !important;
+}
+@media (max-width: 991px) {
+  .weekly2-news-area.weekly2-pading {
+    padding-top: 40px !important;
+    padding-bottom: 32px !important;
+  }
+  .youtube-area.video-padding {
+    padding-top: 40px !important;
+    padding-bottom: 28px !important;
+  }
+}
+
+/* What's-new cards: caption flows under the image (like the carousel
+   cards already do) instead of hanging 63px below it — this removes
+   the overlap + giant margin and keeps the grid tight and aligned. */
+.whats-news-area .whats-news-caption .single-what-news .what-cap,
+.about-area .whats-news-caption .single-what-news .what-cap,
+.contact-section .whats-news-caption .single-what-news .what-cap {
+  position: static;
+  width: 100%;
+  padding: 12px 0 0;
+  background: transparent;
+  border-radius: 0;
+}
+.whats-news-area .whats-news-caption .single-what-news .what-cap span,
+.about-area .whats-news-caption .single-what-news .what-cap span,
+.contact-section .whats-news-caption .single-what-news .what-cap span {
+  padding: 5px 10px;
+  margin-bottom: 8px;
+  font-size: 10.5px;
+}
+.single-what-news.mb-100 {
+  margin-bottom: 36px;
+}
+@media (max-width: 991px) {
+  .single-what-news.mb-100 {
+    margin-bottom: 26px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Premium news card system — consistent image ratios + subtle hover.
+   Images arrive in mixed native ratios, so we lock every card image
+   to a fixed aspect ratio (object-fit: cover) to stop layout shift.
+------------------------------------------------------------------- */
+.trend-top-img img,
+.trend-bottom-img img,
+.what-img img,
+.weekly-img img,
+.weekly2-img img,
+.trand-right-img img,
+.news-row-thumb img,
+.single-recent .what-img img,
+.video-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.35s ease;
+  will-change: transform;
+}
+
+/* Fixed ratios — hero is 16:9, compact cards 4:3, row thumbs 16:9 */
+.trend-top-img,
+.trend-top-img a,
+.what-img,
+.what-img a,
+.single-recent .what-img,
+.single-recent .what-img a {
+  aspect-ratio: 16 / 9;
+}
+.trend-bottom-img,
+.trend-bottom-img a,
+.weekly-img,
+.weekly-img a,
+.weekly2-img,
+.weekly2-img a,
+.trand-right-img,
+.trand-right-img a,
+.video-card {
+  aspect-ratio: 4 / 3;
+}
+.news-row-thumb,
+.news-row-thumb a {
+  aspect-ratio: 16 / 9;
+}
+
+/* Subtle premium hover — 1.03 scale, no big zooms */
+.what-img:hover img,
+.trend-bottom-img:hover img,
+.weekly-img:hover img,
+.weekly2-img:hover img,
+.trand-right-img:hover img,
+.news-row-thumb:hover img,
+.single-recent .what-img:hover img,
+.video-card:hover img,
+.trend-top-img:hover img {
+  transform: scale(1.03);
+}
+
+/* Card titles — color deepen on hover instead of jumping */
+.what-cap h4 a,
+.trend-bottom-cap h4 a,
+.weekly-caption h4 a,
+.weekly2-caption h4 a,
+.trand-right-cap h4 a,
+.news-row-title a,
+.single-recent .what-cap h4 a,
+.trend-top-cap h1 a,
+.trend-top-cap h2 a {
+  transition: color 0.25s ease;
+}
+.what-cap h4 a:hover,
+.trend-bottom-cap h4 a:hover,
+.weekly-caption h4 a:hover,
+.weekly2-caption h4 a:hover,
+.trand-right-cap h4 a:hover,
+.news-row-title a:hover,
+.single-recent .what-cap h4 a:hover,
+.trend-top-cap h1 a:hover,
+.trend-top-cap h2 a:hover {
+  color: #0d3fa9;
+}
+
+/* Video cards — keep the overlay readable, zoom only the image */
+.video-card {
+  position: relative;
+  overflow: hidden;
+}
+.video-card img {
+  height: 100%;
+}
+
+
 /* Global keyboard focus indicator (accessibility) */
 a:focus-visible,
 button:focus-visible,
@@ -27,30 +288,58 @@ select:focus-visible,
   }
 }
 
-/* Breaking-news ticker (replaces the jQuery ticker plugin) */
+/* Breaking-news ticker — subtle fade/slide cycle, one headline at a time.
+   The Vue component rotates the visible headline; these styles keep the
+   container quiet and the link readable. */
 .breaking-ticker {
-  display: flex;
-  gap: 0;
+  position: relative;
   overflow: hidden;
   white-space: nowrap;
   margin: 0;
   padding: 0;
 }
 .breaking-ticker .news-item {
-  display: inline-block;
-  flex: 0 0 auto;
-  padding: 0 30px 0 0;
+  display: block;
+  padding: 0;
   font-size: 14px;
+  line-height: 1.5;
 }
 .breaking-ticker .news-item a {
   color: inherit;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .breaking-ticker .news-item a:hover {
   color: #0d3fa9;
 }
 .trending-animated {
   overflow: hidden;
+  height: 21px;
 }
+
+/* Ticker fade transition */
+.ticker-enter-active,
+.ticker-leave-active {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.ticker-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.ticker-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.ticker-enter-active {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+
 
 /* Lazy image fade-in */
 .lazy-img {
@@ -92,6 +381,39 @@ select:focus-visible,
   margin-bottom: 18px;
 }
 
+/* Article page title + meta — compact editorial hierarchy */
+.news-title {
+  font-size: clamp(22px, 1.5vw + 1rem, 34px);
+  font-weight: 700;
+  line-height: 1.35;
+  color: #0b1c39;
+  margin: 10px 0 12px;
+  overflow-wrap: anywhere;
+}
+.news-lead {
+  font-size: clamp(15px, 0.4vw + 0.9rem, 17px);
+  line-height: 1.7;
+  color: #444;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+.news-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: 13px;
+  color: #667085;
+  margin-bottom: 16px;
+}
+.news-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.news-meta i {
+  font-size: 13px;
+}
+
 /* Responsive tables inside article content */
 .news-content table {
   width: 100%;
@@ -113,6 +435,65 @@ select:focus-visible,
 }
 
 /* ------------------------------------------------------------------
+   Sticky navigation — the nav bar pins to the top on scroll with a
+   subtle shadow. The template's sticky-bar.sticky rules were never
+   applied (the Vue component binds sticky-active), so we define them
+   here and keep the compact transition smooth. 300ms ease, transform
+   & box-shadow only (GPU friendly).
+------------------------------------------------------------------- */
+.header-bottom {
+  transition: box-shadow 0.3s ease;
+}
+.header-bottom.sticky-active {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  animation: headerFadeDown 0.3s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+/* The sticky bar is narrower than the full header, so main content needs
+   a spacer when it pins — otherwise the page jumps up by the bar height. */
+body.has-sticky-nav .header-area {
+  margin-bottom: 62px;
+}
+
+@keyframes headerFadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Slight compaction of the menu links when pinned */
+.header-bottom.sticky-active .main-menu ul > li > a {
+  padding-top: 16px !important;
+  padding-bottom: 16px !important;
+  transition: padding 0.3s ease;
+}
+
+/* ------------------------------------------------------------------
+   Scroll-reveal — sections fade + rise 12px as they enter the viewport.
+   Elements are hidden only after the directive opts in (JS + IO present,
+   no reduced-motion), so content is never invisible without animation.
+------------------------------------------------------------------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* ------------------------------------------------------------------
    Carousel slides — the original owl-carousel plugin set slide widths
    at runtime; our lightweight carousel sets them in CSS instead.
 ------------------------------------------------------------------- */
@@ -131,11 +512,33 @@ select:focus-visible,
 
 /* The original theme hides the caption until hover; for a scrollable
    carousel we keep the caption visible so it works on touch devices. */
-.carousel-track .weekly-single .weekly-caption {
+.carousel-track .weekly-single .weekly-caption,
+.carousel-track .weekly2-single .weekly2-caption,
+.carousel-track .single-recent .what-cap {
   opacity: 1;
   visibility: visible;
   position: static;
   margin: 0;
   transform: none;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+.carousel-track .weekly2-single .weekly2-caption span,
+.carousel-track .single-recent .what-cap span {
+  padding: 5px 10px;
+  margin-bottom: 8px;
+  font-size: 10.5px;
+}
+.carousel-track .weekly2-single .weekly2-caption p {
+  margin: 8px 0 4px;
+  font-size: 12.5px;
+  color: #667085;
+}
+/* Recent carousel: keep cards compact (no 100px dead space below) */
+.single-recent.mb-100 {
+  margin-bottom: 36px;
+}
+@media (max-width: 991px) {
+  .single-recent.mb-100 {
+    margin-bottom: 26px;
+  }
 }
