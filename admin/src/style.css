@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-100 text-slate-800 antialiased;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500;
+  }
+  .btn-secondary {
+    @apply btn bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 focus:ring-slate-400;
+  }
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+  }
+  .btn-ghost {
+    @apply btn text-slate-600 hover:bg-slate-100 focus:ring-slate-400;
+  }
+  .input {
+    @apply w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 disabled:bg-slate-50;
+  }
+  .label {
+    @apply mb-1 block text-sm font-medium text-slate-700;
+  }
+  .card {
+    @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+}
+
+/* Tiptap editor styles */
+.ProseMirror {
+  @apply min-h-[320px] px-4 py-3 text-[15px] leading-relaxed outline-none;
+}
+.ProseMirror p {
+  @apply mb-3;
+}
+.ProseMirror h1 {
+  @apply mb-3 mt-5 text-2xl font-bold;
+}
+.ProseMirror h2 {
+  @apply mb-3 mt-5 text-xl font-bold;
+}
+.ProseMirror h3 {
+  @apply mb-2 mt-4 text-lg font-semibold;
+}
+.ProseMirror ul {
+  @apply mb-3 list-disc pl-6;
+}
+.ProseMirror ol {
+  @apply mb-3 list-decimal pl-6;
+}
+.ProseMirror blockquote {
+  @apply my-3 border-l-4 border-brand-300 bg-brand-50 px-4 py-2 italic;
+}
+.ProseMirror a {
+  @apply text-brand-600 underline;
+}
+.ProseMirror img {
+  @apply my-3 max-w-full rounded-lg;
+}
+.ProseMirror code {
+  @apply rounded bg-slate-100 px-1.5 py-0.5 text-sm;
+}
+.ProseMirror pre {
+  @apply my-3 overflow-x-auto rounded-lg bg-slate-900 p-4 text-slate-100;
+}
+.ProseMirror pre code {
+  @apply bg-transparent p-0 text-inherit;
+}
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply pointer-events-none float-left h-0 text-slate-400;
+}

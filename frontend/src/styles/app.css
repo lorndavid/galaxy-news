@@ -1,0 +1,141 @@
+/* ------------------------------------------------------------------
+   Navatra 4K TV — Vue app-level styles on top of the original theme.
+   The original stylesheets (style.css, khmer.css) carry the design.
+------------------------------------------------------------------- */
+
+/* Global keyboard focus indicator (accessibility) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #ffb400;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Breaking-news ticker (replaces the jQuery ticker plugin) */
+.breaking-ticker {
+  display: flex;
+  gap: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  margin: 0;
+  padding: 0;
+}
+.breaking-ticker .news-item {
+  display: inline-block;
+  flex: 0 0 auto;
+  padding: 0 30px 0 0;
+  font-size: 14px;
+}
+.breaking-ticker .news-item a {
+  color: inherit;
+}
+.breaking-ticker .news-item a:hover {
+  color: #0d3fa9;
+}
+.trending-animated {
+  overflow: hidden;
+}
+
+/* Lazy image fade-in */
+.lazy-img {
+  transition: opacity 0.35s ease;
+}
+
+/* The original theme sized images via direct-descendant selectors;
+   our components wrap images in <a> links, so constrain them here. */
+.lazy-img {
+  display: block;
+  max-width: 100%;
+}
+.what-img a,
+.trend-bottom-img a,
+.weekly-img a,
+.weekly2-img a,
+.trand-right-img a,
+.news-row-thumb a,
+.single-recent .what-img a {
+  display: block;
+  overflow: hidden;
+}
+
+/* Search box (desktop) - keep original look but ensure usability */
+.header-right-btn .search-box input {
+  font-family: "Noto Sans Khmer", "Kantumruy", "Roboto", sans-serif;
+}
+
+/* Article content typography */
+.news-content {
+  font-size: 16px;
+  line-height: 1.95;
+  color: #333;
+}
+.news-content p {
+  font-size: 16px;
+  line-height: 1.95;
+  color: #333;
+  margin-bottom: 18px;
+}
+
+/* Responsive tables inside article content */
+.news-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  font-size: 14.5px;
+}
+.news-content table th,
+.news-content table td {
+  border: 1px solid #e5e7eb;
+  padding: 8px 12px;
+}
+
+/* Sticky bar overrides kept consistent with original mobile design */
+@media (max-width: 767px) {
+  .header-area .header-bottom {
+    padding: 0 12px !important;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Carousel slides — the original owl-carousel plugin set slide widths
+   at runtime; our lightweight carousel sets them in CSS instead.
+------------------------------------------------------------------- */
+.carousel-track .weekly-single,
+.carousel-track .weekly2-single,
+.carousel-track .single-recent {
+  width: 340px;
+}
+@media (max-width: 575px) {
+  .carousel-track .weekly-single,
+  .carousel-track .weekly2-single,
+  .carousel-track .single-recent {
+    width: 270px;
+  }
+}
+
+/* The original theme hides the caption until hover; for a scrollable
+   carousel we keep the caption visible so it works on touch devices. */
+.carousel-track .weekly-single .weekly-caption {
+  opacity: 1;
+  visibility: visible;
+  position: static;
+  margin: 0;
+  transform: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}

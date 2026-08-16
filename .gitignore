@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+*.local
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.db-journal
+*.sqlite
+backend/prisma/dev.db*
+
+# Uploads (local fallback storage)
+backend/uploads/*
+!backend/uploads/.gitkeep
+# Seed demo images are intentionally tracked so `prisma:seed` works on a fresh clone
+!backend/uploads/seed/
+backend/uploads/seed/*
+!backend/uploads/seed/*.jpg
+!backend/uploads/seed/*.png
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Coverage / test artifacts
+coverage/
