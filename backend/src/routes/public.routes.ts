@@ -3,6 +3,7 @@ import * as articleController from "../controllers/article.controller";
 import * as publicController from "../controllers/public.controller";
 import * as builderService from "../services/homepage.service";
 import * as navigationService from "../services/navigation.service";
+import * as tickerService from "../services/ticker.service";
 import { ttlCache } from "../middleware/cache";
 import { ok } from "../utils/respond";
 import { asyncHandler } from "../utils/asyncHandler";
@@ -22,6 +23,8 @@ publicRouter.get("/categories", publicCache, publicController.getCategories);
 publicRouter.get("/tags", publicCache, publicController.getTags);
 publicRouter.get("/homepage/sections", publicCache, asyncHandler(async (_req, res) => ok(res, await builderService.getPublicSections())));
 publicRouter.get("/navigation", publicCache, asyncHandler(async (_req, res) => ok(res, await navigationService.getPublicNav())));
+// Live news ticker (settings + real published articles, cached)
+publicRouter.get("/ticker", publicCache, asyncHandler(async (_req, res) => ok(res, await tickerService.getTickerData())));
 publicRouter.get("/ads/:position", publicCache, publicController.getAds);
 publicRouter.get("/sitemap.xml", publicCache, publicController.getSitemap);
 publicRouter.get("/robots.txt", publicCache, publicController.getRobots);

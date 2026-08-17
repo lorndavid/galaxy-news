@@ -49,3 +49,15 @@ export const remove = asyncHandler(async (req: Request, res: Response) => {
   await articleService.deleteArticle(Number(req.params.id), req.user!.id, req.user!.role, req.ip);
   noContent(res);
 });
+
+export const bulk = asyncHandler(async (req: Request, res: Response) => {
+  const { body } = req.validated as { body: { ids: number[]; action: "publish" | "unpublish" | "delete" } };
+  const result = await articleService.bulkArticles(
+    body.ids,
+    body.action,
+    req.user!.id,
+    req.user!.role,
+    req.ip
+  );
+  ok(res, result, `Bulk ${body.action} applied to ${result.count} article(s)`);
+});

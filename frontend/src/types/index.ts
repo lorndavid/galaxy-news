@@ -20,8 +20,10 @@ export interface Author {
 export interface Category {
   id: number;
   name: string;
+  nameEn: string | null;
   slug: string;
   description: string | null;
+  descriptionEn: string | null;
   image: string | null;
   color: string | null;
   isActive: boolean;
@@ -33,15 +35,19 @@ export interface Category {
 export interface Tag {
   id: number;
   name: string;
+  nameEn: string | null;
   slug: string;
 }
 
 export interface Article {
   id: number;
   title: string;
+  titleEn: string | null;
   slug: string;
   excerpt: string | null;
+  excerptEn: string | null;
   content: string;
+  contentEn: string | null;
   featuredImage: string | null;
   authorId: number;
   categoryId: number;
@@ -76,9 +82,12 @@ export interface CategoryListResult {
 
 export interface SiteSettings {
   siteName: string;
+  siteNameEn: string | null;
   logo: string | null;
   favicon: string | null;
   description: string | null;
+  descriptionEn: string | null;
+  defaultLanguage: "kh" | "en";
   facebook: string | null;
   telegram: string | null;
   youtube: string | null;
@@ -88,6 +97,17 @@ export interface SiteSettings {
   contactEmail: string | null;
   contactPhone: string | null;
   address: string | null;
+
+  // Live news ticker
+  tickerEnabled: boolean;
+  tickerTitle: string;
+  tickerSpeed: "slow" | "medium" | "fast";
+  tickerDirection: "left" | "right";
+  tickerCount: number;
+  tickerRefresh: number;
+  tickerBgColor: string;
+  tickerTextColor: string;
+  tickerAccentColor: string;
 
   // Theme tokens
   primaryColor: string;
@@ -119,6 +139,7 @@ export interface HomepageSection {
 export interface NavigationItem {
   id: number;
   label: string;
+  labelEn: string | null;
   type: "home" | "category" | "page" | "link";
   value: string | null;
   sortOrder: number;
@@ -138,12 +159,28 @@ export interface Comment {
 export interface Advertisement {
   id: number;
   name: string;
+  title: string | null;
   image: string;
   link: string | null;
+  target: string;
   position: string;
+  device: string;
+  priority: number;
   isActive: boolean;
   startDate: string | null;
   endDate: string | null;
+}
+
+export interface TickerData {
+  enabled: boolean;
+  title: string;
+  speed: "slow" | "medium" | "fast";
+  direction: "left" | "right";
+  refresh: number;
+  backgroundColor: string;
+  textColor: string;
+  accentColor: string;
+  items: Article[];
 }
 
 export interface ArticleListParams {

@@ -21,7 +21,7 @@ news-platform/
 │
 ├── frontend/        Public news website  — Vue 3 + TypeScript + Vite + Pinia + Vue Router
 ├── admin/           Content management  — Vue 3 + TypeScript + Vite + Tailwind + TipTap
-├── backend/         REST API + database — Node.js + Express + TypeScript + Prisma + PostgreSQL
+├── backend/         REST API + database — Node.js + Express + TypeScript + Prisma + SQLite
 │
 ├── package.json     Workspace scripts
 ├── .env.example
@@ -30,9 +30,30 @@ news-platform/
 ```
 
 ```text
-Admin CMS  ──►  REST API  ──►  Prisma  ──►  PostgreSQL
-                                        │
-Public website  ◄──  REST API  ◄────────┘
+                    ┌─────────────────────┐
+                    │     PUBLIC USER      │
+                    └──────────┬──────────┘
+                               ▼
+                    ┌─────────────────────┐
+                    │     VUE FRONTEND    │
+                    └──────────┬──────────┘
+                               ▼
+                    ┌─────────────────────┐
+                    │   EXPRESS BACKEND   │
+                    └─────────┬─┬─┬───────┘
+                              │ │ │
+                  ┌───────────┘ │ └────────────┐
+                  ▼             ▼              ▼
+              SQLite          Redis           MinIO
+              Prisma          Cache        Object Storage
+                  ▲                            ▲
+                  │                            │
+                  └──────────┬─────────────────┘
+                             │
+                    ┌────────▼─────────┐
+                    │   ADMIN VUE      │
+                    │  PROFESSIONAL CMS │
+                    └──────────────────┘
 ```
 
 There is **one source of truth** (the database). Content created or edited in
@@ -46,8 +67,9 @@ the admin CMS appears on the public website immediately. No fake/static copies.
 |----------|--------------|
 | Frontend | Vue 3 (Composition API, `<script setup>`), TypeScript, Vite, Vue Router, Pinia, Axios |
 | Admin    | Vue 3, TypeScript, Vite, Vue Router, Pinia, Tailwind CSS, TipTap (rich text editor), Lucide icons |
-| Backend  | Node.js, Express, TypeScript, Prisma ORM, PostgreSQL (Docker), Zod validation, JWT auth, bcrypt, Helmet, CORS, rate limiting, structured logging (pino) |
-| Storage  | Cloudinary for images (optional — falls back to local `/uploads` when not configured) |
+| Backend  | Node.js, Express, TypeScript, Prisma ORM, **SQLite**, Zod validation, JWT auth, bcrypt, Helmet, CORS, rate limiting, structured logging (pino) |
+| Cache    | **Redis** (Docker) — API/homepage caching with transparent in-memory fallback |
+| Storage  | **MinIO** (Docker, S3-compatible) — media with server-side image variants (sharp). Falls back to local `/uploads` when unavailable |
 
 ---
 
@@ -60,14 +82,15 @@ backend/
 │   ├── controllers/   thin HTTP handlers (public + admin)
 │   ├── services/      business logic
 │   ├── routes/        REST route definitions
-│   ├── middleware/    auth, RBAC, validation, upload, rate limiting, errors
+│   ├── middleware/    auth, RBAC, validation, upload, cache, rate limiting, errors
 │   ├── validators/    Zod schemas
-│   ├── lib/           prisma, logger, storage (Cloudinary/local), auth/JWT
+│   ├── lib/           prisma, logger, storage (MinIO/local), redis, auth/JWT
 │   ├── utils/         ApiError, respond, paginate, slugify, sanitize
-│   ├── app.ts         express app assembly
-│   └── server.ts      bootstrap
+│   ├── app.ts         express app assembly (+ /health with dependency checks)
+│   └── server.ts      bootstrap (+ MinIO bucket bootstrap)
 ├── prisma/
 │   ├── schema.prisma
+│   ├── dev.db         SQLite database file (gitignored)
 │   └── seed.ts        demo data (categories, tags, articles, users, settings, ads)
 └── uploads/           local image fallback storage (gitignored)
 
@@ -102,11 +125,11 @@ npm install          # installs all workspaces (backend, frontend, admin)
 
 ### Environment variables
 
-Copy the example file and fill in the values:
+Copy the example files and fill in the values:
 
 ```bash
-cp .env.example .env        # root — used by docker-compose
-cp backend/.env.example backend/.env
+cp .env.example .env                 # root — used by docker-compose
+cp backend/.env.example backend/.env # backend
 ```
 
 `backend/.env`:
@@ -114,39 +137,37 @@ cp backend/.env.example backend/.env
 ```env
 NODE_ENV=development
 PORT=4000
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="file:./dev.db"          # SQLite file database
 JWT_SECRET=<long random string>
 JWT_ACCESS_TTL=15m
 JWT_REFRESH_TTL_DAYS=7
 
-# Optional — without these, images are stored locally under backend/uploads
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
+REDIS_URL=redis://localhost:6379      # Redis cache (Docker)
+MINIO_ENDPOINT=localhost
+MINIO_PORT=9000
+MINIO_USE_SSL=false
+MINIO_ACCESS_KEY=navatra
+MINIO_SECRET_KEY=navatra_dev_secret
+MINIO_BUCKET=news-media
+MINIO_PUBLIC_URL=/minio               # serve objects through the API proxy
 
 FRONTEND_URL=http://localhost:5173
 ADMIN_URL=http://localhost:5174
 ```
 
-Never commit `.env` files. `JWT_SECRET` and Cloudinary secrets must stay
-server-side only.
+Never commit `.env` files. `JWT_SECRET`, `MINIO_SECRET_KEY` and Redis
+credentials must stay server-side only.
 
 ---
 
 ## Database setup
 
-The database is **PostgreSQL running in Docker** (no local DB install needed):
+SQLite needs no server — the file lives at `backend/prisma/dev.db`
+(gitignored). Docker keeps it on a persistent volume so data survives
+container restarts.
 
 ```bash
-docker compose up -d db        # start PostgreSQL on localhost:5432 (healthy check included)
-cp .env.example .env           # set POSTGRES_USER/PASSWORD/DB (root .env)
-cp backend/.env.example backend/.env   # set DATABASE_URL etc.
-```
-
-Then apply the schema and insert demo data (from `backend/`):
-
-```bash
-npm run prisma:migrate    # create & apply the PostgreSQL schema
+npm run prisma:migrate    # create & apply the SQLite schema
 npm run prisma:seed       # insert demo data
 ```
 
@@ -157,8 +178,7 @@ The seed creates:
 - **Categories**: ព័ត៌មានជាតិ, នយោបាយ, អន្តរជាតិ, បច្ចេកវិទ្យា, សុខភាព, កម្សាន្ត, កីឡា
 - **Tags, articles, site settings, an advertisement, sample comments**
 
-All seed data is clearly demo data — reset it anytime with
-`npm run prisma:seed`.
+All seed data is clearly demo data — reset it anytime with `npm run prisma:seed`.
 
 ---
 
@@ -182,7 +202,16 @@ npm run dev:admin
 |----------|------------------------------|-------|
 | Public   | http://localhost:5173        | Vite dev server, proxies `/api` → :4000 |
 | Admin    | http://localhost:5174        | Vite dev server, proxies `/api` → :4000 |
-| API      | http://localhost:4000/api/v1 | `/health` for a quick check |
+| API      | http://localhost:4000/api/v1 | `/health` reports db/redis/minio status |
+
+Optional: start Redis + MinIO for caching/media during local development:
+
+```bash
+docker compose up -d redis minio
+```
+
+Without them the app degrades gracefully: Redis caching falls back to an
+in-memory cache and image uploads fall back to local disk. Everything still works.
 
 ---
 
@@ -204,19 +233,17 @@ them with any static host (or the provided nginx configs in Docker).
 docker compose up --build
 ```
 
-- **PostgreSQL** → runs in the `db` container (data in the `postgres_data` named volume)
-- **Backend** → http://localhost:4000 (uploads in a named volume)
+- **SQLite** → `sqlite_data` named volume (file DB, not a network service)
+- **Redis** → http://localhost:6379 (`redis_data` volume, AOF persistence)
+- **MinIO** → API :9000, console :9001 (`minio_data` volume, `news-media` bucket)
+- **Backend** → http://localhost:4000 (`uploads_data` volume for local fallback)
 - **Public site** → http://localhost:3000
 - **Admin CMS** → http://localhost:3001
 
-Set `JWT_SECRET` (and Cloudinary vars if used) in your environment or `.env`
-before running. The backend container runs `prisma migrate deploy` on startup
-and connects to the `db` service.
-
-> Local dev mode (`npm run dev`) connects to the same Docker PostgreSQL on
-> `localhost:5432` — so you can develop with hot-reload while the database
-> lives in Docker. Don't run both `npm run dev` and the Docker stack at the
-> same time: they both bind the API port 4000.
+The backend container runs `prisma migrate deploy` + `prisma db seed`
+(idempotent) on startup, then starts the API. MinIO images are streamed
+through the backend at `/minio/...` so the frontends never need direct
+access to MinIO.
 
 ---
 
@@ -276,8 +303,8 @@ DELETE /admin/articles/:id
 GET    /admin/categories             categories CRUD (+ reorder)   (write: EDITOR+)
 GET    /admin/tags                   tags CRUD                      (write: EDITOR+)
 
-GET    /admin/media                  media library (paginated)
-POST   /admin/media/upload           multipart image upload (≤5MB, jpg/png/webp/gif/svg)
+GET    /admin/media                  media library (paginated, folder filter)
+POST   /admin/media/upload           multipart image upload (≤8MB, jpg/png/webp/gif/svg)
 DELETE /admin/media/:id
 
 GET    /admin/users                  user management           (ADMIN+)
@@ -301,17 +328,56 @@ GET    /admin/ads                    advertisement CRUD        (write: EDITOR+)
 
 ---
 
-## Cloudinary
+## MinIO object storage
 
-1. Create a Cloudinary account and note `cloud_name`, `api_key`, `api_secret`.
-2. Put them in `backend/.env`.
-3. Uploads are then stored in Cloudinary (folder `navatra`); metadata (public id,
-   dimensions, format, size, alt text) is saved in PostgreSQL.
-4. Without credentials the app transparently falls back to local storage under
-   `backend/uploads` — nothing breaks.
+1. MinIO runs in Docker (`docker compose up -d minio`) and creates the
+   `news-media` bucket on backend boot.
+2. Objects are namespaced by folder: `articles/`, `categories/`, `authors/`,
+   `ads/`, `gallery/`, `site/` (never one flat namespace).
+3. On upload, the backend validates MIME/extension/size, then `sharp`
+   generates **thumbnail (300w) · small (640w) · medium (1024w) ·
+   large (1600w)** WebP variants alongside the original.
+4. Metadata (id, fileName, objectKey, mimeType, size, width, height,
+   altText, caption, folder, createdAt) is stored in SQLite — binary files
+   never live in the database.
+5. Objects are served through the API proxy at `/minio/<bucket>/<key>` so
+   the public site and admin never need MinIO credentials.
 
-The Cloudinary secret is **never** exposed to the Vue frontends; only the
-backend talks to Cloudinary.
+Without MinIO configured, uploads transparently fall back to local disk
+under `backend/uploads` — nothing breaks.
+
+---
+
+## Redis caching
+
+- Public GET feeds (settings, categories, articles, homepage sections, ads)
+  are cached in Redis with a short TTL.
+- **Cache invalidation**: every non-GET admin request clears the public
+  cache, so edits, publishes and deletions appear on the website immediately.
+- **Failure handling**: if Redis is unavailable the middleware falls back to
+  an in-memory cache and the app keeps serving from SQLite — Redis is an
+  optimization, never a single point of failure. Errors are logged.
+
+---
+
+## Health checks
+
+```
+GET /health
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "status": "ok",
+    "dependencies": { "database": "ok", "redis": "ok", "minio": "ok" }
+  }
+}
+```
+
+Returns `503` only when the database is down. Redis/MinIO being down is
+reported but the API keeps serving.
 
 ---
 
@@ -323,8 +389,8 @@ backend talks to Cloudinary.
 - bcrypt password hashing; passwords never serialized to clients
 - Zod validation on every body/query/param; content sanitized server-side (XSS)
 - RBAC enforced in middleware **and** in services (not only in the UI)
-- File uploads restricted by MIME type and size
-- SQL injection prevented by the Prisma query layer
+- File uploads restricted by MIME type and size; MinIO/Redis credentials
+  are only ever read server-side
 - Secrets only in environment variables, never in the repository
 
 ---
@@ -344,8 +410,9 @@ backend talks to Cloudinary.
 
 - Lazy-loaded router chunks for both Vue apps
 - Lazy-loaded images, debounced search (no request per keystroke)
+- Redis caching of hot public feeds with targeted invalidation
 - API pagination everywhere + database indexes on hot fields
-- Cloudinary auto-format/quality transformations when enabled
+- Server-side image variants (sharp) so the frontend never ships originals
 - Lightweight carousels (no heavy slider dependency) in the public site
 
 ---
@@ -354,11 +421,11 @@ backend talks to Cloudinary.
 
 | Problem | Fix |
 |---------|-----|
-| `PrismaClientInitializationError` | Start the DB first (`docker compose up -d db`); then run `npm run prisma:migrate`; check `DATABASE_URL` in `backend/.env` |
-| `ECONNREFUSED 5432` | The PostgreSQL container isn't running — `docker compose up -d db`, then wait for it to be `healthy` |
-| Prisma OpenSSL error in Docker | The backend image is `node:20-slim` with `openssl` installed and the schema declares `binaryTargets = ["native", "debian-openssl-3.0.x"]` — rebuild with `docker compose build backend` if you changed it |
-| Seed fails | Run `npm run prisma:migrate` first, then `npm run prisma:seed` |
-| Images 404 | Without Cloudinary, uploads live in `backend/uploads` (volume in Docker). Confirm `/uploads/...` is proxied. |
+| `PrismaClientInitializationError` | Check `DATABASE_URL` in `backend/.env` is `file:./dev.db`; run `npm run prisma:migrate` |
+| `DATABASE_URL must start with file:` | A shell/env var is overriding the `.env` value — unset it or export `DATABASE_URL=file:./dev.db` |
+| Redis errors in logs | The cache falls back to in-memory automatically — start Redis (`docker compose up -d redis`) to remove the noise |
+| MinIO errors in logs | Uploads fall back to local disk — start MinIO (`docker compose up -d minio`) to use object storage |
+| Images 404 | Without MinIO, uploads live in `backend/uploads` (volume in Docker). Confirm `/uploads/...` or `/minio/...` is proxied. |
 | 401 on admin | Re-login (tokens expire in 15 min); the refresh cookie rotates automatically |
 | Ports busy | Change `PORT` in `backend/.env`; update the Vite proxy targets in `frontend/vite.config.ts` / `admin/vite.config.ts` |
 | Khmer text shows as `?` in terminals | Cosmetic — data is stored correctly (UTF-8); browsers render it fine |

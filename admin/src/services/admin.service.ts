@@ -49,10 +49,10 @@ export const adminService = {
   navigation() {
     return unwrap<NavigationItem[]>(api.get("/admin/navigation"));
   },
-  createNavItem(payload: { label: string; type: string; value?: string | null; isActive?: boolean }) {
+  createNavItem(payload: { label: string; labelEn?: string | null; type: string; value?: string | null; isActive?: boolean }) {
     return unwrap<NavigationItem>(api.post("/admin/navigation", payload));
   },
-  updateNavItem(id: number, payload: { label?: string; type?: string; value?: string | null; isActive?: boolean }) {
+  updateNavItem(id: number, payload: { label?: string; labelEn?: string | null; type?: string; value?: string | null; isActive?: boolean }) {
     return unwrap<NavigationItem>(api.patch(`/admin/navigation/${id}`, payload));
   },
   reorderNav(order: { id: number; sortOrder: number }[]) {
@@ -77,6 +77,9 @@ export const adminService = {
   },
   deleteArticle(id: number) {
     return api.delete(`/admin/articles/${id}`);
+  },
+  bulkArticles(ids: number[], action: "publish" | "unpublish" | "delete") {
+    return unwrap<{ count: number }>(api.post("/admin/articles/bulk", { ids, action }));
   },
 
   // Categories
@@ -116,6 +119,9 @@ export const adminService = {
   },
   deleteMedia(id: number) {
     return api.delete(`/admin/media/${id}`);
+  },
+  bulkMedia(ids: number[], action: "delete") {
+    return unwrap<{ count: number }>(api.post("/admin/media/bulk", { ids, action }));
   },
 
   // Users

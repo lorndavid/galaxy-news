@@ -24,7 +24,8 @@ export const getTags = asyncHandler(async (_req: Request, res: Response) => {
 });
 
 export const getAds = asyncHandler(async (req: Request, res: Response) => {
-  ok(res, await adService.getByPosition(req.params.position));
+  const device = adService.deviceFromUserAgent(req.get("user-agent") ?? "");
+  ok(res, await adService.getByPosition(req.params.position, device));
 });
 
 export const submitComment = asyncHandler(async (req: Request, res: Response) => {

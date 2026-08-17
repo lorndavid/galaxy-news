@@ -41,11 +41,20 @@ const text = (max: number) =>
 
 const nullableText = (max: number) => text(max).nullable().optional();
 
+// Accept absolute http(s) URLs or safe relative paths (/assets, /minio,
+// /uploads) — the DB legitimately stores the seeded logo as a relative path.
 const cleanUrl = (max: number) =>
   z
     .string()
-    .url("Must be a valid URL")
     .max(max)
+    .refine(
+      (v) =>
+        /^https?:\/\//i.test(v) ||
+        v.startsWith("/assets/") ||
+        v.startsWith("/minio/") ||
+        v.startsWith("/uploads/"),
+      "Must be a valid URL or /assets, /minio, /uploads path"
+    )
     .refine((v) => !/^javascript:/i.test(v), "Unsafe URL scheme")
     .nullable()
     .optional();
@@ -53,9 +62,12 @@ const cleanUrl = (max: number) =>
 export const settingsUpdateSchema = z.object({
   body: z.object({
     siteName: text(120).optional(),
+    siteNameEn: text(120).nullable().optional(),
     logo: cleanUrl(500),
     favicon: cleanUrl(500),
     description: nullableText(1000),
+    descriptionEn: nullableText(1000),
+    defaultLanguage: z.enum(["kh", "en"]).optional(),
     facebook: cleanUrl(500),
     telegram: cleanUrl(500),
     youtube: cleanUrl(500),
@@ -65,6 +77,17 @@ export const settingsUpdateSchema = z.object({
     contactEmail: z.string().trim().email().nullable().optional(),
     contactPhone: nullableText(40),
     address: nullableText(300),
+
+    // --- Live news ticker (safe, bounded values only) ---
+    tickerEnabled: z.boolean().optional(),
+    tickerTitle: text(60).optional(),
+    tickerSpeed: z.enum(["slow", "medium", "fast"]).optional(),
+    tickerDirection: z.enum(["left", "right"]).optional(),
+    tickerCount: z.number().int().min(1).max(30).optional(),
+    tickerRefresh: z.number().int().min(10).max(300).optional(),
+    tickerBgColor: hexColor.optional(),
+    tickerTextColor: hexColor.optional(),
+    tickerAccentColor: hexColor.optional(),
 
     // --- Theme tokens (validated ranges; no arbitrary CSS) ---
     primaryColor: hexColor.optional(),

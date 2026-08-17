@@ -1,5 +1,5 @@
 // ============================================================
-// Navatra 4K TV — database schema (PostgreSQL + Prisma)
+// Navatra 4K TV — database schema (SQLite + Prisma)
 // ============================================================
 
 generator client {
@@ -10,7 +10,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -56,17 +56,19 @@ model RefreshToken {
 // ---------- Content ----------
 
 model Category {
-  id          Int       @id @default(autoincrement())
-  name        String
-  slug        String    @unique
-  description String?
-  image       String?
-  color       String?   @default("#0b1c39")
-  isActive    Boolean   @default(true)
-  sortOrder   Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  articles    Article[]
+  id           Int       @id @default(autoincrement())
+  name         String
+  nameEn       String?   // English display name (falls back to name)
+  slug         String    @unique
+  description  String?
+  descriptionEn String?
+  image        String?
+  color        String?   @default("#0b1c39")
+  isActive     Boolean   @default(true)
+  sortOrder    Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  articles     Article[]
 
   @@index([slug])
   @@index([isActive, sortOrder])
@@ -75,6 +77,7 @@ model Category {
 model Tag {
   id       Int          @id @default(autoincrement())
   name     String       @unique
+  nameEn   String?      // English tag name (falls back to name)
   slug     String       @unique
   articles ArticleTag[]
 
@@ -84,9 +87,12 @@ model Tag {
 model Article {
   id            Int          @id @default(autoincrement())
   title         String
+  titleEn       String?      // English title (falls back to title)
   slug          String       @unique
   excerpt       String?
+  excerptEn     String?
   content       String       @default("")
+  contentEn     String?      // English content (falls back to content)
   featuredImage String?
   authorId      Int
   author        User         @relation(fields: [authorId], references: [id])
@@ -140,7 +146,8 @@ model Comment {
 
 model Media {
   id          Int      @id @default(autoincrement())
-  publicId    String?
+  publicId    String?  // legacy Cloudinary public id (kept for migration)
+  objectKey   String?  // MinIO object key (bucket-relative path)
   url         String
   secureUrl   String?
   fileName    String
@@ -149,11 +156,14 @@ model Media {
   format      String?
   size        Int?
   altText     String?
+  caption     String?
+  folder      String   @default("articles") // articles | categories | authors | ads | gallery | site
   createdById Int?
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
 
   @@index([createdById])
+  @@index([folder])
 }
 
 // ---------- Monetization ----------
@@ -161,9 +171,13 @@ model Media {
 model Advertisement {
   id        Int       @id @default(autoincrement())
   name      String
+  title     String?   // optional headline shown with the banner
   image     String
   link      String?
-  position  String    @default("sidebar") // header | sidebar | inline | footer
+  target    String    @default("_blank") // _blank | _self
+  position  String    @default("sidebar") // header | sidebar | inline | footer | homepage-top | homepage-middle | homepage-bottom | article-top | article-middle | article-bottom | category-top | category-bottom
+  device    String    @default("all") // all | desktop | tablet | mobile
+  priority  Int       @default(0) // higher wins when multiple banners share a slot
   isActive  Boolean   @default(true)
   startDate DateTime?
   endDate   DateTime?
@@ -171,6 +185,7 @@ model Advertisement {
   updatedAt DateTime  @updatedAt
 
   @@index([position, isActive])
+  @@index([position, device, isActive])
 }
 
 // ---------- Settings & theme ----------
@@ -178,9 +193,12 @@ model Advertisement {
 model SiteSettings {
   id           Int      @id @default(autoincrement())
   siteName     String   @default("Navatra 4K TV")
+  siteNameEn   String?  // English site name (falls back to siteName)
   logo         String?
   favicon      String?
   description  String?
+  descriptionEn String?
+  defaultLanguage String @default("kh") // kh | en — the site's primary language
   facebook     String?
   telegram     String?
   youtube      String?
@@ -190,6 +208,17 @@ model SiteSettings {
   contactEmail String?
   contactPhone String?
   address      String?
+
+  // --- Live news ticker (admin-configurable, validated) ---
+  tickerEnabled    Boolean @default(false)
+  tickerTitle      String  @default("LIVE NEWS")
+  tickerSpeed      String  @default("medium") // slow | medium | fast
+  tickerDirection  String  @default("left") // left | right
+  tickerCount      Int     @default(10)
+  tickerRefresh    Int     @default(30) // seconds between polls
+  tickerBgColor    String  @default("#0b1c39")
+  tickerTextColor  String  @default("#ffffff")
+  tickerAccentColor String @default("#fc3f00")
 
   // --- Theme tokens (admin-configurable, validated server-side) ---
   primaryColor    String  @default("#0d3fa9") // brand / primary
@@ -234,6 +263,7 @@ model HomepageSection {
 model NavigationItem {
   id        Int      @id @default(autoincrement())
   label     String
+  labelEn   String?  // English label (falls back to label)
   type      String   @default("link") // home | category | page | link
   value     String?  // slug/URL depending on type
   sortOrder Int      @default(0)

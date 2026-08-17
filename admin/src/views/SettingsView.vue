@@ -18,16 +18,29 @@
       <h3 class="text-sm font-semibold text-slate-700">ព័ត៌មានគេហទំព័រ</h3>
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
-          <label class="label">ឈ្មោះគេហទំព័រ</label>
+          <label class="label">ឈ្មោះគេហទំព័រ (ខ្មែរ)</label>
           <input v-model="form.siteName" type="text" class="input" />
         </div>
         <div>
+          <label class="label">ឈ្មោះគេហទំព័រ (English)</label>
+          <input v-model="form.siteNameEn" type="text" class="input" placeholder="Navatra 4K TV" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="label">ភាសាលំនាំដើម</label>
+          <select v-model="form.defaultLanguage" class="input">
+            <option value="kh">ខ្មែរ (Khmer)</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div>
           <label class="label">Logo URL</label>
-          <input v-model="form.logo" type="url" class="input" />
+          <!-- text (not url): the seeded logo is a relative /assets path and the
+               backend validator accepts it; type=url would block the submit -->
+          <input v-model="form.logo" type="text" class="input" />
         </div>
         <div>
           <label class="label">Favicon URL</label>
-          <input v-model="form.favicon" type="url" class="input" />
+          <input v-model="form.favicon" type="text" class="input" />
         </div>
         <div>
           <label class="label">អ៊ីមែលទំនាក់ទំនង</label>
@@ -42,8 +55,12 @@
           <input v-model="form.address" type="text" class="input" />
         </div>
         <div class="sm:col-span-2">
-          <label class="label">ការពិពណ៌នា</label>
+          <label class="label">ការពិពណ៌នា (ខ្មែរ)</label>
           <textarea v-model="form.description" rows="2" class="input"></textarea>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="label">ការពិពណ៌នា (English)</label>
+          <textarea v-model="form.descriptionEn" rows="2" class="input" placeholder="Site description in English"></textarea>
         </div>
       </div>
 
@@ -226,7 +243,7 @@ const sizeFields = [
 
 const form = reactive({
   // general
-  siteName: "", logo: "", favicon: "", description: "",
+  siteName: "", siteNameEn: "", logo: "", favicon: "", description: "", descriptionEn: "", defaultLanguage: "kh",
   facebook: "", telegram: "", youtube: "", tiktok: "", instagram: "", twitter: "",
   contactEmail: "", contactPhone: "", address: "",
   // appearance

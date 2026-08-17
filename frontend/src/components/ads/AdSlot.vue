@@ -1,9 +1,15 @@
 <template>
   <div v-if="ad" class="ad-slot" :data-position="position">
-    <a v-if="ad.link" :href="ad.link" target="_blank" rel="noopener sponsored">
-      <img :src="ad.image" :alt="ad.name" class="ad-img" loading="lazy" />
+    <p v-if="ad.title" class="ad-slot-label">{{ ad.title }}</p>
+    <a
+      v-if="ad.link"
+      :href="safeLink(ad.link)"
+      :target="ad.target === '_self' ? '_self' : '_blank'"
+      :rel="ad.target === '_self' ? undefined : 'noopener sponsored'"
+    >
+      <img :src="ad.image" :alt="ad.name" class="ad-img" loading="lazy" decoding="async" />
     </a>
-    <img v-else :src="ad.image" :alt="ad.name" class="ad-img" loading="lazy" />
+    <img v-else :src="ad.image" :alt="ad.name" class="ad-img" loading="lazy" decoding="async" />
   </div>
 </template>
 
@@ -24,19 +30,29 @@ onMounted(async () => {
   }
 });
 
-// Simple rotation: pick a random active ad so multiple ads in one slot rotate
-const ad = computed(() => {
-  if (!ads.value.length) return null;
-  return ads.value[Math.floor(Math.random() * ads.value.length)];
-});
+// Highest priority wins; backend already returns them ordered by priority.
+const ad = computed(() => ads.value[0] ?? null);
+
+/** Never allow unsafe schemes even if data is somehow malformed. */
+function safeLink(link: string): string {
+  return /^(https?:)?\/\//i.test(link) || link.startsWith("/") ? link : "#";
+}
 </script>
 
 <style scoped>
 .ad-slot {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   margin: 16px 0 24px;
   overflow: hidden;
+}
+.ad-slot-label {
+  margin: 0 0 6px;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted, #667085);
 }
 .ad-img {
   max-width: 100%;

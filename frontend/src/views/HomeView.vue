@@ -8,12 +8,12 @@
           <div v-if="showSection('breaking')" class="row">
             <div class="col-lg-12">
               <div class="trending-tittle">
-                <strong>កំពុងពេញនិយម</strong>
+                <strong>{{ t.home.trending }}</strong>
                 <div class="trending-animated">
-                  <ul class="breaking-ticker" aria-label="ព័ត៌មានកំពុងពេញនិយម">
+                  <ul class="breaking-ticker" :aria-label="t.home.trending">
                     <Transition name="ticker" mode="out-in">
                       <li v-if="breaking.length" :key="tickerIndex" class="news-item">
-                        <RouterLink :to="`/article/${breaking[tickerIndex].slug}`">{{ breaking[tickerIndex].title }}</RouterLink>
+                        <RouterLink :to="`/article/${breaking[tickerIndex].slug}`">{{ title(breaking[tickerIndex]) }}</RouterLink>
                       </li>
                     </Transition>
                   </ul>
@@ -33,13 +33,13 @@
                     <div v-reveal="i" class="single-bottom mb-35">
                       <div class="trend-bottom-img mb-30">
                         <RouterLink :to="`/article/${a.slug}`">
-                          <ArticleThumb :src="a.featuredImage" :alt="a.title" />
+                          <ArticleThumb :src="a.featuredImage" :alt="title(a)" />
                         </RouterLink>
                       </div>
                       <div class="trend-bottom-cap">
-                        <span :class="`color${(a.categoryId % 4) + 1}`">{{ a.category?.name }}</span>
+                        <span :class="`color${(a.categoryId % 4) + 1}`">{{ catName(a) }}</span>
                         <h4>
-                          <RouterLink :to="`/article/${a.slug}`">{{ a.title }}</RouterLink>
+                          <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
                         </h4>
                       </div>
                     </div>
@@ -60,20 +60,20 @@
     <div v-if="showSection('weekly')" v-reveal class="weekly-news-area pt-50">
       <div class="container">
         <div class="weekly-wrapper">
-          <SectionTitle title="ព័ត៌មានប្រចាំសប្តាហ៍" to="/news" />
+          <SectionTitle :title="t.home.weekly" to="/news" />
           <div class="row">
             <div class="col-12">
               <CarouselScroll>
                 <div v-for="a in weekly" :key="a.id" class="weekly-single">
                   <div class="weekly-img">
                     <RouterLink :to="`/article/${a.slug}`">
-                      <ArticleThumb :src="a.featuredImage" :alt="a.title" />
+                      <ArticleThumb :src="a.featuredImage" :alt="title(a)" />
                     </RouterLink>
                   </div>
                   <div class="weekly-caption">
-                    <span class="color1">{{ a.category?.name }}</span>
+                    <span class="color1">{{ catName(a) }}</span>
                     <h4>
-                      <RouterLink :to="`/article/${a.slug}`">{{ a.title }}</RouterLink>
+                      <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
                     </h4>
                   </div>
                 </div>
@@ -91,7 +91,7 @@
           <div class="col-lg-8">
             <div class="row d-flex justify-content-between">
               <div class="col-lg-3 col-md-3">
-                <SectionTitle title="អ្វីដែលថ្មី" to="/news" />
+                <SectionTitle :title="t.home.whatsNew" to="/news" />
               </div>
               <div class="col-lg-9 col-md-9">
                 <div class="properties__button">
@@ -103,7 +103,7 @@
                         href="#"
                         role="tab"
                         @click.prevent="activeTab = 'all'"
-                      >ទាំងអស់</a>
+                      >{{ t.common.all }}</a>
                       <a
                         v-for="cat in categories.slice(0, 5)"
                         :key="cat.id"
@@ -112,7 +112,7 @@
                         href="#"
                         role="tab"
                         @click.prevent="setTab(cat.slug)"
-                      >{{ cat.name }}</a>
+                      >{{ catNameOf(cat) }}</a>
                     </div>
                   </nav>
                 </div>
@@ -146,21 +146,21 @@
     <div v-if="showSection('latest')" v-reveal class="weekly2-news-area weekly2-pading gray-bg">
       <div class="container">
         <div class="weekly2-wrapper">
-          <SectionTitle title="ព័ត៌មានថ្មីៗ" to="/latest" />
+          <SectionTitle :title="t.home.latest" to="/latest" />
           <div class="row">
             <div class="col-12">
               <CarouselScroll>
                 <div v-for="a in latest" :key="a.id" class="weekly2-single">
                   <div class="weekly2-img">
                     <RouterLink :to="`/article/${a.slug}`">
-                      <ArticleThumb :src="a.featuredImage" :alt="a.title" />
+                      <ArticleThumb :src="a.featuredImage" :alt="title(a)" />
                     </RouterLink>
                   </div>
                   <div class="weekly2-caption">
-                    <span class="color1">{{ a.category?.name }}</span>
+                    <span class="color1">{{ catName(a) }}</span>
                     <p>{{ formatKhmerDate(a.publishedAt) }}</p>
                     <h4>
-                      <RouterLink :to="`/article/${a.slug}`">{{ a.title }}</RouterLink>
+                      <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
                     </h4>
                   </div>
                 </div>
@@ -184,11 +184,11 @@
                 :href="youtubeChannel"
                 target="_blank"
                 rel="noopener"
-                :title="a.title"
+                :title="title(a)"
               >
-                <ArticleThumb :src="a.featuredImage" :alt="a.title" />
+                <ArticleThumb :src="a.featuredImage" :alt="title(a)" />
                 <span class="video-play"><i class="fas fa-play"></i></span>
-                <span class="video-overlay"><h4>{{ a.title }}</h4></span>
+                <span class="video-overlay"><h4>{{ title(a) }}</h4></span>
               </a>
             </div>
           </div>
@@ -198,13 +198,13 @@
             <div class="col-lg-12">
               <div class="video-caption">
                 <div class="top-caption">
-                  <span class="color1">វីដេអូ</span>
+                  <span class="color1">{{ t.home.video }}</span>
                 </div>
                 <div class="bottom-caption">
-                  <h2>ទស្សនាវីដេអូព័ត៌មានក្តៅៗពី Navatra 4K TV</h2>
-                  <p>សូមស្វាគមន៍មកកាន់ Navatra 4K TV ជាមជ្ឈមណ្ឌលព័ត៌មានឌីជីថលដែលផ្តល់ជូនអ្នកនូវព័ត៌មានក្តៅៗ កម្សាន្ត និងបច្ចេកវិទ្យាថ្មីៗប្រចាំថ្ងៃ។</p>
+                  <h2>{{ t.home.videoTitle }}</h2>
+                  <p>{{ t.home.videoDesc }}</p>
                   <a class="video-cta" :href="youtubeChannel" target="_blank" rel="noopener">
-                    <i class="fab fa-youtube"></i> តាមដានឆានែល YouTube
+                    <i class="fab fa-youtube"></i> {{ t.home.followChannel }}
                   </a>
                 </div>
               </div>
@@ -221,8 +221,8 @@
           <div class="row">
             <div class="col-lg-12">
               <div class="section-tittle mb-30 d-flex justify-content-between align-items-end">
-                <h3>អត្ថបទថ្មីៗ</h3>
-                <RouterLink to="/news" class="news-list-all">មើលទាំងអស់ <i class="ti-angle-right"></i></RouterLink>
+                <h3>{{ t.home.recent }}</h3>
+                <RouterLink to="/news" class="news-list-all">{{ t.common.viewAll }} <i class="ti-angle-right"></i></RouterLink>
               </div>
             </div>
           </div>
@@ -232,13 +232,13 @@
                 <div v-for="a in recent" :key="a.id" class="single-recent mb-100">
                   <div class="what-img">
                     <RouterLink :to="`/article/${a.slug}`">
-                      <ArticleThumb :src="a.featuredImage" :alt="a.title" />
+                      <ArticleThumb :src="a.featuredImage" :alt="title(a)" />
                     </RouterLink>
                   </div>
                   <div class="what-cap">
-                    <span :class="`color${(a.categoryId % 4) + 1}`">{{ a.category?.name }}</span>
+                    <span :class="`color${(a.categoryId % 4) + 1}`">{{ catName(a) }}</span>
                     <h4>
-                      <RouterLink :to="`/article/${a.slug}`">{{ a.title }}</RouterLink>
+                      <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
                     </h4>
                   </div>
                 </div>
@@ -258,6 +258,7 @@ import { articleService } from "@/services/article.service";
 import { contentService } from "@/services/content.service";
 import { useCategoryStore } from "@/stores/categories";
 import { useSettingsStore } from "@/stores/settings";
+import { useLocalized } from "@/composables/useLocalized";
 import type { Article, Category } from "@/types";
 import ArticleThumb from "@/components/common/ArticleThumb.vue";
 import SectionTitle from "@/components/common/SectionTitle.vue";
@@ -272,6 +273,10 @@ import { formatKhmerDate } from "@/utils/format";
 
 const categoryStore = useCategoryStore();
 const settingsStore = useSettingsStore();
+const { locale, title, catName, t } = useLocalized();
+
+/** Category is a raw Category object (not inside an article). */
+const catNameOf = (c: Category) => locale.pick(c.name, c.nameEn);
 
 useSeo(
   computed(() => ({

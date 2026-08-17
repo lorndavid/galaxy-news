@@ -40,9 +40,15 @@ export async function unwrap<T>(promise: Promise<{ data: ApiResponse<T> }>): Pro
   return res.data.data;
 }
 
-export async function uploadFile(file: File): Promise<{ data: { data: import("@/types").Media } }> {
+export async function uploadFile(
+  file: File,
+  extra: { altText?: string; folder?: string; caption?: string } = {}
+): Promise<{ data: { data: import("@/types").Media } }> {
   const form = new FormData();
   form.append("file", file);
+  if (extra.altText) form.append("altText", extra.altText);
+  if (extra.folder) form.append("folder", extra.folder);
+  if (extra.caption) form.append("caption", extra.caption);
   return api.post("/admin/media/upload", form, {
     headers: { "Content-Type": "multipart/form-data" },
   });

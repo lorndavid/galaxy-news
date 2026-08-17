@@ -1,18 +1,24 @@
 <template>
   <div class="space-y-5">
+    <!-- Page header -->
+    <div class="page-header">
+      <div>
+        <h2>ផ្ទាំងគ្រប់គ្រង</h2>
+        <p>ទិដ្ឋភាពទូទៅនៃការផ្សាយ មាតិកា និងសកម្មភាពថ្មីៗ</p>
+      </div>
+    </div>
+
     <!-- Loading skeleton -->
     <div v-if="loading" class="space-y-5">
-      <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <div v-for="i in 6" :key="i" class="card animate-pulse p-5">
-          <div class="h-11 w-11 rounded-lg bg-slate-200"></div>
-          <div class="mt-3 h-3 w-20 rounded bg-slate-200"></div>
-          <div class="mt-2 h-6 w-14 rounded bg-slate-200"></div>
+      <div class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+        <div v-for="i in 6" :key="i" class="card animate-pulse p-4">
+          <div class="h-4 w-16 rounded bg-slate-200"></div>
+          <div class="mt-3 h-7 w-12 rounded bg-slate-200"></div>
         </div>
       </div>
-      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <div v-for="i in 2" :key="i" class="card h-64 animate-pulse bg-slate-100"></div>
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <div v-for="i in 3" :key="i" class="card h-56 animate-pulse bg-slate-100"></div>
       </div>
-      <div class="card h-64 animate-pulse bg-slate-100"></div>
     </div>
 
     <!-- Error state -->
@@ -23,96 +29,83 @@
 
     <template v-else>
       <!-- Stat cards -->
-      <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <div v-for="s in statCards" :key="s.label" class="card flex items-center gap-4 p-5">
-          <div class="flex h-11 w-11 items-center justify-center rounded-lg" :class="s.bg">
-            <component :is="s.icon" class="h-5 w-5" :class="s.color" />
+      <div class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+        <div v-for="s in statCards" :key="s.label" class="card p-4">
+          <div class="flex items-center gap-2.5">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg" :class="s.bg">
+              <component :is="s.icon" class="h-4 w-4" :class="s.color" />
+            </div>
+            <p class="text-[11px] font-medium text-slate-500">{{ s.label }}</p>
           </div>
-          <div>
-            <p class="text-xs text-slate-500">{{ s.label }}</p>
-            <p class="text-2xl font-bold text-slate-800">{{ s.value }}</p>
-          </div>
+          <p class="mt-2.5 text-2xl font-bold tabular-nums text-slate-800">{{ s.value }}</p>
         </div>
       </div>
 
-      <!-- Views by top articles (pure-CSS bar chart) -->
-      <div class="card p-5">
-        <div class="mb-4 flex items-center justify-between">
-          <h3 class="text-sm font-semibold text-slate-700">ការមើលតាមអត្ថបទពេញនិយម</h3>
-          <span class="text-xs text-slate-400">កំពូល {{ stats?.topArticles.length ?? 0 }} អត្ថបទ</span>
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <!-- Top articles by views (pure-CSS bars) -->
+        <div class="card p-5 lg:col-span-2">
+          <div class="mb-4 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-slate-700">អត្ថបទពេញនិយមបំផុត</h3>
+            <span class="text-xs text-slate-400">តាមចំនួនការមើល</span>
+          </div>
+          <ul v-if="stats?.topArticles.length" class="space-y-3.5">
+            <li v-for="a in stats.topArticles" :key="a.id">
+              <div class="mb-1 flex items-center justify-between gap-3 text-[13px]">
+                <span class="min-w-0 truncate text-slate-700">{{ a.title }}</span>
+                <span class="shrink-0 font-semibold tabular-nums text-slate-500">{{ a.views.toLocaleString() }}</span>
+              </div>
+              <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                <div
+                  class="h-full rounded-full bg-brand-500 transition-all duration-700"
+                  :style="{ width: barWidth(a.views) }"
+                ></div>
+              </div>
+            </li>
+          </ul>
+          <EmptyState v-else title="មិនទាន់មានទិន្នន័យទេ" />
         </div>
-        <ul v-if="stats?.topArticles.length" class="space-y-3">
-          <li v-for="a in stats.topArticles" :key="a.id">
-            <div class="mb-1 flex items-center justify-between text-sm">
-              <span class="max-w-[70%] truncate text-slate-700">{{ a.title }}</span>
-              <span class="font-semibold text-slate-500">{{ a.views }} ដង</span>
-            </div>
-            <div class="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
-              <div
-                class="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-400 transition-all duration-700"
-                :style="{ width: barWidth(a.views) }"
-              ></div>
-            </div>
-          </li>
-        </ul>
-        <p v-else class="text-sm text-slate-400">មិនទាន់មានទិន្នន័យទេ</p>
-      </div>
 
-      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <!-- Recent activity -->
         <div class="card p-5">
           <h3 class="mb-4 text-sm font-semibold text-slate-700">សកម្មភាពថ្មីៗ</h3>
-          <ul v-if="stats?.recentActivity.length" class="space-y-3">
-            <li v-for="a in stats.recentActivity" :key="a.id" class="flex items-start gap-3 text-sm">
-              <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-500"></span>
+          <ul v-if="stats?.recentActivity.length" class="space-y-3.5">
+            <li v-for="a in stats.recentActivity" :key="a.id" class="flex items-start gap-3 text-[13px]">
+              <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500"></span>
               <div class="min-w-0">
                 <p class="break-words text-slate-700">
                   <span class="font-medium">{{ a.user?.name ?? "ប្រព័ន្ធ" }}</span>
                   <span class="text-slate-500"> — {{ actionLabel(a.action) }}</span>
                 </p>
-                <p class="break-words text-xs text-slate-400">{{ new Date(a.createdAt).toLocaleString() }}</p>
+                <p class="break-words text-[11px] text-slate-400">{{ relativeTime(a.createdAt) }}</p>
               </div>
             </li>
           </ul>
-          <p v-else class="text-sm text-slate-400">មិនទាន់មានសកម្មភាពទេ</p>
-        </div>
-
-        <!-- Top articles -->
-        <div class="card p-5">
-          <h3 class="mb-4 text-sm font-semibold text-slate-700">អត្ថបទពេញនិយម</h3>
-          <ul v-if="stats?.topArticles.length" class="space-y-3">
-            <li v-for="(a, i) in stats.topArticles" :key="a.id" class="flex items-center gap-3 text-sm">
-              <span class="w-6 text-center font-bold text-slate-300">{{ i + 1 }}</span>
-              <span class="min-w-0 flex-1 truncate text-slate-700">{{ a.title }}</span>
-              <span class="badge bg-slate-100 text-slate-600">{{ a.views }} ដង</span>
-            </li>
-          </ul>
-          <p v-else class="text-sm text-slate-400">មិនទាន់មានទិន្នន័យទេ</p>
+          <p v-else class="text-[13px] text-slate-400">មិនទាន់មានសកម្មភាពទេ</p>
         </div>
       </div>
 
-      <!-- Recent articles table -->
+      <!-- Recent articles -->
       <div class="card overflow-hidden">
         <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
           <h3 class="text-sm font-semibold text-slate-700">អត្ថបទថ្មីៗ</h3>
           <RouterLink to="/articles" class="text-xs font-medium text-brand-600 hover:underline">មើលទាំងអស់</RouterLink>
         </div>
         <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+          <table class="data-table">
+            <thead>
               <tr>
-                <th class="px-5 py-3">ចំណងជើង</th>
-                <th class="px-5 py-3">ស្ថានភាព</th>
-                <th class="hidden px-5 py-3 sm:table-cell">អ្នកនិពន្ធ</th>
-                <th class="hidden px-5 py-3 md:table-cell">កែប្រែចុងក្រោយ</th>
+                <th>ចំណងជើង</th>
+                <th>ស្ថានភាព</th>
+                <th class="hidden sm:table-cell">អ្នកនិពន្ធ</th>
+                <th class="hidden md:table-cell">កែប្រែចុងក្រោយ</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody>
               <tr v-for="a in stats?.recentArticles" :key="a.id">
-                <td class="max-w-[240px] truncate px-5 py-3 font-medium text-slate-700">{{ a.title }}</td>
-                <td class="px-5 py-3"><StatusBadge :status="a.status" /></td>
-                <td class="hidden px-5 py-3 text-slate-500 sm:table-cell">{{ a.author.name }}</td>
-                <td class="hidden px-5 py-3 text-slate-400 md:table-cell">{{ new Date(a.updatedAt).toLocaleDateString() }}</td>
+                <td class="max-w-[240px] truncate font-medium text-slate-700">{{ a.title }}</td>
+                <td><StatusBadge :status="a.status" /></td>
+                <td class="hidden text-slate-500 sm:table-cell">{{ a.author.name }}</td>
+                <td class="hidden text-slate-400 md:table-cell">{{ formatDate(a.updatedAt) }}</td>
               </tr>
             </tbody>
           </table>
@@ -127,6 +120,7 @@ import { computed, onMounted, ref } from "vue";
 import { FileText, FileEdit, CheckCircle2, Eye, Mail, MessageSquare } from "lucide-vue-next";
 import { adminService } from "@/services/admin.service";
 import StatusBadge from "@/components/ui/StatusBadge.vue";
+import EmptyState from "@/components/ui/EmptyState.vue";
 import type { DashboardStats } from "@/types";
 
 const stats = ref<DashboardStats | null>(null);
@@ -137,12 +131,12 @@ const statCards = computed(() => {
   const c = stats.value?.counts;
   if (!c) return [];
   return [
-    { label: "អត្ថបទសរុប", value: c.totalArticles, icon: FileText, bg: "bg-brand-50", color: "text-brand-600" },
-    { label: "បានផ្សាយ", value: c.published, icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600" },
-    { label: "សេចក្តីព្រាង", value: c.drafts, icon: FileEdit, bg: "bg-amber-50", color: "text-amber-600" },
-    { label: "អ្នកចុះឈ្មោះព្រឹត្តិបត្រ", value: c.newsletter, icon: Mail, bg: "bg-violet-50", color: "text-violet-600" },
-    { label: "មតិរង់ចាំ", value: c.commentsPending, icon: MessageSquare, bg: "bg-rose-50", color: "text-rose-600" },
-    { label: "ការមើលសរុប", value: c.totalViews, icon: Eye, bg: "bg-sky-50", color: "text-sky-600" },
+    { label: "អត្ថបទសរុប", value: c.totalArticles.toLocaleString(), icon: FileText, bg: "bg-brand-50", color: "text-brand-600" },
+    { label: "បានផ្សាយ", value: c.published.toLocaleString(), icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600" },
+    { label: "សេចក្តីព្រាង", value: c.drafts.toLocaleString(), icon: FileEdit, bg: "bg-amber-50", color: "text-amber-600" },
+    { label: "ការមើលសរុប", value: c.totalViews.toLocaleString(), icon: Eye, bg: "bg-sky-50", color: "text-sky-600" },
+    { label: "មតិរង់ចាំ", value: c.commentsPending.toLocaleString(), icon: MessageSquare, bg: "bg-rose-50", color: "text-rose-600" },
+    { label: "ព្រឹត្តិបត្រ", value: c.newsletter.toLocaleString(), icon: Mail, bg: "bg-violet-50", color: "text-violet-600" },
   ];
 });
 
@@ -150,6 +144,21 @@ const maxViews = computed(() => Math.max(1, ...(stats.value?.topArticles.map((a)
 
 function barWidth(views: number) {
   return `${Math.max(3, Math.round((views / maxViews.value) * 100))}%`;
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString();
+}
+
+function relativeTime(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 1) return "ទើបតែឥឡូវ";
+  if (mins < 60) return `${mins} នាទីមុន`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} ម៉ោងមុន`;
+  const days = Math.floor(hours / 24);
+  return `${days} ថ្ងៃមុន`;
 }
 
 function actionLabel(action: string) {

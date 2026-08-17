@@ -1,5 +1,5 @@
 import { api, unwrap } from "./api";
-import type { Advertisement, Category, NavigationItem, SiteSettings, Tag } from "@/types";
+import type { Advertisement, Category, NavigationItem, SiteSettings, Tag, TickerData } from "@/types";
 
 export const contentService = {
   settings() {
@@ -19,6 +19,9 @@ export const contentService = {
   },
   navigation() {
     return unwrap<NavigationItem[]>(api.get("/navigation"));
+  },
+  ticker() {
+    return unwrap<TickerData>(api.get("/ticker"));
   },
   submitContact(payload: { name: string; email: string; subject?: string; message: string }) {
     return unwrap<{ id: number }>(api.post("/contact", payload));

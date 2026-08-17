@@ -1,0 +1,20 @@
+# Repo-root build context (backend image) — keep host state out.
+node_modules
+**/node_modules
+dist
+**/dist
+*.db
+*.db-journal
+*.sqlite
+**/*.db
+**/*.db-journal
+.env
+.env.local
+**/.env
+.git
+logs
+*.log
+uploads
+**/uploads
+coverage
+**.png.tmp

@@ -16,9 +16,15 @@
 
     <Modal v-model="modalOpen" :title="editing ? 'កែសម្រួលស្លាក' : 'បន្ថែមស្លាក'">
       <form class="space-y-3" @submit.prevent="save">
-        <div>
-          <label class="label">ឈ្មោះ *</label>
-          <input v-model="form.name" type="text" class="input" required />
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="label">ឈ្មោះ (ខ្មែរ) *</label>
+            <input v-model="form.name" type="text" class="input" required />
+          </div>
+          <div>
+            <label class="label">ឈ្មោះ (English)</label>
+            <input v-model="form.nameEn" type="text" class="input" placeholder="Technology" />
+          </div>
         </div>
         <div>
           <label class="label">Slug</label>
@@ -47,7 +53,7 @@ const modalOpen = ref(false);
 const confirmOpen = ref(false);
 const editing = ref(false);
 let target: Tag | null = null;
-const form = reactive({ name: "", slug: "" });
+const form = reactive({ name: "", nameEn: "", slug: "" });
 
 async function load() {
   items.value = await adminService.tags();
@@ -55,19 +61,19 @@ async function load() {
 
 function openCreate() {
   editing.value = false;
-  Object.assign(form, { name: "", slug: "" });
+  Object.assign(form, { name: "", nameEn: "", slug: "" });
   modalOpen.value = true;
 }
 
 function openEdit(t: Tag) {
   editing.value = true;
-  Object.assign(form, { name: t.name, slug: t.slug });
+  Object.assign(form, { name: t.name, nameEn: t.nameEn ?? "", slug: t.slug });
   target = t;
   modalOpen.value = true;
 }
 
 async function save() {
-  const payload = { name: form.name, slug: form.slug || undefined };
+  const payload = { name: form.name, nameEn: form.nameEn || null, slug: form.slug || undefined };
   try {
     if (editing.value && target) {
       await adminService.updateTag(target.id, payload);

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticate, requireAdmin, requireEditor } from "../middleware/auth";
-import { clearPublicCache } from "../middleware/cache";
+import { invalidateAdminMutation } from "../middleware/cache";
 import { upload } from "../middleware/upload";
 import { validate } from "../middleware/validate";
 import * as articleController from "../controllers/admin.article.controller";
@@ -10,9 +10,9 @@ import * as userController from "../controllers/admin.user.controller";
 import * as moderationController from "../controllers/admin.moderation.controller";
 import * as systemController from "../controllers/admin.system.controller";
 import * as builderController from "../controllers/admin.builder.controller";
-import { adminArticleListQuery, articleCreateSchema, articleParamsSchema, articleUpdateSchema } from "../validators/article.validator";
+import { adminArticleListQuery, articleBulkSchema, articleCreateSchema, articleParamsSchema, articleUpdateSchema } from "../validators/article.validator";
 import { homepageReorderSchema, homepageSectionsUpdateSchema, navCreateSchema, navReorderSchema, navUpdateSchema } from "../validators/homepage.validator";
-import { categoryCreateSchema, categoryReorderSchema, categoryUpdateSchema, commentListQuery, commentStatusSchema, idParamsSchema, newsletterListQuery, tagCreateSchema, tagUpdateSchema, adCreateSchema, adUpdateSchema } from "../validators/content.validator";
+import { categoryCreateSchema, categoryReorderSchema, categoryUpdateSchema, commentListQuery, commentStatusSchema, idParamsSchema, mediaBulkSchema, newsletterListQuery, tagCreateSchema, tagUpdateSchema, adCreateSchema, adUpdateSchema } from "../validators/content.validator";
 import { userCreateSchema, userListQuery, userUpdateSchema } from "../validators/user.validator";
 import { settingsUpdateSchema } from "../validators/settings.validator";
 
@@ -20,10 +20,15 @@ export const adminRouter = Router();
 
 adminRouter.use(authenticate);
 
-// Any mutation through the admin API invalidates the public feed cache so
-// published content appears on the website immediately.
+// Any mutation through the admin API invalidates only the public feeds it
+// can affect (breaking / featured / category / article detail / settings / …)
+// so published content appears on the website immediately. Awaited so a GET
+// right after a mutation never reads the pre-mutation cache.
 adminRouter.use((req, _res, next) => {
-  if (req.method !== "GET") clearPublicCache();
+  if (req.method !== "GET") {
+    invalidateAdminMutation(req).finally(() => next());
+    return;
+  }
   next();
 });
 
@@ -47,8 +52,9 @@ adminRouter.delete("/navigation/:id", requireEditor, validate(idParamsSchema), b
 
 // ---- Articles ----
 adminRouter.get("/articles", validate(adminArticleListQuery), articleController.list);
-adminRouter.get("/articles/:id", validate(articleParamsSchema), articleController.get);
 adminRouter.post("/articles", validate(articleCreateSchema), articleController.create);
+adminRouter.post("/articles/bulk", validate(articleBulkSchema), articleController.bulk);
+adminRouter.get("/articles/:id", validate(articleParamsSchema), articleController.get);
 adminRouter.patch("/articles/:id", validate(articleParamsSchema), validate(articleUpdateSchema), articleController.update);
 adminRouter.delete("/articles/:id", validate(articleParamsSchema), articleController.remove);
 
@@ -68,6 +74,7 @@ adminRouter.delete("/tags/:id", requireEditor, validate(idParamsSchema), content
 // ---- Media ----
 adminRouter.get("/media", mediaController.list);
 adminRouter.post("/media/upload", requireEditor, upload("file"), mediaController.upload);
+adminRouter.post("/media/bulk", requireEditor, validate(mediaBulkSchema), mediaController.bulk);
 adminRouter.delete("/media/:id", requireEditor, validate(idParamsSchema), mediaController.remove);
 
 // ---- Users ----

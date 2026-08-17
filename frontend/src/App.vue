@@ -1,7 +1,8 @@
 <template>
   <div class="news-app">
-    <a href="#main-content" class="skip-link">រំលងទៅកាន់មាតិកា</a>
+    <a href="#main-content" class="skip-link">{{ isEn ? "Skip to content" : "រំលងទៅកាន់មាតិកា" }}</a>
     <SiteHeader v-if="!route.meta.bare" />
+    <LiveNewsTicker v-if="!route.meta.bare" />
     <main id="main-content" tabindex="-1">
       <RouterView v-slot="{ Component }">
         <Transition name="fade" mode="out-in">
@@ -14,21 +15,28 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import SiteHeader from "@/components/layout/SiteHeader.vue";
 import SiteFooter from "@/components/layout/SiteFooter.vue";
+import LiveNewsTicker from "@/components/common/LiveNewsTicker.vue";
 import { useSettingsStore } from "@/stores/settings";
+import { useLocaleStore } from "@/stores/locale";
 import { useTheme } from "@/composables/useTheme";
 
 const route = useRoute();
 const settingsStore = useSettingsStore();
+const locale = useLocaleStore();
+const isEn = computed(() => locale.isEn);
 useTheme();
+
+// Apply the persisted language to <html lang> on boot.
+document.documentElement.lang = locale.isEn ? "en" : "km";
 
 // Load settings once at app start so the theme applies before first paint
 // of content sections (store is cached, so later loads are no-ops).
 onMounted(() => {
-  settingsStore.load();
+  settingsStore.load().then(() => locale.syncWithSettings());
 });
 </script>
 

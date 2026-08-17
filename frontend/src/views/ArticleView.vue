@@ -5,12 +5,12 @@
       <div class="row">
         <div class="col-lg-12">
           <div class="trending-tittle">
-            <strong>កំពុងពេញនិយម</strong>
+            <strong>{{ t.home.trending }}</strong>
             <div class="trending-animated">
-              <ul class="breaking-ticker" aria-label="ព័ត៌មានកំពុងពេញនិយម">
+              <ul class="breaking-ticker" :aria-label="t.home.trending">
                 <Transition name="ticker" mode="out-in">
                   <li v-if="breaking.length" :key="tickerIndex" class="news-item">
-                    <RouterLink :to="`/article/${breaking[tickerIndex].slug}`">{{ breaking[tickerIndex].title }}</RouterLink>
+                    <RouterLink :to="`/article/${breaking[tickerIndex].slug}`">{{ title(breaking[tickerIndex]) }}</RouterLink>
                   </li>
                 </Transition>
               </ul>
@@ -28,45 +28,45 @@
           <div class="news-detail-wrap">
             <!-- Breadcrumb -->
             <div class="news-breadcrumb">
-              <RouterLink to="/">ទំព័រដើម</RouterLink>
+              <RouterLink to="/">{{ t.nav.home }}</RouterLink>
               <span class="sep">/</span>
-              <RouterLink :to="`/category/${article.category?.slug}`">{{ article.category?.name }}</RouterLink>
+              <RouterLink :to="`/category/${article.category?.slug}`">{{ catName(article) }}</RouterLink>
               <span class="sep">/</span>
               <span class="current">{{ shortTitle }}</span>
             </div>
 
-            <span class="news-cat" :style="catStyle">{{ article.category?.name }}</span>
-            <h1 class="news-title">{{ article.title }}</h1>
+            <span class="news-cat" :style="catStyle">{{ catName(article) }}</span>
+            <h1 class="news-title">{{ title(article) }}</h1>
 
             <div class="news-meta">
               <span v-if="article.publishedAt"><i class="ti-calendar"></i> {{ formatKhmerDateFull(article.publishedAt) }}</span>
               <span><i class="ti-user"></i> {{ article.author?.name }}</span>
-              <span><i class="ti-timer"></i> {{ toKhmerDigits(readingTime(article.content)) }} នាទីអាន</span>
-              <span><i class="ti-eye"></i> {{ formatViews(article.views) }} ដង</span>
+              <span><i class="ti-timer"></i> {{ toKhmerDigits(readingTime(localizedContent)) }} {{ t.common.minuteRead }}</span>
+              <span><i class="ti-eye"></i> {{ formatViews(article.views) }} {{ t.common.times }}</span>
             </div>
 
             <div class="news-thumb">
-              <ArticleThumb :src="article.featuredImage" :alt="article.title" />
+              <ArticleThumb :src="article.featuredImage" :alt="title(article)" />
             </div>
 
             <div class="news-body">
-              <p v-if="article.excerpt" class="news-lead">{{ article.excerpt }}</p>
+              <p v-if="localizedExcerpt" class="news-lead">{{ localizedExcerpt }}</p>
               <!-- Article content -->
               <div class="news-content news-content-read" v-html="sanitizedContent"></div>
 
               <div v-if="article.tags?.length" class="news-tags">
                 <RouterLink
-                  v-for="t in article.tags"
-                  :key="t.id"
-                  :to="{ name: 'search', query: { q: t.name } }"
+                  v-for="tag in article.tags"
+                  :key="tag.id"
+                  :to="{ name: 'search', query: { q: tag.name } }"
                   class="tag-chip"
-                >#{{ t.name }}</RouterLink>
+                >#{{ tag.name }}</RouterLink>
               </div>
             </div>
 
             <!-- Share -->
             <div class="news-social">
-              <h4>ចែករំលែកអត្ថបទនេះ</h4>
+              <h4>{{ t.article.share }}</h4>
               <div class="social-row">
                 <a :href="share.facebook" class="fb" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i> Facebook</a>
                 <a :href="share.tiktok" class="tt" target="_blank" rel="noopener"><i class="fab fa-tiktok"></i> TikTok</a>
@@ -77,7 +77,7 @@
 
             <!-- Comments -->
             <div class="news-comments">
-              <h3 class="side-title">មតិយោបល់ ({{ comments.length }})</h3>
+              <h3 class="side-title">{{ t.article.comments }} ({{ comments.length }})</h3>
               <div v-if="comments.length" class="comment-list">
                 <div v-for="c in comments" :key="c.id" class="single-comment">
                   <div class="comment-head">
@@ -87,23 +87,23 @@
                   <p>{{ c.content }}</p>
                 </div>
               </div>
-              <EmptyState v-else message="មិនទាន់មានមតិយោបល់នៅឡើយទេ" />
+              <EmptyState v-else :message="t.article.noComments" />
 
               <form class="comment-form mt-4" @submit.prevent="submitComment">
-                <h4>ទុកមតិយោបល់</h4>
+                <h4>{{ t.article.leaveComment }}</h4>
                 <div class="row">
                   <div class="col-md-6">
-                    <input v-model="commentForm.name" type="text" placeholder="ឈ្មោះ" required class="form-control" />
+                    <input v-model="commentForm.name" type="text" :placeholder="t.article.name" required class="form-control" />
                   </div>
                   <div class="col-md-6">
-                    <input v-model="commentForm.email" type="email" placeholder="អ៊ីមែល" required class="form-control" />
+                    <input v-model="commentForm.email" type="email" :placeholder="t.article.email" required class="form-control" />
                   </div>
                   <div class="col-12">
-                    <textarea v-model="commentForm.content" rows="4" placeholder="មតិយោបល់របស់អ្នក..." required class="form-control"></textarea>
+                    <textarea v-model="commentForm.content" rows="4" :placeholder="t.article.commentPlaceholder" required class="form-control"></textarea>
                   </div>
                   <div class="col-12">
                     <button type="submit" class="btn boxed-btn" :disabled="commentSending">
-                      {{ commentSending ? "កំពុងផ្ញើ..." : "ផ្ញើមតិ" }}
+                      {{ commentSending ? t.article.sendingComment : t.article.sendComment }}
                     </button>
                   </div>
                   <p v-if="commentMsg" class="col-12 comment-msg">{{ commentMsg }}</p>
@@ -123,7 +123,7 @@
 
       <!-- Related -->
       <div v-if="related.length" v-reveal class="news-related">
-        <SectionTitle title="ព័ត៌មានពាក់ព័ន្ធ" to="/news" />
+        <SectionTitle :title="t.article.related" to="/news" />
         <div class="row">
           <div v-for="(a, i) in related" :key="a.id" class="col-lg-4 col-md-6">
             <div v-reveal="i">
@@ -152,6 +152,7 @@ import ArticleCard from "@/components/article/ArticleCard.vue";
 import SidebarPopular from "@/components/article/SidebarPopular.vue";
 import AdSlot from "@/components/ads/AdSlot.vue";
 import NavatraPoster from "@/components/article/NavatraPoster.vue";
+import { useLocalized } from "@/composables/useLocalized";
 import { formatKhmerDate, formatKhmerDateFull, formatViews, readingTime, toKhmerDigits } from "@/utils/format";
 
 const route = useRoute();
@@ -185,10 +186,15 @@ const commentForm = reactive({ name: "", email: "", content: "" });
 const commentSending = ref(false);
 const commentMsg = ref("");
 
+const { title, excerpt, content, catName, t } = useLocalized();
+
 const shortTitle = computed(() => {
-  const t = article.value?.title ?? "";
-  return t.length > 40 ? `${t.slice(0, 40)}...` : t;
+  const ttl = title(article.value as never) ?? "";
+  return ttl.length > 40 ? `${ttl.slice(0, 40)}...` : ttl;
 });
+
+const localizedExcerpt = computed(() => (article.value ? excerpt(article.value) : ""));
+const localizedContent = computed(() => (article.value ? content(article.value) : ""));
 
 const catStyle = computed(() => {
   const color = article.value?.category?.color;
@@ -196,7 +202,7 @@ const catStyle = computed(() => {
 });
 
 const sanitizedContent = computed(() => {
-  const raw = article.value?.content ?? "";
+  const raw = localizedContent.value;
   // Lightweight sanitize: strip script/iframe/on* attributes.
   return raw
     .replace(/<script[\s\S]*?<\/script>/gi, "")
@@ -208,8 +214,8 @@ const pageUrl = computed(() => window.location.href);
 const share = computed(() => ({
   facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl.value)}`,
   tiktok: `https://www.tiktok.com/share?url=${encodeURIComponent(pageUrl.value)}`,
-  telegram: `https://t.me/share/url?url=${encodeURIComponent(pageUrl.value)}&text=${encodeURIComponent(article.value?.title ?? "")}`,
-  whatsapp: `https://wa.me/?text=${encodeURIComponent(`${article.value?.title ?? ""} ${pageUrl.value}`)}`,
+  telegram: `https://t.me/share/url?url=${encodeURIComponent(pageUrl.value)}&text=${encodeURIComponent(title(article.value as never))}`,
+  whatsapp: `https://wa.me/?text=${encodeURIComponent(`${title(article.value as never)} ${pageUrl.value}`)}`,
 }));
 
 useSeo(
@@ -217,8 +223,8 @@ useSeo(
     const a = article.value;
     const base = window.location.origin;
     return {
-      title: `${a?.title ?? "Navatra 4K TV"} | Navatra 4K TV`,
-      description: a?.excerpt ?? a?.title ?? "",
+      title: `${a ? title(a) : "Navatra 4K TV"} | Navatra 4K TV`,
+      description: a ? excerpt(a) || title(a) : "",
       image: a?.featuredImage,
       url: pageUrl.value,
       type: "article",
@@ -227,8 +233,8 @@ useSeo(
             {
               "@context": "https://schema.org",
               "@type": "NewsArticle",
-              headline: a.title,
-              description: a.excerpt ?? undefined,
+              headline: title(a),
+              description: excerpt(a) || undefined,
               image: a.featuredImage ?? undefined,
               datePublished: a.publishedAt ?? a.createdAt,
               dateModified: a.updatedAt,
@@ -247,14 +253,14 @@ useSeo(
               "@context": "https://schema.org",
               "@type": "BreadcrumbList",
               itemListElement: [
-                { "@type": "ListItem", position: 1, name: "ទំព័រដើម", item: base },
+                { "@type": "ListItem", position: 1, name: t.nav.home, item: base },
                 {
                   "@type": "ListItem",
                   position: 2,
-                  name: a.category?.name ?? "ព័ត៌មាន",
+                  name: catName(a) || t.nav.news,
                   item: `${base}/category/${a.category?.slug ?? "news"}`,
                 },
-                { "@type": "ListItem", position: 3, name: a.title },
+                { "@type": "ListItem", position: 3, name: title(a) },
               ],
             },
           ]
@@ -281,7 +287,7 @@ async function load() {
     comments.value = await articleService.comments(a.id).catch(() => []);
     startTicker();
   } catch (e) {
-    error.value = e instanceof Error ? e.message : "មិនអាចផ្ទុកអត្ថបទបានទេ";
+    error.value = e instanceof Error ? e.message : t.article.loadFailed;
   } finally {
     loading.value = false;
   }
@@ -298,10 +304,10 @@ async function submitComment() {
       email: commentForm.email,
       content: commentForm.content,
     });
-    commentMsg.value = "សូមអរគុណ! មតិរបស់អ្នកត្រូវបានទទួល ហើយកំពុងរង់ចាំការអនុម័ត។";
+    commentMsg.value = t.article.commentThanks;
     commentForm.content = "";
   } catch (e) {
-    commentMsg.value = e instanceof Error ? e.message : "មានបញ្ហាក្នុងការផ្ញើមតិ";
+    commentMsg.value = e instanceof Error ? e.message : t.article.commentFailed;
   } finally {
     commentSending.value = false;
   }

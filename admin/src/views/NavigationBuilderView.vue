@@ -40,9 +40,15 @@
     <div class="card h-fit p-5">
       <h3 class="text-sm font-semibold text-slate-700">{{ editing ? "កែសម្រួលធាតុ" : "បន្ថែមធាតុ" }}</h3>
       <form class="mt-4 space-y-3" @submit.prevent="submit">
-        <div>
-          <label class="label">ឈ្មោះ *</label>
-          <input v-model="form.label" type="text" class="input" required />
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="label">ឈ្មោះ (ខ្មែរ) *</label>
+            <input v-model="form.label" type="text" class="input" required />
+          </div>
+          <div>
+            <label class="label">ឈ្មោះ (English)</label>
+            <input v-model="form.labelEn" type="text" class="input" placeholder="Home" />
+          </div>
         </div>
         <div>
           <label class="label">ប្រភេទ</label>
@@ -97,6 +103,7 @@ let deleteTarget: NavigationItem | null = null;
 
 const form = reactive({
   label: "",
+  labelEn: "",
   type: "page" as NavigationItem["type"],
   value: "",
   isActive: true,
@@ -129,6 +136,7 @@ async function load() {
 function resetForm() {
   editing.value = null;
   form.label = "";
+  form.labelEn = "";
   form.type = "page";
   form.value = "";
   form.isActive = true;
@@ -137,6 +145,7 @@ function resetForm() {
 function edit(item: NavigationItem) {
   editing.value = item;
   form.label = item.label;
+  form.labelEn = item.labelEn ?? "";
   form.type = item.type;
   form.value = item.value ?? "";
   form.isActive = item.isActive;
@@ -156,6 +165,7 @@ async function submit() {
     if (editing.value) {
       await adminService.updateNavItem(editing.value.id, {
         label: form.label,
+        labelEn: form.labelEn || null,
         type: form.type,
         value: form.value || null,
         isActive: form.isActive,
@@ -164,6 +174,7 @@ async function submit() {
     } else {
       await adminService.createNavItem({
         label: form.label,
+        labelEn: form.labelEn || null,
         type: form.type,
         value: form.value || null,
         isActive: form.isActive,

@@ -21,8 +21,10 @@ export interface User {
 export interface Category {
   id: number;
   name: string;
+  nameEn: string | null;
   slug: string;
   description: string | null;
+  descriptionEn: string | null;
   image: string | null;
   color: string | null;
   isActive: boolean;
@@ -34,15 +36,19 @@ export interface Category {
 export interface Tag {
   id: number;
   name: string;
+  nameEn: string | null;
   slug: string;
 }
 
 export interface Article {
   id: number;
   title: string;
+  titleEn: string | null;
   slug: string;
   excerpt: string | null;
+  excerptEn: string | null;
   content: string;
+  contentEn: string | null;
   featuredImage: string | null;
   authorId: number;
   categoryId: number;
@@ -69,6 +75,7 @@ export interface Paginated<T> {
 export interface Media {
   id: number;
   publicId: string | null;
+  objectKey: string | null;
   url: string;
   secureUrl: string;
   fileName: string;
@@ -77,6 +84,8 @@ export interface Media {
   format: string | null;
   size: number | null;
   altText: string | null;
+  caption: string | null;
+  folder: string;
   createdBy: number | null;
   createdAt: string;
 }
@@ -95,9 +104,13 @@ export interface Comment {
 export interface Advertisement {
   id: number;
   name: string;
+  title: string | null;
   image: string;
   link: string | null;
+  target: string;
   position: string;
+  device: string;
+  priority: number;
   isActive: boolean;
   startDate: string | null;
   endDate: string | null;
@@ -156,9 +169,23 @@ export interface DashboardStats {
 export interface SiteSettings {
   id: number;
   siteName: string;
+  siteNameEn: string | null;
   logo: string | null;
   favicon: string | null;
   description: string | null;
+  descriptionEn: string | null;
+  defaultLanguage: "kh" | "en";
+
+  // Live news ticker
+  tickerEnabled: boolean;
+  tickerTitle: string;
+  tickerSpeed: "slow" | "medium" | "fast";
+  tickerDirection: "left" | "right";
+  tickerCount: number;
+  tickerRefresh: number;
+  tickerBgColor: string;
+  tickerTextColor: string;
+  tickerAccentColor: string;
   facebook: string | null;
   telegram: string | null;
   youtube: string | null;
@@ -199,6 +226,7 @@ export interface HomepageSection {
 export interface NavigationItem {
   id: number;
   label: string;
+  labelEn: string | null;
   type: "home" | "category" | "page" | "link";
   value: string | null;
   sortOrder: number;

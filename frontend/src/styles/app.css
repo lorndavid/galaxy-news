@@ -1,18 +1,28 @@
-/* ------------------------------------------------------------------
-   Navatra 4K TV — Vue app-level styles on top of the original theme.
-   The original stylesheets (style.css, khmer.css) carry the design.
-------------------------------------------------------------------- */
+/* ==================================================================
+   Navatra 4K TV — Editorial Design System
+   ----------------------------------------------------------------
+   A clean, modern, professional layer on top of the original theme.
+   The template carries the brand (logo, colors, structure); this
+   file refines typography, spacing, alignment, cards, sections and
+   components into a consistent editorial system.
+
+   Design rules:
+   - restrained palette (brand navy + blue + accent only)
+   - compact spacing, tight section rhythm
+   - consistent container alignment across hero/sections/footer
+   - subtle borders & hover, no excessive shadows/gradients
+   - readable typography with responsive clamp() sizes
+   ================================================================== */
 
 /* ------------------------------------------------------------------
-   Theme tokens (admin-configurable via Site Settings → Appearance).
-   Defaults match the original brand; useTheme() overrides these from
-   the API before first content paint.
+   Design tokens (admin-configurable via Site Settings → Appearance).
 ------------------------------------------------------------------- */
 :root {
   --color-primary: #0d3fa9;
   --color-secondary: #0b1c39;
   --color-accent: #fc3f00;
   --color-surface: #ffffff;
+  --color-surface-alt: #f7f9fc;
   --color-text: #0b1c39;
   --color-muted: #667085;
   --color-border: #e5e7eb;
@@ -24,13 +34,16 @@
   --size-card: 18px;
   --size-body: 16px;
   --radius-card: 10px;
-  --radius-button: 10px;
-  --shadow-card: 0 2px 8px rgba(11, 28, 57, 0.06), 0 1px 2px rgba(11, 28, 57, 0.04);
+  --radius-button: 8px;
+  --shadow-card: 0 1px 2px rgba(11, 28, 57, 0.05), 0 4px 12px rgba(11, 28, 57, 0.05);
 }
 
-/* Fonts — headings and body use the admin-chosen families */
+/* ------------------------------------------------------------------
+   Typography — headings and body use the admin-chosen families.
+------------------------------------------------------------------- */
 h1, h2, h3, h4, h5, h6, .section-tittle h3, .trend-top-cap h1, .trend-top-cap h2 {
   font-family: var(--font-heading);
+  color: var(--color-text);
 }
 body, p, li, input, textarea, select, button {
   font-family: var(--font-body);
@@ -63,15 +76,13 @@ a:hover,
 /* ------------------------------------------------------------------
    Responsive typography — sizes interpolate smoothly between phone
    and desktop via clamp() instead of jumping at a single breakpoint.
-   The admin size tokens remain the desktop ceiling; mobile floors are
-   set so text stays compact but readable on every screen.
 ------------------------------------------------------------------- */
 .trend-top-cap h1 {
-  font-size: clamp(26px, 1.9vw + 1.05rem, var(--size-hero));
-  line-height: 1.3;
+  font-size: clamp(24px, 1.7vw + 1rem, var(--size-hero));
+  line-height: 1.35;
 }
 .section-tittle h3 {
-  font-size: clamp(19px, 1.1vw + 0.9rem, var(--size-section));
+  font-size: clamp(18px, 1vw + 0.85rem, var(--size-section));
 }
 .what-cap h4,
 .what-cap h4 a,
@@ -85,8 +96,8 @@ a:hover,
 .trand-right-cap h4 a,
 .news-row-title,
 .news-row-title a {
-  font-size: clamp(16px, 0.6vw + 0.85rem, var(--size-card));
-  line-height: 1.45;
+  font-size: clamp(15px, 0.55vw + 0.8rem, var(--size-card));
+  line-height: 1.5;
 }
 .news-content,
 .news-content p {
@@ -120,32 +131,48 @@ a:hover,
 }
 
 /* ------------------------------------------------------------------
-   Compact section rhythm — the template shipped with 100-110px section
-   paddings and 100px card margins. Trim them to a tight editorial
-   rhythm so the page reads like a real news site, not a demo template.
+   Container alignment — every section aligns to the same grid.
+------------------------------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+@media (max-width: 640px) {
+  .container {
+    padding-inline: 16px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Compact section rhythm — trim the template's oversized paddings
+   into a tight editorial rhythm.
 ------------------------------------------------------------------- */
 .weekly2-news-area.weekly2-pading {
-  padding-top: 64px !important;
+  padding-top: 56px !important;
   padding-bottom: 48px !important;
 }
 .youtube-area.video-padding {
-  padding-top: 60px !important;
-  padding-bottom: 36px !important;
+  padding-top: 52px !important;
+  padding-bottom: 40px !important;
+}
+.trending-area {
+  padding-top: 28px !important;
 }
 @media (max-width: 991px) {
   .weekly2-news-area.weekly2-pading {
-    padding-top: 40px !important;
-    padding-bottom: 32px !important;
+    padding-top: 36px !important;
+    padding-bottom: 30px !important;
   }
   .youtube-area.video-padding {
-    padding-top: 40px !important;
+    padding-top: 36px !important;
     padding-bottom: 28px !important;
   }
 }
 
-/* What's-new cards: caption flows under the image (like the carousel
-   cards already do) instead of hanging 63px below it — this removes
-   the overlap + giant margin and keeps the grid tight and aligned. */
+/* What's-new cards: caption flows under the image instead of hanging
+   below it — keeps the grid tight and aligned. */
 .whats-news-area .whats-news-caption .single-what-news .what-cap,
 .about-area .whats-news-caption .single-what-news .what-cap,
 .contact-section .whats-news-caption .single-what-news .what-cap {
@@ -158,23 +185,22 @@ a:hover,
 .whats-news-area .whats-news-caption .single-what-news .what-cap span,
 .about-area .whats-news-caption .single-what-news .what-cap span,
 .contact-section .whats-news-caption .single-what-news .what-cap span {
-  padding: 5px 10px;
+  padding: 4px 10px;
   margin-bottom: 8px;
   font-size: 10.5px;
+  border-radius: 4px;
 }
 .single-what-news.mb-100 {
-  margin-bottom: 36px;
+  margin-bottom: 32px;
 }
 @media (max-width: 991px) {
   .single-what-news.mb-100 {
-    margin-bottom: 26px;
+    margin-bottom: 24px;
   }
 }
 
 /* ------------------------------------------------------------------
    Premium news card system — consistent image ratios + subtle hover.
-   Images arrive in mixed native ratios, so we lock every card image
-   to a fixed aspect ratio (object-fit: cover) to stop layout shift.
 ------------------------------------------------------------------- */
 .trend-top-img img,
 .trend-bottom-img img,
@@ -251,7 +277,21 @@ a:hover,
 .single-recent .what-cap h4 a:hover,
 .trend-top-cap h1 a:hover,
 .trend-top-cap h2 a:hover {
-  color: #0d3fa9;
+  color: var(--color-primary);
+}
+
+/* Category chips on cards — clean, quiet */
+.what-cap span,
+.trend-bottom-cap span,
+.weekly2-caption span,
+.single-recent .what-cap span {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
 }
 
 /* Video cards — keep the overlay readable, zoom only the image */
@@ -263,8 +303,278 @@ a:hover,
   height: 100%;
 }
 
+/* ------------------------------------------------------------------
+   Breaking-news ticker — quiet bar, one headline at a time.
+------------------------------------------------------------------- */
+.breaking-ticker {
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  margin: 0;
+  padding: 0;
+}
+.breaking-ticker .news-item {
+  display: block;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.breaking-ticker .news-item a {
+  color: inherit;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.breaking-ticker .news-item a:hover {
+  color: var(--color-primary);
+}
+.trending-animated {
+  overflow: hidden;
+  height: 21px;
+}
+.ticker-enter-active,
+.ticker-leave-active {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.ticker-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.ticker-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.ticker-enter-active {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
 
-/* Global keyboard focus indicator (accessibility) */
+/* Trending list header — clean label */
+.trending-tittle strong {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* ------------------------------------------------------------------
+   Section titles — compact editorial headers with "view all".
+------------------------------------------------------------------- */
+.section-tittle {
+  position: relative;
+}
+.section-tittle h3 {
+  font-weight: 700;
+}
+.section-tittle h3::after {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--color-primary);
+  margin-top: 8px;
+}
+
+/* ------------------------------------------------------------------
+   Hero (trend-top) — clean overlay, readable text.
+------------------------------------------------------------------- */
+.trend-top-img {
+  position: relative;
+  overflow: hidden;
+}
+.trend-top-cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 40px 24px 20px;
+  background: linear-gradient(to bottom, rgba(11, 28, 57, 0) 0%, rgba(11, 28, 57, 0.78) 100%);
+}
+.trend-top-cap span {
+  display: inline-block;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+.trend-top-cap h1 a,
+.trend-top-cap h2 a {
+  color: #fff;
+  text-decoration: none;
+}
+.trend-top-cap h1 a:hover,
+.trend-top-cap h2 a:hover {
+  color: #dbe4ff;
+}
+
+/* ------------------------------------------------------------------
+   Sidebar popular list — compact numbered rows.
+------------------------------------------------------------------- */
+.trand-right-single {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+.trand-right-cap h4 {
+  margin: 0 0 4px;
+}
+.trand-right-cap span {
+  font-size: 11px;
+  color: var(--color-muted);
+}
+
+/* ------------------------------------------------------------------
+   Article page typography.
+------------------------------------------------------------------- */
+.news-content {
+  font-size: 16px;
+  line-height: 1.95;
+  color: #333;
+}
+.news-content p {
+  font-size: 16px;
+  line-height: 1.95;
+  color: #333;
+  margin-bottom: 18px;
+}
+.news-title {
+  font-size: clamp(22px, 1.4vw + 1rem, 34px);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--color-text);
+  margin: 10px 0 12px;
+  overflow-wrap: anywhere;
+}
+.news-lead {
+  font-size: clamp(15px, 0.4vw + 0.9rem, 17px);
+  line-height: 1.75;
+  color: #444;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+.news-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: 13px;
+  color: var(--color-muted);
+  margin-bottom: 16px;
+}
+.news-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.news-meta i {
+  font-size: 13px;
+}
+.news-cat {
+  display: inline-block;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 4px;
+}
+
+/* Responsive tables inside article content */
+.news-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  font-size: 14.5px;
+}
+.news-content table th,
+.news-content table td {
+  border: 1px solid var(--color-border);
+  padding: 8px 12px;
+}
+
+/* ------------------------------------------------------------------
+   Sticky navigation compensation (see SiteHeader).
+   Desktop pins the black nav bar (72px when pinned); mobile pins the
+   black brand bar (68px).
+------------------------------------------------------------------- */
+body.has-editorial-sticky {
+  padding-top: 72px;
+}
+@media (max-width: 991px) {
+  body.has-editorial-sticky {
+    padding-top: 68px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Scroll-reveal — sections fade + rise 12px as they enter the viewport.
+------------------------------------------------------------------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* ------------------------------------------------------------------
+   Carousel slides — fixed widths for the lightweight carousel.
+------------------------------------------------------------------- */
+.carousel-track .weekly-single,
+.carousel-track .weekly2-single,
+.carousel-track .single-recent {
+  width: 320px;
+}
+@media (max-width: 575px) {
+  .carousel-track .weekly-single,
+  .carousel-track .weekly2-single,
+  .carousel-track .single-recent {
+    width: 260px;
+  }
+}
+.carousel-track .weekly-single .weekly-caption,
+.carousel-track .weekly2-single .weekly2-caption,
+.carousel-track .single-recent .what-cap {
+  opacity: 1;
+  visibility: visible;
+  position: static;
+  margin: 0;
+  transform: none;
+  box-shadow: none;
+}
+.carousel-track .weekly2-single .weekly2-caption span,
+.carousel-track .single-recent .what-cap span {
+  padding: 4px 10px;
+  margin-bottom: 8px;
+  font-size: 10.5px;
+}
+.carousel-track .weekly2-single .weekly2-caption p {
+  margin: 8px 0 4px;
+  font-size: 12.5px;
+  color: var(--color-muted);
+}
+.single-recent.mb-100 {
+  margin-bottom: 32px;
+}
+@media (max-width: 991px) {
+  .single-recent.mb-100 {
+    margin-bottom: 24px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Global keyboard focus indicator (accessibility).
+------------------------------------------------------------------- */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -288,69 +598,11 @@ select:focus-visible,
   }
 }
 
-/* Breaking-news ticker — subtle fade/slide cycle, one headline at a time.
-   The Vue component rotates the visible headline; these styles keep the
-   container quiet and the link readable. */
-.breaking-ticker {
-  position: relative;
-  overflow: hidden;
-  white-space: nowrap;
-  margin: 0;
-  padding: 0;
-}
-.breaking-ticker .news-item {
-  display: block;
-  padding: 0;
-  font-size: 14px;
-  line-height: 1.5;
-}
-.breaking-ticker .news-item a {
-  color: inherit;
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.breaking-ticker .news-item a:hover {
-  color: #0d3fa9;
-}
-.trending-animated {
-  overflow: hidden;
-  height: 21px;
-}
-
-/* Ticker fade transition */
-.ticker-enter-active,
-.ticker-leave-active {
-  transition: opacity 0.35s ease, transform 0.35s ease;
-}
-.ticker-enter-from {
-  opacity: 0;
-  transform: translateY(8px);
-}
-.ticker-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-.ticker-enter-active {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-}
-
-
-
 /* Lazy image fade-in */
-.lazy-img {
-  transition: opacity 0.35s ease;
-}
-
-/* The original theme sized images via direct-descendant selectors;
-   our components wrap images in <a> links, so constrain them here. */
 .lazy-img {
   display: block;
   max-width: 100%;
+  transition: opacity 0.35s ease;
 }
 .what-img a,
 .trend-bottom-img a,
@@ -363,182 +615,247 @@ select:focus-visible,
   overflow: hidden;
 }
 
-/* Search box (desktop) - keep original look but ensure usability */
-.header-right-btn .search-box input {
-  font-family: "Noto Sans Khmer", "Kantumruy", "Roboto", sans-serif;
+/* ------------------------------------------------------------------
+   Buttons & forms — clean, compact, consistent.
+------------------------------------------------------------------- */
+.boxed-btn {
+  display: inline-block;
+  background: var(--color-primary);
+  color: #fff !important;
+  border: 1px solid var(--color-primary);
+  padding: 11px 26px;
+  border-radius: var(--radius-button);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.boxed-btn:hover {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: #fff !important;
+}
+.btn.boxed-btn {
+  min-width: 0;
+  padding: 11px 26px;
+  border-radius: var(--radius-button);
 }
 
-/* Article content typography */
-.news-content {
-  font-size: 16px;
-  line-height: 1.95;
-  color: #333;
+.form-control {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-button);
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--color-text);
 }
-.news-content p {
-  font-size: 16px;
-  line-height: 1.95;
-  color: #333;
-  margin-bottom: 18px;
+.form-control:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(13, 63, 169, 0.12);
 }
 
-/* Article page title + meta — compact editorial hierarchy */
-.news-title {
-  font-size: clamp(22px, 1.5vw + 1rem, 34px);
-  font-weight: 700;
-  line-height: 1.35;
-  color: #0b1c39;
-  margin: 10px 0 12px;
-  overflow-wrap: anywhere;
+/* ------------------------------------------------------------------
+   Category page hero.
+------------------------------------------------------------------- */
+.category-hero {
+  border-radius: 14px;
+  padding: 36px 30px;
+  color: #fff;
+  margin-bottom: 10px;
 }
-.news-lead {
-  font-size: clamp(15px, 0.4vw + 0.9rem, 17px);
-  line-height: 1.7;
-  color: #444;
-  font-weight: 500;
-  margin-bottom: 16px;
+.category-hero-inner h1 {
+  color: #fff;
+  font-size: 30px;
+  margin-bottom: 6px;
 }
-.news-meta {
+.category-hero-inner p {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  font-size: 15px;
+}
+@media (max-width: 767px) {
+  .category-hero {
+    padding: 26px 20px;
+  }
+  .category-hero-inner h1 {
+    font-size: 24px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Video section.
+------------------------------------------------------------------- */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+@media (max-width: 991px) {
+  .video-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 575px) {
+  .video-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.video-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-primary);
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 18px;
-  font-size: 13px;
-  color: #667085;
-  margin-bottom: 16px;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: transform 0.25s ease;
+  z-index: 2;
 }
-.news-meta span {
+.video-card:hover .video-play {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+.video-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 28px 14px 12px;
+  background: linear-gradient(to bottom, rgba(11, 28, 57, 0) 0%, rgba(11, 28, 57, 0.75) 100%);
+  z-index: 1;
+}
+.video-overlay h4 {
+  color: #fff;
+  font-size: 13.5px;
+  line-height: 1.45;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.video-caption .top-caption span {
+  font-weight: 700;
+  font-size: 15px;
+}
+.video-caption .bottom-caption h2 {
+  font-size: clamp(20px, 1.2vw + 0.9rem, 28px);
+  color: var(--color-text);
+}
+.video-cta {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 11px 22px;
+  border-radius: var(--radius-button);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.2s ease;
 }
-.news-meta i {
+.video-cta:hover {
+  background: var(--color-secondary);
+  color: #fff;
+}
+
+/* ------------------------------------------------------------------
+   Footer refinements — quieter, aligned, not oversized.
+------------------------------------------------------------------- */
+.footer-area {
+  background: var(--color-secondary);
+}
+.footer-area .footer-tittle h4 {
+  color: #fff;
+  font-size: 16px;
+  margin-bottom: 18px;
+}
+.footer-area .footer-pera p {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 14px;
+  line-height: 1.8;
+}
+.footer-area .footer-social a {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 15px;
+}
+.footer-area .footer-social a:hover {
+  color: #fff;
+}
+.footer-bottom-area {
+  background: rgba(0, 0, 0, 0.25);
+}
+.footer-bottom-area .footer-copy-right p {
+  color: rgba(255, 255, 255, 0.6);
   font-size: 13px;
 }
+.footer-bottom-area .footer-menu a {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+}
+.footer-bottom-area .footer-menu a:hover {
+  color: #fff;
+}
 
-/* Responsive tables inside article content */
-.news-content table {
+/* Footer newsletter form — clean */
+.footer-form input {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border-radius: var(--radius-button);
+  padding: 10px 44px 10px 14px;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  outline: none;
   width: 100%;
-  border-collapse: collapse;
-  margin: 18px 0;
-  font-size: 14.5px;
 }
-.news-content table th,
-.news-content table td {
-  border: 1px solid #e5e7eb;
-  padding: 8px 12px;
+.footer-form input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+.footer-form input:focus {
+  border-color: var(--color-primary);
+}
+.footer-form .email_icon {
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-button);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.footer-form .email_icon:hover {
+  background: var(--color-accent);
 }
 
-/* Sticky bar overrides kept consistent with original mobile design */
+/* Instagram grid in footer — tight, square */
+.insta-feed {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.insta-feed img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* ------------------------------------------------------------------
+   Mobile header / sticky bar cleanup (legacy classes no longer used
+   by the new header, kept for template remnants).
+------------------------------------------------------------------- */
 @media (max-width: 767px) {
   .header-area .header-bottom {
     padding: 0 12px !important;
-  }
-}
-
-/* ------------------------------------------------------------------
-   Sticky navigation — the nav bar pins to the top on scroll with a
-   subtle shadow. The template's sticky-bar.sticky rules were never
-   applied (the Vue component binds sticky-active), so we define them
-   here and keep the compact transition smooth. 300ms ease, transform
-   & box-shadow only (GPU friendly).
-------------------------------------------------------------------- */
-.header-bottom {
-  transition: box-shadow 0.3s ease;
-}
-.header-bottom.sticky-active {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 9999;
-  animation: headerFadeDown 0.3s ease;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
-}
-/* The sticky bar is narrower than the full header, so main content needs
-   a spacer when it pins — otherwise the page jumps up by the bar height. */
-body.has-sticky-nav .header-area {
-  margin-bottom: 62px;
-}
-
-@keyframes headerFadeDown {
-  from {
-    opacity: 0;
-    transform: translateY(-12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* Slight compaction of the menu links when pinned */
-.header-bottom.sticky-active .main-menu ul > li > a {
-  padding-top: 16px !important;
-  padding-bottom: 16px !important;
-  transition: padding 0.3s ease;
-}
-
-/* ------------------------------------------------------------------
-   Scroll-reveal — sections fade + rise 12px as they enter the viewport.
-   Elements are hidden only after the directive opts in (JS + IO present,
-   no reduced-motion), so content is never invisible without animation.
-------------------------------------------------------------------- */
-.reveal {
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
-  will-change: opacity, transform;
-}
-.reveal.revealed {
-  opacity: 1;
-  transform: none;
-}
-
-/* ------------------------------------------------------------------
-   Carousel slides — the original owl-carousel plugin set slide widths
-   at runtime; our lightweight carousel sets them in CSS instead.
-------------------------------------------------------------------- */
-.carousel-track .weekly-single,
-.carousel-track .weekly2-single,
-.carousel-track .single-recent {
-  width: 340px;
-}
-@media (max-width: 575px) {
-  .carousel-track .weekly-single,
-  .carousel-track .weekly2-single,
-  .carousel-track .single-recent {
-    width: 270px;
-  }
-}
-
-/* The original theme hides the caption until hover; for a scrollable
-   carousel we keep the caption visible so it works on touch devices. */
-.carousel-track .weekly-single .weekly-caption,
-.carousel-track .weekly2-single .weekly2-caption,
-.carousel-track .single-recent .what-cap {
-  opacity: 1;
-  visibility: visible;
-  position: static;
-  margin: 0;
-  transform: none;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-.carousel-track .weekly2-single .weekly2-caption span,
-.carousel-track .single-recent .what-cap span {
-  padding: 5px 10px;
-  margin-bottom: 8px;
-  font-size: 10.5px;
-}
-.carousel-track .weekly2-single .weekly2-caption p {
-  margin: 8px 0 4px;
-  font-size: 12.5px;
-  color: #667085;
-}
-/* Recent carousel: keep cards compact (no 100px dead space below) */
-.single-recent.mb-100 {
-  margin-bottom: 36px;
-}
-@media (max-width: 991px) {
-  .single-recent.mb-100 {
-    margin-bottom: 26px;
   }
 }

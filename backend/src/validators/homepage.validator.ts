@@ -40,6 +40,7 @@ export const homepageReorderSchema = z.object({
 export const navCreateSchema = z.object({
   body: z.object({
     label: z.string().trim().min(1).max(80),
+    labelEn: z.string().trim().max(80).nullable().optional(),
     type: z.enum(["home", "category", "page", "link"]),
     value: z.string().trim().max(200).nullable().optional(),
     isActive: z.boolean().optional(),

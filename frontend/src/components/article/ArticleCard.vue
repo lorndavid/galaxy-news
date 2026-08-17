@@ -2,14 +2,14 @@
   <article class="single-what-news mb-100">
     <div class="what-img">
       <RouterLink :to="`/article/${article.slug}`">
-        <ArticleThumb :src="article.featuredImage" :alt="article.title" :width="640" />
+        <ArticleThumb :src="article.featuredImage" :alt="title(article)" :width="640" />
       </RouterLink>
-      <span v-if="article.isBreaking" class="breaking-badge">ក្តៅ</span>
+      <span v-if="article.isBreaking" class="breaking-badge">{{ t.common.breaking }}</span>
     </div>
     <div class="what-cap">
-      <span :class="catClass">{{ article.category?.name }}</span>
+      <span :class="catClass">{{ catName(article) }}</span>
       <h4>
-        <RouterLink :to="`/article/${article.slug}`">{{ article.title }}</RouterLink>
+        <RouterLink :to="`/article/${article.slug}`">{{ title(article) }}</RouterLink>
       </h4>
       <div class="card-meta-line">
         <span v-if="article.publishedAt"><i class="ti-calendar"></i> {{ formatKhmerDate(article.publishedAt) }}</span>
@@ -24,8 +24,10 @@ import { computed } from "vue";
 import type { Article } from "@/types";
 import ArticleThumb from "@/components/common/ArticleThumb.vue";
 import { formatKhmerDate, formatViews } from "@/utils/format";
+import { useLocalized } from "@/composables/useLocalized";
 
 const props = defineProps<{ article: Article; variant?: "default" | "compact" }>();
+const { title, catName, t } = useLocalized();
 
 const catClass = computed(() => {
   const id = props.article.categoryId;

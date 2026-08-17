@@ -3,23 +3,34 @@ import { createApp, logStartup } from "./app";
 import { env } from "./config/env";
 import { logger } from "./lib/logger";
 import { prisma } from "./lib/prisma";
+import { ensureBucket } from "./lib/minio";
 
-const app = createApp();
-const server = http.createServer(app);
+async function bootstrap() {
+  // Create the MinIO bucket if missing (safe when MinIO is down).
+  await ensureBucket();
 
-server.listen(env.port, () => {
-  logStartup(env.port);
-});
+  const app = createApp();
+  const server = http.createServer(app);
 
-async function shutdown(signal: string) {
-  logger.info({ signal }, "Shutting down gracefully");
-  server.close(async () => {
-    await prisma.$disconnect();
-    process.exit(0);
+  server.listen(env.port, () => {
+    logStartup(env.port);
   });
-  // Force exit if connections linger.
-  setTimeout(() => process.exit(1), 10_000).unref();
+
+  async function shutdown(signal: string) {
+    logger.info({ signal }, "Shutting down gracefully");
+    server.close(async () => {
+      await prisma.$disconnect();
+      process.exit(0);
+    });
+    // Force exit if connections linger.
+    setTimeout(() => process.exit(1), 10_000).unref();
+  }
+
+  process.on("SIGINT", () => void shutdown("SIGINT"));
+  process.on("SIGTERM", () => void shutdown("SIGTERM"));
 }
 
-process.on("SIGINT", () => void shutdown("SIGINT"));
-process.on("SIGTERM", () => void shutdown("SIGTERM"));
+bootstrap().catch((error) => {
+  logger.error({ error }, "Fatal bootstrap error");
+  process.exit(1);
+});

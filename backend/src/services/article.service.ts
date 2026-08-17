@@ -254,8 +254,11 @@ export async function getAdmin(id: number) {
 
 export interface ArticleInput {
   title?: string;
-  excerpt?: string;
+  titleEn?: string | null;
+  excerpt?: string | null;
+  excerptEn?: string | null;
   content?: string;
+  contentEn?: string | null;
   featuredImage?: string | null;
   authorId?: number;
   categoryId?: number;
@@ -279,9 +282,12 @@ export async function createArticle(input: ArticleInput, userId: number, role: R
 
   const data: Prisma.ArticleUncheckedCreateInput = {
     title,
+    titleEn: input.titleEn?.trim() || null,
     slug,
     excerpt: input.excerpt?.trim() ?? null,
+    excerptEn: input.excerptEn?.trim() || null,
     content: sanitizeContent(input.content ?? ""),
+    contentEn: input.contentEn ? sanitizeContent(input.contentEn) : null,
     featuredImage: input.featuredImage ?? null,
     authorId: role === Role.AUTHOR ? userId : input.authorId ?? userId,
     categoryId: input.categoryId,
@@ -336,8 +342,11 @@ export async function updateArticle(
       data.slug = await uniqueSlug(title, id);
     }
   }
-  if (input.excerpt !== undefined) data.excerpt = input.excerpt.trim() || null;
+  if (input.titleEn !== undefined) data.titleEn = input.titleEn?.trim() || null;
+  if (input.excerpt !== undefined) data.excerpt = input.excerpt?.trim() || null;
+  if (input.excerptEn !== undefined) data.excerptEn = input.excerptEn?.trim() || null;
   if (input.content !== undefined) data.content = sanitizeContent(input.content);
+  if (input.contentEn !== undefined) data.contentEn = input.contentEn ? sanitizeContent(input.contentEn) : null;
   if (input.featuredImage !== undefined) data.featuredImage = input.featuredImage || null;
   if (input.categoryId !== undefined) data.categoryId = input.categoryId;
   if (input.isFeatured !== undefined) data.isFeatured = input.isFeatured;
@@ -392,6 +401,72 @@ export async function deleteArticle(id: number, userId: number, role: Role, ip?:
     meta: { title: existing.title },
     ip,
   });
+}
+
+export type ArticleBulkAction = "publish" | "unpublish" | "delete";
+
+/**
+ * Apply a bulk action (publish / unpublish / delete) to multiple articles.
+ * Authors are restricted to their own articles. Returns the number of
+ * articles affected.
+ */
+export async function bulkArticles(
+  ids: number[],
+  action: ArticleBulkAction,
+  userId: number,
+  role: Role,
+  ip?: string | null
+): Promise<{ count: number }> {
+  const uniqueIds = [...new Set(ids)];
+  const existing = await prisma.article.findMany({
+    where: {
+      id: { in: uniqueIds },
+      ...(role === Role.AUTHOR ? { authorId: userId } : {}),
+    },
+  });
+  if (existing.length === 0) {
+    throw ApiError.notFound("No matching articles found");
+  }
+
+  if (action === "delete") {
+    await prisma.article.deleteMany({ where: { id: { in: existing.map((a) => a.id) } } });
+    await Promise.all(
+      existing.map((a) =>
+        logActivity({
+          userId,
+          action: "ARTICLE_DELETED",
+          entity: "Article",
+          entityId: a.id,
+          meta: { title: a.title },
+          ip,
+        })
+      )
+    );
+    return { count: existing.length };
+  }
+
+  const data: Prisma.ArticleUpdateManyMutationInput =
+    action === "publish"
+      ? { status: ArticleStatus.PUBLISHED, publishedAt: new Date() }
+      : { status: ArticleStatus.DRAFT, publishedAt: null };
+
+  await prisma.article.updateMany({
+    where: { id: { in: existing.map((a) => a.id) } },
+    data,
+  });
+  await Promise.all(
+    existing.map((a) =>
+      logActivity({
+        userId,
+        action: "ARTICLE_UPDATED",
+        entity: "Article",
+        entityId: a.id,
+        meta: { title: a.title, status: data.status, bulk: action },
+        ip,
+      })
+    )
+  );
+  return { count: existing.length };
 }
 
 export async function getViewsStats(limit = 8) {

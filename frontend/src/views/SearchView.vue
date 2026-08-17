@@ -3,15 +3,15 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-8">
-          <SectionTitle title="លទ្ធផលស្វែងរក" />
+          <SectionTitle :title="t.search.resultsFor" />
 
           <form class="search-form mb-4" @submit.prevent="runSearch">
-            <input v-model="q" type="text" placeholder="ស្វែងរកព័ត៌មាន..." @input="onInput" />
-            <button type="submit" aria-label="ស្វែងរក"><i class="fas fa-search"></i></button>
+            <input v-model="q" type="text" :placeholder="t.search.placeholder" @input="onInput" />
+            <button type="submit" :aria-label="t.common.search"><i class="fas fa-search"></i></button>
           </form>
 
           <p v-if="searched && !loading" class="search-count">
-            បានរកឃើញ {{ total }} អត្ថបទសម្រាប់ "{{ originalQuery }}"
+            {{ t.search.resultsFor }} "{{ originalQuery }}" — {{ total }}
           </p>
 
           <div v-if="loading" class="mt-3">
@@ -23,16 +23,16 @@
           <template v-else-if="items.length">
             <NewsRowCard v-for="a in items" :key="a.id" :article="a" />
             <div v-if="!loadingMore && hasMore" class="text-center mt-4">
-              <button class="btn boxed-btn" @click="loadMore">ផ្ទុកបន្ថែម</button>
+              <button class="btn boxed-btn" @click="loadMore">{{ t.common.readMore }}</button>
             </div>
             <div v-if="loadingMore" class="text-center mt-4">
-              <span class="spinner-border text-primary" role="status" aria-label="កំពុងផ្ទុក..."></span>
+              <span class="spinner-border text-primary" role="status" :aria-label="t.common.loading"></span>
             </div>
-            <p v-if="!hasMore && items.length" class="text-center text-muted mt-3">មិនមានអត្ថបទទៀតទេ</p>
+            <p v-if="!hasMore && items.length" class="text-center text-muted mt-3">{{ t.common.noResults }}</p>
             <Pagination v-if="totalPages > 3" :page="page" :total-pages="totalPages" @change="goToPage" />
           </template>
 
-          <EmptyState v-else-if="searched" message="មិនមានលទ្ធផលសម្រាប់ការស្វែងរកនេះទេ" />
+          <EmptyState v-else-if="searched" :message="t.search.empty" />
         </div>
         <div class="col-lg-4">
           <SidebarPopular :articles="popular" />
@@ -57,8 +57,10 @@ import Pagination from "@/components/common/Pagination.vue";
 import NewsRowCard from "@/components/article/NewsRowCard.vue";
 import SidebarPopular from "@/components/article/SidebarPopular.vue";
 import NavatraPoster from "@/components/article/NavatraPoster.vue";
+import { useLocalized } from "@/composables/useLocalized";
 
-useSeo({ title: "ស្វែងរក | Navatra 4K TV" });
+const { t } = useLocalized();
+useSeo({ title: `${t.search.resultsFor} | Navatra 4K TV` });
 
 const route = useRoute();
 const router = useRouter();
@@ -105,7 +107,7 @@ async function runSearch() {
     totalPages.value = data.totalPages;
     searched.value = true;
   } catch (e) {
-    error.value = e instanceof Error ? e.message : "មានបញ្ហាក្នុងការស្វែងរក";
+    error.value = e instanceof Error ? e.message : t.error.message;
   } finally {
     loading.value = false;
   }

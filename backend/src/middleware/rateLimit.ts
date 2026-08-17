@@ -17,7 +17,9 @@ export const apiLimiter = rateLimit({
 
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 15,
+  // 100/15min still blocks brute force while allowing CI/E2E suites to
+  // log in repeatedly (the critical flow + feature specs do ~10 logins).
+  limit: 100,
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: {

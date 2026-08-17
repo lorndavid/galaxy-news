@@ -22,8 +22,10 @@ export async function listAdmin() {
 
 export interface CategoryInput {
   name?: string;
+  nameEn?: string | null;
   slug?: string;
   description?: string | null;
+  descriptionEn?: string | null;
   image?: string | null;
   color?: string | null;
   isActive?: boolean;
@@ -45,8 +47,10 @@ export async function createCategory(input: CategoryInput, userId: number, ip?: 
   const category = await prisma.category.create({
     data: {
       name,
+      nameEn: input.nameEn ?? null,
       slug,
       description: input.description ?? null,
+      descriptionEn: input.descriptionEn ?? null,
       image: input.image ?? null,
       color: input.color ?? "#0b1c39",
       isActive: input.isActive ?? true,
@@ -77,7 +81,9 @@ export async function updateCategory(id: number, input: CategoryInput, userId: n
       data.slug = slug;
     }
   }
+  if (input.nameEn !== undefined) data.nameEn = input.nameEn || null;
   if (input.description !== undefined) data.description = input.description || null;
+  if (input.descriptionEn !== undefined) data.descriptionEn = input.descriptionEn || null;
   if (input.image !== undefined) data.image = input.image || null;
   if (input.color !== undefined) data.color = input.color || "#0b1c39";
   if (input.isActive !== undefined) data.isActive = input.isActive;

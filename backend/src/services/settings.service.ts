@@ -3,9 +3,12 @@ import { logActivity } from "./activity.service";
 
 const PUBLIC_FIELDS = [
   "siteName",
+  "siteNameEn",
   "logo",
   "favicon",
   "description",
+  "descriptionEn",
+  "defaultLanguage",
   "facebook",
   "telegram",
   "youtube",
@@ -15,6 +18,16 @@ const PUBLIC_FIELDS = [
   "contactEmail",
   "contactPhone",
   "address",
+  // Live news ticker
+  "tickerEnabled",
+  "tickerTitle",
+  "tickerSpeed",
+  "tickerDirection",
+  "tickerCount",
+  "tickerRefresh",
+  "tickerBgColor",
+  "tickerTextColor",
+  "tickerAccentColor",
 ] as const;
 
 // Theme tokens are safe, validated values — exposing them publicly lets the
@@ -58,6 +71,8 @@ export async function getAdmin() {
 export async function updateSettings(input: Record<string, unknown>, userId: number, ip?: string | null) {
   const current = await prisma.siteSettings.findFirst();
   const data: Record<string, unknown> = {};
+  // The ticker config rides on the same settings row; persist it with the
+  // same update path so one endpoint drives theme + languages + ticker.
   for (const field of [...PUBLIC_FIELDS, ...THEME_FIELDS]) {
     if (input[field] !== undefined) data[field] = input[field];
   }

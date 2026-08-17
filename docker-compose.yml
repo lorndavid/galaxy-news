@@ -1,44 +1,95 @@
-services:
-  db:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-navatra}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-navatra_dev_pw}
-      POSTGRES_DB: ${POSTGRES_DB:-navatra}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-navatra} -d ${POSTGRES_DB:-navatra}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+# ============================================================
+# Navatra 4K TV — News Platform (Docker Compose)
+#
+# Services:
+#   backend  — Express + Prisma API (SQLite on a persistent volume)
+#   frontend — Public Vue 3 website (nginx)
+#   admin    — Editorial CMS (nginx)
+#   redis    — API cache (persistent volume)
+#   minio    — Object storage for media (persistent volume + console)
+#
+# SQLite is a file database: it lives in a named volume mounted at
+# /app/prisma so the database survives container restarts. It is NOT
+# treated as a network service.
+# ============================================================
 
+services:
   backend:
+    # Repo-root context: the Dockerfile copies backend/ + assets/ so the
+    # seed's demo images are available for seeded articles.
     build:
-      context: ./backend
+      context: .
+      dockerfile: backend/Dockerfile
     restart: unless-stopped
     depends_on:
-      db:
+      redis:
         condition: service_healthy
+      minio:
+        condition: service_started
     environment:
       NODE_ENV: production
       PORT: 4000
-      DATABASE_URL: "postgresql://${POSTGRES_USER:-navatra}:${POSTGRES_PASSWORD:-navatra_dev_pw}@db:5432/${POSTGRES_DB:-navatra}?schema=public"
+      DATABASE_URL: "file:/app/data/dev.db"
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       JWT_ACCESS_TTL: ${JWT_ACCESS_TTL:-15m}
       JWT_REFRESH_TTL_DAYS: ${JWT_REFRESH_TTL_DAYS:-7}
-      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
-      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
-      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+      REDIS_URL: redis://redis:6379
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_USE_SSL: "false"
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-navatra}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-navatra_dev_secret}
+      MINIO_BUCKET: news-media
+      MINIO_PUBLIC_URL: /minio
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       ADMIN_URL: ${ADMIN_URL:-http://localhost:3001}
     volumes:
+      # The DB lives in its own dir — never mount the whole /app/prisma
+      # (schema/migrations/seed must always come from the image, otherwise
+      # a stale seed.ts shadowed by the volume re-seeds old data on boot).
+      - sqlite_data:/app/data
       - uploads_data:/app/uploads
     ports:
       - "4000:4000"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-navatra}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-navatra_dev_secret}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Web console
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   frontend:
     build:
@@ -63,5 +114,7 @@ services:
       - "3001:80"
 
 volumes:
-  postgres_data:
+  sqlite_data:
   uploads_data:
+  redis_data:
+  minio_data:

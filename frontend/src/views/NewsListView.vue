@@ -14,15 +14,15 @@
             <NewsRowCard v-for="a in items" :key="a.id" :article="a" />
             <!-- Load more + pagination fallback -->
             <div v-if="!loadingMore && hasMore" class="text-center mt-4">
-              <button class="btn boxed-btn" @click="loadMore">ផ្ទុកបន្ថែម</button>
+              <button class="btn boxed-btn" @click="loadMore">{{ t.common.readMore }}</button>
             </div>
             <div v-if="loadingMore" class="text-center mt-4">
-              <span class="spinner-border text-primary" role="status" aria-label="កំពុងផ្ទុក..."></span>
+              <span class="spinner-border text-primary" role="status" :aria-label="t.common.loading"></span>
             </div>
-            <p v-if="!hasMore && items.length" class="text-center text-muted mt-3">មិនមានអត្ថបទទៀតទេ</p>
+            <p v-if="!hasMore && items.length" class="text-center text-muted mt-3">{{ t.common.noResults }}</p>
             <Pagination v-if="totalPages > 3" :page="page" :total-pages="totalPages" @change="goToPage" />
           </template>
-          <EmptyState v-else message="មិនទាន់មានអត្ថបទទេ" />
+          <EmptyState v-else :message="t.common.noResults" />
         </div>
         <div class="col-lg-4">
           <SidebarPopular :articles="popular" />
@@ -47,6 +47,7 @@ import Pagination from "@/components/common/Pagination.vue";
 import NewsRowCard from "@/components/article/NewsRowCard.vue";
 import SidebarPopular from "@/components/article/SidebarPopular.vue";
 import NavatraPoster from "@/components/article/NavatraPoster.vue";
+import { useLocalized } from "@/composables/useLocalized";
 
 const route = useRoute();
 const items = ref<Article[]>([]);
@@ -59,8 +60,9 @@ const error = ref("");
 
 const hasMore = computed(() => page.value < totalPages.value);
 
+const { t } = useLocalized();
 const isLatest = computed(() => route.name === "latest");
-const title = computed(() => (isLatest.value ? "ព័ត៌មានថ្មីៗ" : "បញ្ជីព័ត៌មាន"));
+const title = computed(() => (isLatest.value ? t.home.latest : t.nav.news));
 
 useSeo(
   computed(() => ({
@@ -80,7 +82,7 @@ async function load() {
     page.value = data.page;
     totalPages.value = data.totalPages;
   } catch (e) {
-    error.value = e instanceof Error ? e.message : "មិនអាចផ្ទុកទិន្នន័យបានទេ";
+    error.value = e instanceof Error ? e.message : t.error.message;
   } finally {
     loading.value = false;
   }

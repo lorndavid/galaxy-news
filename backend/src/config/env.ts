@@ -24,10 +24,22 @@ export const env = {
     accessTtl: process.env.JWT_ACCESS_TTL ?? "15m",
     refreshTtlDays: Number(process.env.JWT_REFRESH_TTL_DAYS ?? 7),
   },
-  cloudinary: {
-    cloudName: process.env.CLOUDINARY_CLOUD_NAME ?? "",
-    apiKey: process.env.CLOUDINARY_API_KEY ?? "",
-    apiSecret: process.env.CLOUDINARY_API_SECRET ?? "",
+  redis: {
+    url: process.env.REDIS_URL ?? "redis://localhost:6379",
+    // Short TTL for feeds — long enough to absorb bursts, short enough
+    // that cache invalidation misses are acceptable.
+    ttlSeconds: Number(process.env.REDIS_TTL_SECONDS ?? 30),
+  },
+  minio: {
+    endpoint: process.env.MINIO_ENDPOINT ?? "localhost",
+    port: Number(process.env.MINIO_PORT ?? 9000),
+    useSSL: (process.env.MINIO_USE_SSL ?? "false") === "true",
+    accessKey: process.env.MINIO_ACCESS_KEY ?? "",
+    secretKey: process.env.MINIO_SECRET_KEY ?? "",
+    bucket: process.env.MINIO_BUCKET ?? "news-media",
+    // Public URL prefix used when generating object URLs. When serving
+    // through the backend proxy this can be relative (e.g. /minio/news-media).
+    publicUrl: process.env.MINIO_PUBLIC_URL ?? "",
   },
   cors: {
     frontendUrl: process.env.FRONTEND_URL ?? "http://localhost:5173",
@@ -37,8 +49,10 @@ export const env = {
   maxUploadMb: Number(process.env.MAX_UPLOAD_MB ?? 8),
 };
 
-export function cloudinaryConfigured(): boolean {
-  return Boolean(
-    env.cloudinary.cloudName && env.cloudinary.apiKey && env.cloudinary.apiSecret
-  );
+export function redisConfigured(): boolean {
+  return Boolean(env.redis.url);
+}
+
+export function minioConfigured(): boolean {
+  return Boolean(env.minio.accessKey && env.minio.secretKey && env.minio.endpoint);
 }

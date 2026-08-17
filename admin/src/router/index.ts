@@ -28,6 +28,7 @@ const router = createRouter({
         { path: "messages", name: "messages", component: () => import("@/views/MessagesView.vue"), meta: { title: "សារទំនាក់ទំនង", requiresAdmin: true } },
         { path: "newsletter", name: "newsletter", component: () => import("@/views/NewsletterView.vue"), meta: { title: "ព្រឹត្តិបត្រ", requiresAdmin: true } },
         { path: "ads", name: "ads", component: () => import("@/views/AdsView.vue"), meta: { title: "ផ្សាយពាណិជ្ជកម្ម" } },
+        { path: "live-news", name: "live-news", component: () => import("@/views/LiveNewsView.vue"), meta: { title: "បន្ទាត់ព័ត៌មានផ្ទាល់", requiresAdmin: true } },
         { path: "settings", name: "settings", component: () => import("@/views/SettingsView.vue"), meta: { title: "ការកំណត់គេហទំព័រ", requiresAdmin: true } },
         { path: "homepage-builder", name: "homepage-builder", component: () => import("@/views/HomepageBuilderView.vue"), meta: { title: "អ្នកបង្កើតទំព័រដើម", requiresAdmin: true } },
         { path: "navigation-builder", name: "navigation-builder", component: () => import("@/views/NavigationBuilderView.vue"), meta: { title: "អ្នកបង្កើតម៉ឺនុយ", requiresAdmin: true } },

@@ -13,8 +13,31 @@
       </div>
 
       <div>
-        <label class="label">ខ្លឹមសារ</label>
+        <label class="label">ខ្លឹមសារ (ខ្មែរ)</label>
         <RichTextEditor v-model="form.content" />
+      </div>
+
+      <!-- English version (optional) -->
+      <div class="rounded-lg border border-slate-200 p-4">
+        <div class="mb-3 flex items-center gap-2">
+          <span class="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">EN</span>
+          <h3 class="text-sm font-semibold text-slate-700">English version</h3>
+          <span class="text-xs text-slate-400">(ស្រេចចិត្ត — បង្ហាញនៅពេលអ្នកប្រើជ្រើស English)</span>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="label">ចំណងជើង (English)</label>
+            <input v-model="form.titleEn" type="text" class="input" placeholder="Article title in English" />
+          </div>
+          <div>
+            <label class="label">សេចក្តីសង្ខេប (English)</label>
+            <textarea v-model="form.excerptEn" rows="2" class="input" placeholder="Short excerpt in English"></textarea>
+          </div>
+          <div>
+            <label class="label">ខ្លឹមសារ (English)</label>
+            <RichTextEditor v-model="form.contentEn" />
+          </div>
+        </div>
       </div>
 
       <div class="flex gap-2">
@@ -142,8 +165,11 @@ const saving = ref(false);
 
 const form = reactive({
   title: "",
+  titleEn: "",
   excerpt: "",
+  excerptEn: "",
   content: "",
+  contentEn: "",
   categoryId: "" as number | "",
   tagIds: [] as number[],
   featuredImage: "",
@@ -158,8 +184,11 @@ async function save(status: string) {
   try {
     const payload = {
       title: form.title,
+      titleEn: form.titleEn || null,
       excerpt: form.excerpt || null,
+      excerptEn: form.excerptEn || null,
       content: form.content,
+      contentEn: form.contentEn || null,
       categoryId: form.categoryId,
       tagIds: form.tagIds,
       featuredImage: form.featuredImage || null,
@@ -212,8 +241,11 @@ onMounted(async () => {
   if (isEdit.value) {
     const a = await adminService.article(Number(route.params.id));
     form.title = a.title;
+    form.titleEn = a.titleEn ?? "";
     form.excerpt = a.excerpt ?? "";
+    form.excerptEn = a.excerptEn ?? "";
     form.content = a.content;
+    form.contentEn = a.contentEn ?? "";
     form.categoryId = a.categoryId;
     form.tagIds = a.tags.map((t) => t.id);
     form.featuredImage = a.featuredImage ?? "";

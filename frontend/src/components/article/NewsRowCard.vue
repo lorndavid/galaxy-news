@@ -2,16 +2,16 @@
   <div class="news-row-card">
     <div class="news-row-thumb">
       <RouterLink :to="`/article/${article.slug}`">
-        <ArticleThumb :src="article.featuredImage" :alt="article.title" />
+        <ArticleThumb :src="article.featuredImage" :alt="title(article)" />
       </RouterLink>
-      <span v-if="article.isBreaking" class="breaking-badge">ក្តៅ</span>
+      <span v-if="article.isBreaking" class="breaking-badge">{{ t.common.breaking }}</span>
     </div>
     <div class="news-row-body">
-      <span :class="catClass">{{ article.category?.name }}</span>
+      <span :class="catClass">{{ catName(article) }}</span>
       <h4>
-        <RouterLink :to="`/article/${article.slug}`">{{ article.title }}</RouterLink>
+        <RouterLink :to="`/article/${article.slug}`">{{ title(article) }}</RouterLink>
       </h4>
-      <p v-if="article.excerpt" class="news-row-excerpt">{{ article.excerpt }}</p>
+      <p v-if="excerpt(article)" class="news-row-excerpt">{{ excerpt(article) }}</p>
       <div class="card-meta-line">
         <span v-if="article.publishedAt"><i class="ti-calendar"></i> {{ formatKhmerDate(article.publishedAt) }}</span>
         <span><i class="ti-user"></i> {{ article.author?.name }}</span>
@@ -26,8 +26,10 @@ import { computed } from "vue";
 import type { Article } from "@/types";
 import ArticleThumb from "@/components/common/ArticleThumb.vue";
 import { formatKhmerDate, formatViews } from "@/utils/format";
+import { useLocalized } from "@/composables/useLocalized";
 
 const props = defineProps<{ article: Article }>();
+const { title, excerpt, catName, t } = useLocalized();
 const catClass = computed(() => `color${(props.article.categoryId % 4) + 1}`);
 </script>
 

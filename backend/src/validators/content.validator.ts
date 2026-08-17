@@ -12,14 +12,27 @@ export const slugParamsSchema = z.object({
   }),
 });
 
+// ---------- Shared image field ----------
+// Image fields may be absolute URLs or relative object paths served
+// through the API proxy (/minio/..., /uploads/...).
+const imageField = z
+  .string()
+  .refine((v) => /^https?:\/\//.test(v) || v.startsWith("/minio/") || v.startsWith("/uploads/"), {
+    message: "Image must be a valid URL or /minio or /uploads path",
+  })
+  .nullable()
+  .optional();
+
 // ---------- Category ----------
 
 export const categoryCreateSchema = z.object({
   body: z.object({
     name: z.string().trim().min(1, "Name is required").max(80),
+    nameEn: z.string().trim().max(80).nullable().optional(),
     slug: z.string().trim().max(100).optional(),
     description: z.string().max(600).nullable().optional(),
-    image: z.string().url().nullable().optional(),
+    descriptionEn: z.string().max(600).nullable().optional(),
+    image: imageField,
     color: z.string().regex(/^#[0-9a-fA-F]{3,8}$/, "Color must be a hex value").nullable().optional(),
     isActive: z.boolean().optional(),
     sortOrder: z.number().int().min(0).optional(),
@@ -44,6 +57,7 @@ export const categoryReorderSchema = z.object({
 export const tagCreateSchema = z.object({
   body: z.object({
     name: z.string().trim().min(1, "Name is required").max(60),
+    nameEn: z.string().trim().max(60).nullable().optional(),
     slug: z.string().trim().max(100).optional(),
   }),
 });
@@ -78,14 +92,45 @@ export const commentListQuery = z.object({
   }),
 });
 
-// ---------- Advertisement ----------
+// ---------- Advertisement / Banner ----------
+
+// Safe link: http(s) or a relative internal route. Never javascript:/data:.
+export const BANNER_POSITIONS = [
+  "header",
+  "sidebar",
+  "inline",
+  "footer",
+  "homepage-top",
+  "homepage-middle",
+  "homepage-bottom",
+  "article-top",
+  "article-middle",
+  "article-bottom",
+  "category-top",
+  "category-bottom",
+] as const;
+
+export const BANNER_DEVICES = ["all", "desktop", "tablet", "mobile"] as const;
 
 export const adCreateSchema = z.object({
   body: z.object({
     name: z.string().trim().min(1, "Name is required").max(120),
-    image: z.string().url("Image must be a valid URL"),
-    link: z.string().url("Link must be a valid URL").nullable().optional(),
-    position: z.enum(["header", "sidebar", "inline", "footer"]).optional(),
+    title: z.string().trim().max(200).nullable().optional(),
+    image: z
+      .string()
+      .refine((v) => /^https?:\/\//.test(v) || v.startsWith("/minio/") || v.startsWith("/uploads/"), {
+        message: "Image must be a valid URL or /minio or /uploads path",
+      }),
+    link: z
+      .string()
+      .max(500)
+      .refine((v) => /^https?:\/\//i.test(v) || v.startsWith("/"), "Link must be an http(s) URL or an internal route")
+      .nullable()
+      .optional(),
+    target: z.enum(["_blank", "_self"]).optional(),
+    position: z.enum(BANNER_POSITIONS).optional(),
+    device: z.enum(BANNER_DEVICES).optional(),
+    priority: z.number().int().min(0).max(100).optional(),
     isActive: z.boolean().optional(),
     startDate: z.string().nullable().optional(),
     endDate: z.string().nullable().optional(),
@@ -122,5 +167,14 @@ export const newsletterListQuery = z.object({
   query: z.object({
     page: z.coerce.number().int().min(1).optional(),
     pageSize: z.coerce.number().int().min(1).max(100).optional(),
+  }),
+});
+
+// ---------- Media bulk actions ----------
+
+export const mediaBulkSchema = z.object({
+  body: z.object({
+    ids: z.array(z.number().int().positive()).min(1, "Select at least one item").max(200, "Too many items selected"),
+    action: z.enum(["delete"]),
   }),
 });

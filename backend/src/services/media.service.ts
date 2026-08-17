@@ -11,14 +11,22 @@ export interface UploadFile {
   size: number;
 }
 
-export async function uploadMedia(file: UploadFile | undefined, userId: number, altText?: string, ip?: string | null) {
+export async function uploadMedia(
+  file: UploadFile | undefined,
+  userId: number,
+  altText?: string,
+  folder?: string,
+  caption?: string,
+  ip?: string | null
+) {
   if (!file) throw ApiError.badRequest("No image file provided");
 
-  const stored = await storeImage(file.buffer, file.mimetype);
+  const stored = await storeImage(file.buffer, file.mimetype, file.originalname, folder);
 
   const media = await prisma.media.create({
     data: {
       publicId: stored.publicId,
+      objectKey: stored.objectKey,
       url: stored.url,
       secureUrl: stored.secureUrl,
       fileName: file.originalname,
@@ -27,6 +35,8 @@ export async function uploadMedia(file: UploadFile | undefined, userId: number, 
       format: stored.format,
       size: file.size ?? stored.size,
       altText: altText ?? null,
+      caption: caption ?? null,
+      folder: stored.objectKey ? stored.objectKey.split("/")[0] : (folder ?? "articles"),
       createdById: userId,
     },
   });
@@ -35,11 +45,13 @@ export async function uploadMedia(file: UploadFile | undefined, userId: number, 
   return media;
 }
 
-export async function listMedia(pageRaw?: unknown, pageSizeRaw?: unknown, q?: string) {
+export async function listMedia(pageRaw?: unknown, pageSizeRaw?: unknown, q?: string, folder?: string) {
   const pagination = parsePagination(pageRaw, pageSizeRaw, 60);
-  const where = q?.trim()
+  const where: Record<string, unknown> = q?.trim()
     ? { OR: [{ fileName: { contains: q.trim() } }, { altText: { contains: q.trim() } }] }
     : {};
+
+  if (folder && folder !== "all") where.folder = folder;
 
   const [items, total] = await Promise.all([
     prisma.media.findMany({
@@ -58,7 +70,47 @@ export async function deleteMedia(id: number, userId: number, ip?: string | null
   const media = await prisma.media.findUnique({ where: { id } });
   if (!media) throw ApiError.notFound("Media not found");
 
-  await deleteStoredImage(media.publicId, media.url);
+  await deleteStoredImage(media.objectKey, media.publicId, media.url);
   await prisma.media.delete({ where: { id } });
   await logActivity({ userId, action: "MEDIA_DELETED", entity: "Media", entityId: id, meta: { fileName: media.fileName }, ip });
+}
+
+/**
+ * Delete multiple media items: removes each object (and its generated
+ * variants) from storage, then deletes the rows. Returns the number of
+ * items deleted.
+ */
+export async function bulkDeleteMedia(
+  ids: number[],
+  userId: number,
+  ip?: string | null
+): Promise<{ count: number }> {
+  const uniqueIds = [...new Set(ids)];
+  const items = await prisma.media.findMany({
+    where: { id: { in: uniqueIds } },
+  });
+  if (items.length === 0) {
+    throw ApiError.notFound("No matching media found");
+  }
+
+  // Best-effort storage cleanup: a missing object (e.g. MinIO down) must
+  // not block the database delete.
+  await Promise.allSettled(
+    items.map((m) => deleteStoredImage(m.objectKey, m.publicId, m.url))
+  );
+
+  await prisma.media.deleteMany({ where: { id: { in: items.map((m) => m.id) } } });
+  await Promise.all(
+    items.map((m) =>
+      logActivity({
+        userId,
+        action: "MEDIA_DELETED",
+        entity: "Media",
+        entityId: m.id,
+        meta: { fileName: m.fileName, bulk: true },
+        ip,
+      })
+    )
+  );
+  return { count: items.length };
 }

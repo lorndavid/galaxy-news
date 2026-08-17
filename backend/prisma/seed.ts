@@ -64,19 +64,19 @@ async function seedUsers() {
 // ------------------------------------------------------------------
 async function seedCategories() {
   const categories = [
-    { name: "ព័ត៌មានជាតិ", slug: "national-news", color: "#0d3fa9", description: "ព័ត៌មានជាតិកម្ពុជាប្រចាំថ្ងៃ", sortOrder: 1 },
-    { name: "នយោបាយ", slug: "politics", color: "#e74c3c", description: "ព័ត៌មាននយោបាយក្នុងស្រុក និងក្រៅស្រុក", sortOrder: 2 },
-    { name: "អន្តរជាតិ", slug: "international", color: "#16a085", description: "ព័ត៌មានអន្តរជាតិជុំវិញពិភពលោក", sortOrder: 3 },
-    { name: "បច្ចេកវិទ្យា", slug: "technology", color: "#8e44ad", description: "បច្ចេកវិទ្យាថ្មីៗ និងឌីជីថល", sortOrder: 4 },
-    { name: "សុខភាព", slug: "health", color: "#27ae60", description: "ព័ត៌មានសុខភាព និងវេជ្ជសាស្ត្រ", sortOrder: 5 },
-    { name: "កម្សាន្ត", slug: "entertainment", color: "#f39c12", description: "ព័ត៌មានកម្សាន្ត និងសិល្បៈ", sortOrder: 6 },
-    { name: "កីឡា", slug: "sports", color: "#2980b9", description: "ព័ត៌មានកីឡាក្នុងស្រុក និងអន្តរជាតិ", sortOrder: 7 },
+    { name: "ព័ត៌មានជាតិ", nameEn: "National News", slug: "national-news", color: "#0d3fa9", description: "ព័ត៌មានជាតិកម្ពុជាប្រចាំថ្ងៃ", descriptionEn: "Daily Cambodian national news", sortOrder: 1 },
+    { name: "នយោបាយ", nameEn: "Politics", slug: "politics", color: "#e74c3c", description: "ព័ត៌មាននយោបាយក្នុងស្រុក និងក្រៅស្រុក", descriptionEn: "Local and international politics", sortOrder: 2 },
+    { name: "អន្តរជាតិ", nameEn: "International", slug: "international", color: "#16a085", description: "ព័ត៌មានអន្តរជាតិជុំវិញពិភពលោក", descriptionEn: "World news", sortOrder: 3 },
+    { name: "បច្ចេកវិទ្យា", nameEn: "Technology", slug: "technology", color: "#8e44ad", description: "បច្ចេកវិទ្យាថ្មីៗ និងឌីជីថល", descriptionEn: "New technology and digital", sortOrder: 4 },
+    { name: "សុខភាព", nameEn: "Health", slug: "health", color: "#27ae60", description: "ព័ត៌មានសុខភាព និងវេជ្ជសាស្ត្រ", descriptionEn: "Health and medical news", sortOrder: 5 },
+    { name: "កម្សាន្ត", nameEn: "Entertainment", slug: "entertainment", color: "#f39c12", description: "ព័ត៌មានកម្សាន្ត និងសិល្បៈ", descriptionEn: "Entertainment and arts", sortOrder: 6 },
+    { name: "កីឡា", nameEn: "Sports", slug: "sports", color: "#2980b9", description: "ព័ត៌មានកីឡាក្នុងស្រុក និងអន្តរជាតិ", descriptionEn: "Local and international sports", sortOrder: 7 },
   ];
   const map: Record<string, { id: number }> = {};
   for (const c of categories) {
     const cat = await prisma.category.upsert({
       where: { slug: c.slug },
-      update: { name: c.name, color: c.color, description: c.description, sortOrder: c.sortOrder, isActive: true },
+      update: { name: c.name, nameEn: c.nameEn, color: c.color, description: c.description, descriptionEn: c.descriptionEn, sortOrder: c.sortOrder, isActive: true },
       create: c,
     });
     map[c.slug] = cat;
@@ -86,19 +86,19 @@ async function seedCategories() {
 
 async function seedTags() {
   const tags = [
-    { name: "យោធា", slug: "military" },
-    { name: "សេដ្ឋកិច្ច", slug: "economy" },
-    { name: "បច្ចេកវិទ្យា", slug: "tech" },
-    { name: "សុខភាព", slug: "health" },
-    { name: "អប់រំ", slug: "education" },
-    { name: "បរិស្ថាន", slug: "environment" },
-    { name: "វប្បធម៌", slug: "culture" },
+    { name: "យោធា", nameEn: "Military", slug: "military" },
+    { name: "សេដ្ឋកិច្ច", nameEn: "Economy", slug: "economy" },
+    { name: "បច្ចេកវិទ្យា", nameEn: "Technology", slug: "tech" },
+    { name: "សុខភាព", nameEn: "Health", slug: "health" },
+    { name: "អប់រំ", nameEn: "Education", slug: "education" },
+    { name: "បរិស្ថាន", nameEn: "Environment", slug: "environment" },
+    { name: "វប្បធម៌", nameEn: "Culture", slug: "culture" },
   ];
   const map: Record<string, { id: number }> = {};
   for (const t of tags) {
     const tag = await prisma.tag.upsert({
       where: { slug: t.slug },
-      update: { name: t.name },
+      update: { name: t.name, nameEn: t.nameEn },
       create: t,
     });
     map[t.slug] = tag;
@@ -119,8 +119,11 @@ function now(daysAgo: number, hour = 9) {
 interface SeedArticle {
   slug: string;
   title: string;
+  titleEn?: string;
   excerpt: string;
+  excerptEn?: string;
   content: string;
+  contentEn?: string;
   image: string;
   category: string;
   tags: string[];
@@ -139,7 +142,9 @@ const articles: SeedArticle[] = [
   {
     slug: "aot-inspects-preah-vihear-homes",
     title: "ក្រុម AOT ចុះពិនិត្យផ្ទាល់ទីតាំងផ្ទះពលរដ្ឋរងការខូចខាតនៅខេត្តព្រះវិហារ",
+    titleEn: "AOT team inspects damaged homes in Preah Vihear province",
     excerpt: "ក្រុមអ្នកសង្កេតការណ៍អាស៊ានប្រចាំកម្ពុជា (AOT-KH) បានចុះពិនិត្យផ្ទាល់ទីតាំងលំនៅឋានពលរដ្ឋចំនួន ១១៤ខ្នង ដែលរងការខូចខាត នៅខេត្តព្រះវិហារ។",
+    excerptEn: "The ASEAN observation team in Cambodia (AOT-KH) inspected 114 homes damaged along the border area in Preah Vihear province.",
     content:
       paragraphs(
         "ព្រះវិហារ៖ ក្រុមអ្នកសម្របសម្រួល (CLG) នៃកម្ពុជា បានសម្របសម្រួលជូនក្រុមអ្នកសង្កេតការណ៍អាស៊ានប្រចាំកម្ពុជា (AOT-KH) ចុះសង្កេតការណ៍ និងផ្ទៀងផ្ទាត់ស្ថានភាពជាក់ស្តែងនៅតាមបណ្តោយព្រំដែនកម្ពុជា-ថៃ ស្ថិតក្នុងភូមិតេជោមរកត ឃុំមរកត ស្រុកជាំក្សាន្ត ខេត្តព្រះវិហារ។",
@@ -147,6 +152,12 @@ const articles: SeedArticle[] = [
         "ក្រសួងការពារជាតិបានគូសបញ្ជាក់ថា កម្ពុជាតែងតែផ្តល់ការគាំទ្រពេញទំហឹងដល់ក្រុម AOT និងបានសង្កត់ធ្ងន់លើសារៈសំខាន់ក្នុងការពង្រឹងតួនាទី និងអាណត្តិរបស់ក្រុមអ្នកសង្កេតការណ៍នេះ ដើម្បីធានាការអនុវត្តបទឈប់បាញ់ឱ្យបានពេញលេញ ព្រមទាំងលើកកម្ពស់តម្លាភាព គណនេយ្យភាព និងការជឿទុកចិត្តគ្នាទៅវិញទៅមក៕"
       ) +
         "\n<blockquote><p>ការចុះពិនិត្យផ្ទាល់នេះ គឺជាជំហានដ៏សំខាន់មួយ ដើម្បីធានានូវសុវត្ថិភាព និងសិទ្ធិរបស់ប្រជាពលរដ្ឋនៅតំបន់ព្រំដែន។</p></blockquote>",
+    contentEn:
+      paragraphs(
+        "Preah Vihear: The Cambodian Coordination Group (CLG) facilitated a field mission for the ASEAN observation team (AOT-KH) to verify the situation along the Cambodia-Thailand border in Techo Morkat village, Preah Vihear province.",
+        "According to the Ministry of National Defence, the mission inspected 114 civilian homes fully affected by the conflict, leaving 511 residents (268 women) unable to return to their homes.",
+        "The Ministry stressed that Cambodia fully supports the AOT team and emphasized the importance of strengthening the observers' role and mandate to ensure the full implementation of the ceasefire, transparency, accountability and mutual trust."
+      ),
     image: img("kh.jpg"),
     category: "national-news",
     tags: ["military"],
@@ -160,7 +171,15 @@ const articles: SeedArticle[] = [
   {
     slug: "military-service-monthly-allowance",
     title: "កាតព្វកិច្ចយោធា៖ យោធិននឹងទទួលបានប្រាក់ឧបត្ថម្ភ ៤សែនរៀល",
+    titleEn: "Military service: conscripts to receive 400,000 riel monthly allowance",
     excerpt: "យោធិនក្នុងការបំពេញកាតព្វកិច្ចយោធា នឹងទទួលបានប្រាក់ឧបត្ថម្ភ ៤សែនរៀលក្នុងមួយខែ និងគោលរបបដូចយោធិនអាជីព។",
+    excerptEn: "Conscripts fulfilling military service will receive a 400,000 riel monthly allowance and the same benefits as professional soldiers.",
+    contentEn:
+      paragraphs(
+        "Phnom Penh: The Royal Government announced a new policy for conscripts fulfilling military service, who will receive a 400,000 riel monthly allowance plus social security and health benefits equal to professional soldiers.",
+        "The Ministry of National Defence said the policy aims to improve living standards and encourage youth to fulfil their national duty.",
+        "<h2>Benefits include:</h2><ul><li>400,000 riel monthly allowance</li><li>Health insurance coverage</li><li>Social security benefits</li><li>Scholarships for continued study after service</li></ul>"
+      ),
     content:
       paragraphs(
         "ភ្នំពេញ៖ រាជរដ្ឋាភិបាលបានប្រកាសពីគោលនយោបាយថ្មីសម្រាប់យោធិនដែលបំពេញកាតព្វកិច្ចយោធា ដោយនឹងទទួលបានប្រាក់ឧបត្ថម្ភ ៤សែនរៀលក្នុងមួយខែ ព្រមទាំងគោលរបបសន្តិសុខសង្គម និងសុខាភិបាលដូចយោធិនអាជីពដែរ។",
@@ -179,7 +198,15 @@ const articles: SeedArticle[] = [
   {
     slug: "hun-manet-boosts-cambodia-us-ties",
     title: "សម្តេចធិបតី ហ៊ុន ម៉ាណែត ប្តេជ្ញាជំរុញទំនាក់ទំនងទ្វេភាគីជាមួយសហរដ្ឋអាម៉េរិក",
+    titleEn: "PM Hun Manet pledges to boost Cambodia-US bilateral ties",
     excerpt: "សម្តេចធិបតី ហ៊ុន ម៉ាណែត បានប្តេជ្ញាជំរុញការពង្រឹងទំនាក់ទំនងទ្វេភាគីកម្ពុជា-សហរដ្ឋអាម៉េរិក ក្នុងគ្រប់វិស័យ។",
+    excerptEn: "Prime Minister Hun Manet pledged to strengthen and expand Cambodia-US bilateral ties across all sectors.",
+    contentEn:
+      paragraphs(
+        "Phnom Penh: Prime Minister Hun Manet announced Cambodia's commitment to strengthening and expanding bilateral ties with the United States across all sectors, including trade, investment, education and defence cooperation.",
+        "During his meeting with the US side, the Prime Minister stressed that Cambodia is ready to promote mutual cooperation based on mutual respect and shared interests.",
+        "The Cambodia-US relationship has continued to progress steadily following the resumption of dialogue between the two sides this year."
+      ),
     content:
       paragraphs(
         "ភ្នំពេញ៖ សម្តេចធិបតី ហ៊ុន ម៉ាណែត នាយករដ្ឋមន្ត្រីកម្ពុជា បានប្រកាសប្តេជ្ញាជំរុញការពង្រឹង និងពង្រីកទំនាក់ទំនងទ្វេភាគីជាមួយសហរដ្ឋអាម៉េរិក លើគ្រប់វិស័យ រួមមានពាណិជ្ជកម្ម វិនិយោគ ការអប់រំ និងកិច្ចសហប្រតិបត្តិការយោធា។",
@@ -198,7 +225,15 @@ const articles: SeedArticle[] = [
   {
     slug: "poland-warns-elon-musk",
     title: "ប៉ូឡូញដាក់ឱសានវាទ ៥០លានដុល្លារ ព្រមាន Elon Musk",
+    titleEn: "Poland issues $50M ultimatum, warns Elon Musk over Starlink",
     excerpt: "រដ្ឋមន្ត្រីការបរទេសប៉ូឡូញបានដាក់ឱសានវាទ ៥០លានដុល្លារអាម៉េរិក ព្រមានលោក Elon Musk ទាក់ទងនឹងសេវាកម្ម Starlink។",
+    excerptEn: "Poland's foreign minister issued a $50 million ultimatum warning Elon Musk over the reliability of Starlink services.",
+    contentEn:
+      paragraphs(
+        "Warsaw: Poland's Foreign Minister Radoslaw Sikorski said that if Elon Musk's Starlink satellite internet service cannot be trusted for Ukraine, Poland will consider other providers — and the $50 million annual cost currently paid by the Polish government would be reviewed.",
+        "Sikorski said relying on an unpredictable provider is a high risk for regional security, especially amid the war in Ukraine.",
+        "Elon Musk denied the allegations, stating Starlink continues to provide services to Ukraine as before."
+      ),
     content:
       paragraphs(
         "វ៉ារស្សូ៖ រដ្ឋមន្ត្រីការបរទេសប៉ូឡូញ លោក Radosław Sikorski បានប្រកាសថា ប្រសិនបើសេវាកម្មអ៊ីនធឺណិតផ្កាយរណប Starlink របស់លោក Elon Musk មិនអាចទុកចិត្តបានសម្រាប់អ៊ុយក្រែនទេ ប៉ូឡូញនឹងពិចារណារកអ្នកផ្តល់សេវាផ្សេងទៀត ហើយថ្លៃសេវាប្រចាំឆ្នាំ ៥០លានដុល្លារអាម៉េរិក ដែលរដ្ឋាភិបាលប៉ូឡូញចេញថ្លៃ នឹងត្រូវពិនិត្យឡើងវិញ។",
@@ -216,7 +251,15 @@ const articles: SeedArticle[] = [
   {
     slug: "trump-mmr-vaccine-plan-stalls",
     title: "ផែនការបំបែកវ៉ាក់សាំង MMR របស់លោក Trump ប្រឈមនឹងផ្លូវទាល់",
+    titleEn: "Trump's MMR vaccine split plan hits a dead end",
     excerpt: "ផែនការរបស់រដ្ឋបាលលោក Trump ក្នុងការបំបែកវ៉ាក់សាំង MMR ជាវ៉ាក់សាំងនីមួយៗ កំពុងប្រឈមនឹងឧបសគ្គផ្នែកវិទ្យាសាស្ត្រ និងច្បាប់។",
+    excerptEn: "The Trump administration's plan to split the MMR vaccine into separate shots faces scientific and legal obstacles.",
+    contentEn:
+      paragraphs(
+        "Washington: The Trump administration's plan to split the combined MMR vaccine (measles-mumps-rubella) into separate vaccines faces a dead end due to a lack of supporting scientific evidence and concerns from public health experts.",
+        "Experts warn that splitting the vaccine could require children to receive more injections and increase the risk of missed doses, potentially leading to measles outbreaks.",
+        "The MMR vaccine has been used widely for over 50 years and is considered safe and highly effective."
+      ),
     content:
       paragraphs(
         "វ៉ាស៊ីនតោន៖ ផែនការរបស់រដ្ឋបាលសហរដ្ឋអាម៉េរិក ក្នុងការបំបែកវ៉ាក់សាំងផ្សំ MMR (កញ្ជ្រឹល-ស្រឡទែន-ស្អូច) ទៅជាវ៉ាក់សាំងដាច់ដោយឡែក កំពុងប្រឈមនឹងផ្លូវទាល់ ដោយសារកង្វះភស្តុតាងវិទ្យាសាស្ត្រគាំទ្រ និងការព្រួយបារម្ភពីអ្នកជំនាញសុខាភិបាលសាធារណៈ។",
@@ -235,7 +278,16 @@ const articles: SeedArticle[] = [
   {
     slug: "khmer-ai-transformation-2026",
     title: "AI កំពុងផ្លាស់ប្តូរវិស័យបច្ចេកវិទ្យាកម្ពុជា",
+    titleEn: "AI is transforming Cambodia's technology sector",
     excerpt: "ភាពជឿនលឿននៃបញ្ញាសិប្បនិម្មិត (AI) កំពុងផ្លាស់ប្តូរវិស័យបច្ចេកវិទ្យានៅកម្ពុជា ពីការអប់រំ រហូតដល់ធនាគារ និងសុខាភិបាល។",
+    excerptEn: "Advances in artificial intelligence (AI) are transforming Cambodia's technology sector, from education to banking and health.",
+    contentEn:
+      paragraphs(
+        "Phnom Penh: Artificial intelligence (AI) is becoming a key driver of digital transformation in Cambodia, with many educational institutions, banks and hospitals adopting AI tools in their daily work.",
+        "Tech experts estimate that AI adoption in Cambodia will double by 2027, especially in financial services and public service delivery.",
+        "<blockquote><p>Digital and AI are no longer an option — they are a necessity for development.</p></blockquote>",
+        "The Royal Government has also launched a digital policy to support the development of technology skills among Cambodian youth."
+      ),
     content:
       paragraphs(
         "ភ្នំពេញ៖ បញ្ញាសិប្បនិម្មិត (AI) កំពុងក្លាយជាកម្លាំងជំរុញដ៏សំខាន់ក្នុងការផ្លាស់ប្តូរឌីជីថលនៅកម្ពុជា ដោយស្ថាប័នអប់រំ ធនាគារ និងមន្ទីរពេទ្យជាច្រើនបានចាប់ផ្តើមប្រើប្រាស់ឧបករណ៍ AI ក្នុងការងារប្រចាំថ្ងៃ។",
@@ -254,7 +306,15 @@ const articles: SeedArticle[] = [
   {
     slug: "cambodian-football-league-final",
     title: "ខេមបូឌាន លីគ រដូវកាលថ្មី បើកឆាកដ៏រំភើប",
+    titleEn: "Cambodian League opens an exciting new season",
     excerpt: "រដូវកាលថ្មីនៃពានរង្វាន់ខេមបូឌាន លីគ បានបើកឆាកឡើង ជាមួយការប្រកួតប្រជែងដ៏ខ្លាំងក្លារវាងក្លឹបឈានមុខទាំងអស់។",
+    excerptEn: "The new Cambodian League season kicked off with intense competition between all the leading clubs.",
+    contentEn:
+      paragraphs(
+        "Phnom Penh: The new Cambodian League season officially opened with 10 clubs competing for the country's top football trophy.",
+        "The opening drew huge fan interest, especially with all leading clubs strengthening their squads ahead of international competitions as well.",
+        "The Football Federation of Cambodia announced that the season will be broadcast live on television and digital platforms so fans nationwide can watch from anywhere."
+      ),
     content:
       paragraphs(
         "ភ្នំពេញ៖ ពានរង្វាន់ខេមបូឌាន លីគ រដូវកាលថ្មីបានបើកឆាកជាផ្លូវការ ដោយមានក្លឹបចំនួន ១០ ចូលរួមប្រកួតប្រជែងដណ្តើមពានរង្វាន់កំពូលនៃបាល់ទាត់កម្ពុជា។",
@@ -272,7 +332,15 @@ const articles: SeedArticle[] = [
   {
     slug: "angkor-siem-reap-tourism-booms",
     title: "វិស័យទេសចរណ៍អង្គរកំពុងងើបឡើងវិញយ៉ាងរឹងមាំ",
+    titleEn: "Angkor tourism is recovering strongly",
     excerpt: "ចំនួនភ្ញៀវទេសចរអន្តរជាតិមកទស្សនាប្រាសាទអង្គរបានកើនឡើងគួរឱ្យកត់សម្គាល់ ដែលជាសញ្ញាវិជ្ជមានសម្រាប់ការងើបឡើងវិញនៃវិស័យទេសចរណ៍កម្ពុជា។",
+    excerptEn: "International tourist arrivals at Angkor temples have risen noticeably, a positive sign for the recovery of Cambodia's tourism sector.",
+    contentEn:
+      paragraphs(
+        "Siem Reap: Tourism in Siem Reap province continues to recover strongly, with international arrivals at Angkor temples steadily increasing over the past few months.",
+        "Figures from Angkor Enterprise show tens of thousands of foreign tourists bought temple entry tickets last month — a notable rise compared to previous years.",
+        "Siem Reap authorities have prepared cultural and entertainment events to attract visitors and extend their average length of stay."
+      ),
     content:
       paragraphs(
         "សៀមរាប៖ វិស័យទេសចរណ៍នៅខេត្តសៀមរាប កំពុងបន្តងើបឡើងវិញយ៉ាងរឹងមាំ បន្ទាប់ពីចំនួនភ្ញៀវទេសចរអន្តរជាតិមកទស្សនាប្រាសាទអង្គរមានការកើនឡើងជាលំដាប់ ក្នុងរយៈពេលប៉ុន្មានខែចុងក្រោយនេះ។",
@@ -298,8 +366,11 @@ async function seedArticles(users: Record<string, { id: number }>, categories: R
     const data = {
       slug: a.slug,
       title: a.title,
+      titleEn: a.titleEn ?? null,
       excerpt: a.excerpt,
+      excerptEn: a.excerptEn ?? null,
       content: a.content,
+      contentEn: a.contentEn ?? null,
       featuredImage: a.image,
       authorId,
       categoryId,
@@ -319,38 +390,66 @@ async function seedArticles(users: Record<string, { id: number }>, categories: R
   }
 }
 
+const siteSettings = {
+  siteName: "Navatra 4K TV",
+  siteNameEn: "Navatra 4K TV",
+  logo: "/assets/img/logo/logo1.png",
+  favicon: "/assets/img/favicon.ico",
+  description: "មជ្ឈមណ្ឌលព័ត៌មានឌីជីថល ព័ត៌មានក្តៅៗ កម្សាន្ត និងបច្ចេកវិទ្យាប្រចាំថ្ងៃ",
+  descriptionEn: "A digital news hub with daily breaking news, entertainment and technology",
+  defaultLanguage: "kh",
+  facebook: "https://www.facebook.com/karpitnews",
+  telegram: "https://t.me/karpitnews",
+  youtube: "https://www.youtube.com/@KarpitNews",
+  tiktok: "https://www.tiktok.com/@karpitnews",
+  instagram: "https://www.instagram.com/karpitnews",
+  twitter: "https://twitter.com/karpitnews",
+  contactEmail: "info@navatra.tv",
+  contactPhone: "+855 12 345 678",
+  address: "ភ្នំពេញ កម្ពុជា",
+  // Live news ticker defaults
+  tickerEnabled: false,
+  tickerTitle: "LIVE NEWS",
+  tickerSpeed: "medium",
+  tickerDirection: "left",
+  tickerCount: 10,
+  tickerRefresh: 30,
+  tickerBgColor: "#0b1c39",
+  tickerTextColor: "#ffffff",
+  tickerAccentColor: "#fc3f00",
+};
+
 async function seedSettings() {
   await prisma.siteSettings.upsert({
     where: { id: 1 },
-    update: {},
-    create: {
-      id: 1,
-      siteName: "Navatra 4K TV",
-      logo: "/assets/img/logo/Logo%20galaxy%20navatra%204k%20TV.ai%202026-06.png",
-      favicon: "/assets/img/favicon.ico",
-      description: "មជ្ឈមណ្ឌលព័ត៌មានឌីជីថល ព័ត៌មានក្តៅៗ កម្សាន្ត និងបច្ចេកវិទ្យាប្រចាំថ្ងៃ",
-      facebook: "https://www.facebook.com/karpitnews",
-      telegram: "https://t.me/karpitnews",
-      youtube: "https://www.youtube.com/@KarpitNews",
-      tiktok: "https://www.tiktok.com/@karpitnews",
-      instagram: "https://www.instagram.com/karpitnews",
-      twitter: "https://twitter.com/karpitnews",
-      contactEmail: "info@navatra.tv",
-      contactPhone: "+855 12 345 678",
-      address: "ភ្នំពេញ កម្ពុជា",
-    },
+    update: siteSettings,
+    create: { id: 1, ...siteSettings },
   });
 }
 
 async function seedAds() {
   await prisma.advertisement.upsert({
     where: { id: 1 },
-    update: {},
+    update: {
+      name: "Navatra 4K TV sidebar promo",
+      title: "ផ្សាយពាណិជ្ជកម្ម",
+      image: img("banner4.png"),
+      link: "/",
+      target: "_self",
+      device: "all",
+      priority: 0,
+      position: "sidebar",
+      isActive: true,
+    },
     create: {
       id: 1,
       name: "Navatra 4K TV sidebar promo",
+      title: "ផ្សាយពាណិជ្ជកម្ម",
       image: img("banner4.png"),
       link: "/",
+      target: "_self",
+      device: "all",
+      priority: 0,
       position: "sidebar",
       isActive: true,
     },
@@ -380,44 +479,38 @@ async function seedHomepageSections() {
 
 // Default navigation — mirrors the header order in the original design.
 const navigationItems = [
-  { label: "ទំព័រដើម", type: "home", value: "/", sortOrder: 1 },
-  { label: "ព័ត៌មានជាតិ", type: "category", value: "national-news", sortOrder: 2 },
-  { label: "នយោបាយ", type: "category", value: "politics", sortOrder: 3 },
-  { label: "អន្តរជាតិ", type: "category", value: "international", sortOrder: 4 },
-  { label: "បញ្ជីព័ត៌មាន", type: "page", value: "news", sortOrder: 5 },
-  { label: "អំពីយើង", type: "page", value: "about", sortOrder: 6 },
-  { label: "ទំនាក់ទំនង", type: "page", value: "contact", sortOrder: 7 },
-  { label: "ប្រភេទ", type: "page", value: "categories", sortOrder: 8 },
+  { label: "ទំព័រដើម", labelEn: "Home", type: "home", value: "/", sortOrder: 1 },
+  { label: "ព័ត៌មានជាតិ", labelEn: "National News", type: "category", value: "national-news", sortOrder: 2 },
+  { label: "នយោបាយ", labelEn: "Politics", type: "category", value: "politics", sortOrder: 3 },
+  { label: "អន្តរជាតិ", labelEn: "International", type: "category", value: "international", sortOrder: 4 },
+  { label: "បញ្ជីព័ត៌មាន", labelEn: "News List", type: "page", value: "news", sortOrder: 5 },
+  { label: "ប្រភេទ", labelEn: "Categories", type: "page", value: "categories", sortOrder: 6 },
 ];
 
 async function seedNavigation() {
   for (const [i, n] of navigationItems.entries()) {
     await prisma.navigationItem.upsert({
       where: { id: i + 1 },
-      update: { label: n.label, type: n.type, value: n.value, sortOrder: n.sortOrder, isActive: true },
+      update: { label: n.label, labelEn: n.labelEn ?? null, type: n.type, value: n.value, sortOrder: n.sortOrder, isActive: true },
       create: { id: i + 1, ...n, isActive: true },
     });
   }
+  // Prune rows left over from previous seed versions (e.g. removed items)
+  // so they never resurface in the public navigation.
+  await prisma.navigationItem.deleteMany({
+    where: { id: { notIn: navigationItems.map((_, i) => i + 1) } },
+  });
 }
 
 /**
  * The seed writes rows with explicit ids (settings=1, ad=1, nav=1..8).
- * Postgres autoincrement sequences are NOT advanced by explicit-id inserts,
- * so the next unseeded create would collide (e.g. nav create → 500).
- * Resync every sequence to MAX(id) so new rows get fresh ids.
+ * SQLite's INTEGER PRIMARY KEY AUTOINCREMENT is advanced automatically
+ * when an explicit id is inserted (sqlite_sequence tracks the max), so
+ * no sequence resync is needed. Kept as a hook for other providers.
  */
 async function syncSequences() {
-  const tables = ["SiteSettings", "Advertisement", "NavigationItem", "HomepageSection"];
-  for (const table of tables) {
-    const [{ maxId }] = (await prisma.$queryRawUnsafe(
-      `SELECT COALESCE(MAX(id), 0)::int AS "maxId" FROM "${table}"`
-    )) as { maxId: number }[];
-    await prisma.$executeRawUnsafe(
-      `SELECT setval(pg_get_serial_sequence('"${table}"', 'id'), ${maxId + 1}, false)`
-    );
-  }
+  // SQLite: no-op — AUTOINCREMENT stays in sync automatically.
 }
-
 async function seedComments() {
   const article = await prisma.article.findUnique({ where: { slug: "aot-inspects-preah-vihear-homes" } });
   if (!article) return;

@@ -1,7 +1,7 @@
 <template>
   <div class="card overflow-hidden">
     <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-      <h3 class="text-sm font-semibold text-slate-700">ការផ្សាយពាណិជ្ជកម្ម</h3>
+      <h3 class="text-sm font-semibold text-slate-700">ការផ្សាយពាណិជ្ជកម្ម / Banner Ads</h3>
       <button class="btn-primary !py-1.5 text-xs" @click="openCreate"><Plus class="h-3.5 w-3.5" /> បន្ថែម</button>
     </div>
     <div class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -10,12 +10,15 @@
         <div class="p-4">
           <div class="flex items-center justify-between">
             <p class="font-medium text-slate-700">{{ a.name }}</p>
-            <span class="badge" :class="a.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'">
-              {{ a.isActive ? "សកម្ម" : "អសកម្ម" }}
+            <span class="badge" :class="effectiveStatus(a).cls">
+              {{ effectiveStatus(a).label }}
             </span>
           </div>
-          <p class="mt-1 text-xs text-slate-400">ទីតាំង៖ {{ a.position }}</p>
+          <p class="mt-1 text-xs text-slate-400">ទីតាំង៖ {{ positionLabel(a.position) }} · {{ deviceLabel(a.device) }}</p>
           <p v-if="a.link" class="truncate text-xs text-slate-400">{{ a.link }}</p>
+          <p v-if="a.startDate || a.endDate" class="mt-0.5 text-[11px] text-slate-400">
+            {{ a.startDate ? formatDate(a.startDate) : "…" }} → {{ a.endDate ? formatDate(a.endDate) : "…" }}
+          </p>
           <div class="mt-3 flex gap-1">
             <button class="btn-ghost !p-2" title="កែសម្រួល" @click="openEdit(a)"><Pencil class="h-4 w-4" /></button>
             <button class="btn-ghost !p-2 text-red-600" title="លុប" @click="askDelete(a)"><Trash2 class="h-4 w-4" /></button>
@@ -32,21 +35,69 @@
           <input v-model="form.name" type="text" class="input" required />
         </div>
         <div>
+          <label class="label">ចំណងជើង (ស្រេចចិត្ត)</label>
+          <input v-model="form.title" type="text" class="input" placeholder="ចំណងជើងដែលបង្ហាញក្រោមរូបភាព" />
+        </div>
+        <div>
           <label class="label">រូបភាព URL *</label>
-          <input v-model="form.image" type="url" class="input" required />
+          <!-- text (not url): MinIO/uploads paths are relative and the backend
+               validates them — type=url would silently block the submit -->
+          <input v-model="form.image" type="text" class="input" required placeholder="/minio/… ឬ https://…" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="label">តំណ</label>
+            <input v-model="form.link" type="text" class="input" placeholder="https://… ឬ /ផ្លូវខាងក្នុង" />
+          </div>
+          <div>
+            <label class="label">បើកក្នុង</label>
+            <select v-model="form.target" class="input">
+              <option value="_blank">ផ្ទាំងថ្មី (New tab)</option>
+              <option value="_self">ផ្ទាំងដដែល (Same tab)</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="label">ទីតាំង</label>
+            <select v-model="form.position" class="input">
+              <option value="homepage-top">កំពូលទំព័រដើម</option>
+              <option value="homepage-middle">កណ្តាលទំព័រដើម</option>
+              <option value="homepage-bottom">បាតទំព័រដើម</option>
+              <option value="header">ក្បាលទំព័រ</option>
+              <option value="article-top">កំពូលអត្ថបទ</option>
+              <option value="article-middle">កណ្តាលអត្ថបទ</option>
+              <option value="article-bottom">បាតអត្ថបទ</option>
+              <option value="sidebar">ចំហៀង</option>
+              <option value="category-top">កំពូលប្រភេទ</option>
+              <option value="category-bottom">បាតប្រភេទ</option>
+              <option value="inline">ក្នុងបញ្ជី</option>
+              <option value="footer">បាតទំព័រ</option>
+            </select>
+          </div>
+          <div>
+            <label class="label">ឧបករណ៍</label>
+            <select v-model="form.device" class="input">
+              <option value="all">ទាំងអស់</option>
+              <option value="desktop">កុំព្យូទ័រ</option>
+              <option value="tablet">ថេប្លេត</option>
+              <option value="mobile">ទូរស័ព្ទ</option>
+            </select>
+          </div>
         </div>
         <div>
-          <label class="label">តំណ</label>
-          <input v-model="form.link" type="url" class="input" />
+          <label class="label">អាទិភាព (0–100, ធំជាង = បង្ហាញមុន)</label>
+          <input v-model.number="form.priority" type="number" min="0" max="100" class="input" />
         </div>
-        <div>
-          <label class="label">ទីតាំង</label>
-          <select v-model="form.position" class="input">
-            <option value="header">ក្បាលទំព័រ</option>
-            <option value="sidebar">ចំហៀង</option>
-            <option value="in_article">ក្នុងអត្ថបទ</option>
-            <option value="footer">បាតទំព័រ</option>
-          </select>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="label">ចាប់ផ្តើម (ស្រេចចិត្ត)</label>
+            <input v-model="form.startDate" type="datetime-local" class="input" />
+          </div>
+          <div>
+            <label class="label">បញ្ចប់ (ស្រេចចិត្ត)</label>
+            <input v-model="form.endDate" type="datetime-local" class="input" />
+          </div>
         </div>
         <label class="flex items-center gap-2 text-sm text-slate-600">
           <input v-model="form.isActive" type="checkbox" class="h-4 w-4 rounded border-slate-300" />
@@ -76,7 +127,64 @@ const confirmOpen = ref(false);
 const editing = ref(false);
 let target: Advertisement | null = null;
 
-const form = reactive({ name: "", image: "", link: "", position: "sidebar", isActive: true });
+const form = reactive({
+  name: "",
+  title: "",
+  image: "",
+  link: "",
+  target: "_blank",
+  position: "sidebar",
+  device: "all",
+  priority: 0,
+  isActive: true,
+  startDate: "",
+  endDate: "",
+});
+
+const POSITION_LABELS: Record<string, string> = {
+  "homepage-top": "កំពូលទំព័រដើម",
+  "homepage-middle": "កណ្តាលទំព័រដើម",
+  "homepage-bottom": "បាតទំព័រដើម",
+  header: "ក្បាលទំព័រ",
+  "article-top": "កំពូលអត្ថបទ",
+  "article-middle": "កណ្តាលអត្ថបទ",
+  "article-bottom": "បាតអត្ថបទ",
+  sidebar: "ចំហៀង",
+  "category-top": "កំពូលប្រភេទ",
+  "category-bottom": "បាតប្រភេទ",
+  inline: "ក្នុងបញ្ជី",
+  footer: "បាតទំព័រ",
+};
+
+const DEVICE_LABELS: Record<string, string> = {
+  all: "ទាំងអស់",
+  desktop: "កុំព្យូទ័រ",
+  tablet: "ថេប្លេត",
+  mobile: "ទូរស័ព្ទ",
+};
+
+function positionLabel(p: string) {
+  return POSITION_LABELS[p] ?? p;
+}
+function deviceLabel(d: string) {
+  return DEVICE_LABELS[d] ?? d;
+}
+function formatDate(v: string) {
+  try {
+    return new Date(v).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  } catch {
+    return v;
+  }
+}
+function effectiveStatus(a: Advertisement) {
+  const now = Date.now();
+  if (!a.isActive) return { label: "អសកម្ម", cls: "bg-slate-100 text-slate-500" };
+  if (a.startDate && new Date(a.startDate).getTime() > now)
+    return { label: "បានកំណត់ពេល", cls: "bg-amber-100 text-amber-700" };
+  if (a.endDate && new Date(a.endDate).getTime() < now)
+    return { label: "ផុតកំណត់", cls: "bg-red-100 text-red-700" };
+  return { label: "សកម្ម", cls: "bg-emerald-100 text-emerald-700" };
+}
 
 async function load() {
   items.value = await adminService.ads();
@@ -84,13 +192,39 @@ async function load() {
 
 function openCreate() {
   editing.value = false;
-  Object.assign(form, { name: "", image: "", link: "", position: "sidebar", isActive: true });
+  Object.assign(form, {
+    name: "", title: "", image: "", link: "", target: "_blank",
+    position: "sidebar", device: "all", priority: 0, isActive: true, startDate: "", endDate: "",
+  });
   modalOpen.value = true;
+}
+
+function toLocalInput(v: string | null) {
+  if (!v) return "";
+  try {
+    const d = new Date(v);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  } catch {
+    return "";
+  }
 }
 
 function openEdit(a: Advertisement) {
   editing.value = true;
-  Object.assign(form, { name: a.name, image: a.image, link: a.link ?? "", position: a.position, isActive: a.isActive });
+  Object.assign(form, {
+    name: a.name,
+    title: a.title ?? "",
+    image: a.image,
+    link: a.link ?? "",
+    target: a.target ?? "_blank",
+    position: a.position,
+    device: a.device ?? "all",
+    priority: a.priority ?? 0,
+    isActive: a.isActive,
+    startDate: toLocalInput(a.startDate),
+    endDate: toLocalInput(a.endDate),
+  });
   target = a;
   modalOpen.value = true;
 }
@@ -98,10 +232,16 @@ function openEdit(a: Advertisement) {
 async function save() {
   const payload = {
     name: form.name,
+    title: form.title || null,
     image: form.image,
     link: form.link || null,
+    target: form.target,
     position: form.position,
+    device: form.device,
+    priority: form.priority,
     isActive: form.isActive,
+    startDate: form.startDate ? new Date(form.startDate).toISOString() : null,
+    endDate: form.endDate ? new Date(form.endDate).toISOString() : null,
   };
   try {
     if (editing.value && target) {
