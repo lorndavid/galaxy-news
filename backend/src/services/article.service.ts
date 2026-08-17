@@ -101,13 +101,18 @@ export async function getBySlug(slug: string, userAgent?: string | null) {
   });
   if (!article) throw ApiError.notFound("Article not found");
 
-  // Track views (skip bots).
+  // Track views (skip bots) — the counter is the source of truth for
+  // totals; the ViewLog row adds the time dimension for the dashboard's
+  // views-over-time chart.
   const ua = (userAgent ?? "").toLowerCase();
   if (!ua.includes("bot") && !ua.includes("crawler") && !ua.includes("spider")) {
-    await prisma.article.update({
-      where: { id: article.id },
-      data: { views: { increment: 1 } },
-    });
+    await Promise.all([
+      prisma.article.update({
+        where: { id: article.id },
+        data: { views: { increment: 1 } },
+      }),
+      prisma.viewLog.create({ data: { articleId: article.id } }),
+    ]);
     article.views += 1;
   }
   return serializeArticle(article);

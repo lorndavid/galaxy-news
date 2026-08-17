@@ -164,6 +164,11 @@ export interface DashboardStats {
   recentActivity: ActivityLog[];
   recentArticles: { id: number; title: string; status: ArticleStatus; updatedAt: string; author: { name: string } }[];
   topArticles: { id: number; title: string; views: number }[];
+  categoryBreakdown: {
+    total: number;
+    items: { id: number; name: string; nameEn: string | null; slug: string; color: string | null; count: number }[];
+  };
+  viewsByDay: { date: string; count: number }[];
 }
 
 export interface SiteSettings {

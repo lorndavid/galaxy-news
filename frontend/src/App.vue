@@ -11,6 +11,7 @@
       </RouterView>
     </main>
     <SiteFooter v-if="!route.meta.bare" />
+    <BackToTop v-if="!route.meta.bare" />
   </div>
 </template>
 
@@ -20,6 +21,7 @@ import { useRoute } from "vue-router";
 import SiteHeader from "@/components/layout/SiteHeader.vue";
 import SiteFooter from "@/components/layout/SiteFooter.vue";
 import LiveNewsTicker from "@/components/common/LiveNewsTicker.vue";
+import BackToTop from "@/components/common/BackToTop.vue";
 import { useSettingsStore } from "@/stores/settings";
 import { useLocaleStore } from "@/stores/locale";
 import { useTheme } from "@/composables/useTheme";

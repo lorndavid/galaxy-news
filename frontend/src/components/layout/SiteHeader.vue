@@ -258,9 +258,9 @@ onUnmounted(() => {
   }
 }
 
-/* ---------- Header mid — brand bar (solid black) ---------- */
+/* ---------- Header mid — brand bar (solid dark navy) ---------- */
 .editorial-mainbar {
-  background: #000;
+  background: #0b1c39;
   border-bottom: 1px solid rgba(255, 255, 255, 0.14);
 }
 .editorial-mainbar-inner {
@@ -385,9 +385,9 @@ onUnmounted(() => {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
 }
 
-/* White → black transform on scroll, logo appears left, nav moves right */
+/* White → dark navy transform on scroll, logo appears left, nav moves right */
 .is-sticky .editorial-navbar {
-  background: #000;
+  background: #0b1c39;
   border-bottom-color: rgba(255, 255, 255, 0.14);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }

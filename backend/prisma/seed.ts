@@ -511,6 +511,79 @@ async function seedNavigation() {
 async function syncSequences() {
   // SQLite: no-op — AUTOINCREMENT stays in sync automatically.
 }
+// ------------------------------------------------------------------
+// View logs — backfill a realistic 14-day views-over-time series so the
+// dashboard chart has data. Each seeded article's view count is spread
+// across the days since it was published (spikier right after publish,
+// tapering off), with a little randomness so the line looks organic.
+// ------------------------------------------------------------------
+function mulberry32(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function dateNDaysAgo(daysAgo: number, hour: number, minute: number) {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  d.setHours(hour, minute, 0, 0);
+  return d;
+}
+
+async function seedViewLogs() {
+  const seeded = await prisma.article.findMany({
+    where: { slug: { in: articles.map((a) => a.slug) } },
+    select: { id: true, views: true, publishedAt: true },
+  });
+  if (!seeded.length) return;
+
+  const rand = mulberry32(20260817); // deterministic — re-seeds look identical
+  const rows: { articleId: number; viewedAt: Date }[] = [];
+
+  for (const a of seeded) {
+    const publishedDaysAgo = Math.max(
+      0,
+      Math.min(
+        TREND_DAYS,
+        Math.ceil((Date.now() - (a.publishedAt?.getTime() ?? Date.now())) / 86_400_000)
+      )
+    );
+    const weight = (d: number) => Math.exp(-d / 3.2) * (0.85 + rand() * 0.5);
+    const weights: number[] = [];
+    let total = 0;
+    for (let d = publishedDaysAgo; d >= 0; d--) {
+      const w = weight(d);
+      weights.push(w);
+      total += w;
+    }
+    for (let d = publishedDaysAgo; d >= 0; d--) {
+      const share = weights[publishedDaysAgo - d] / total;
+      const count = Math.max(1, Math.round(a.views * share * (0.75 + rand() * 0.5)));
+      for (let i = 0; i < count; i++) {
+        rows.push({
+          articleId: a.id,
+          viewedAt: dateNDaysAgo(d, 7 + Math.floor(rand() * 13), Math.floor(rand() * 60)),
+        });
+      }
+    }
+  }
+
+  // Reset only the seeded articles' logs (fresh real views survive) so
+  // re-seeding never duplicates the backfill.
+  await prisma.viewLog.deleteMany({ where: { articleId: { in: seeded.map((a) => a.id) } } });
+  for (let i = 0; i < rows.length; i += 2000) {
+    await prisma.viewLog.createMany({ data: rows.slice(i, i + 2000) });
+  }
+  console.log(`   ViewLog backfill: ${rows.length} events across ${TREND_DAYS} days`);
+}
+
+const TREND_DAYS = 14;
+
 async function seedComments() {
   const article = await prisma.article.findUnique({ where: { slug: "aot-inspects-preah-vihear-homes" } });
   if (!article) return;
@@ -537,6 +610,7 @@ async function main() {
   await seedHomepageSections();
   await seedNavigation();
   await syncSequences();
+  await seedViewLogs();
   await seedComments();
   await prisma.activityLog.create({
     data: {

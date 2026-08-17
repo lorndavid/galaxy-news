@@ -352,12 +352,39 @@ a:hover,
   right: 0;
 }
 
-/* Trending list header — clean label */
+/* Trending list header — clean, small label chip.
+   Overrides the template's heavy black pill (khmer.css) with a
+   compact brand chip: no gradient, no shadow, tiny padding. */
 .trending-tittle strong {
+  display: inline-block;
   font-family: var(--font-heading);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
-  color: var(--color-text);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--color-primary, #0d3fa9);
+  padding: 4px 11px;
+  border-radius: 4px;
+  box-shadow: none;
+  line-height: 1.5;
+  min-width: 0;
+}
+/* Tighten the container — the template's 31px top padding is
+   excessive next to the trending-area's own 28px spacing. */
+.trending-tittle {
+  padding-top: 14px;
+}
+@media (max-width: 991px) {
+  .trending-tittle {
+    padding-top: 10px;
+  }
+}
+@media (max-width: 767px) {
+  .trending-tittle strong {
+    font-size: 11.5px;
+    padding: 3px 10px;
+  }
 }
 
 /* ------------------------------------------------------------------
@@ -659,32 +686,9 @@ select:focus-visible,
 }
 
 /* ------------------------------------------------------------------
-   Category page hero.
+   Category page header — clean editorial text (no banner box);
+   the scoped styles in CategoryView.vue own the look.
 ------------------------------------------------------------------- */
-.category-hero {
-  border-radius: 14px;
-  padding: 36px 30px;
-  color: #fff;
-  margin-bottom: 10px;
-}
-.category-hero-inner h1 {
-  color: #fff;
-  font-size: 30px;
-  margin-bottom: 6px;
-}
-.category-hero-inner p {
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
-  font-size: 15px;
-}
-@media (max-width: 767px) {
-  .category-hero {
-    padding: 26px 20px;
-  }
-  .category-hero-inner h1 {
-    font-size: 24px;
-  }
-}
 
 /* ------------------------------------------------------------------
    Video section.

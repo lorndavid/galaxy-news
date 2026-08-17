@@ -1,12 +1,10 @@
 <template>
   <div class="category-area">
     <div class="container">
-      <!-- Page hero -->
-      <div class="category-hero" :style="heroStyle">
-        <div class="category-hero-inner">
-          <h1>{{ catNameOf(category) }}</h1>
-          <p v-if="catDescriptionOf(category)">{{ catDescriptionOf(category) }}</p>
-        </div>
+      <!-- Page header — clean text, no banner box -->
+      <div class="category-hero">
+        <h1 class="category-hero-title">{{ catNameOf(category) }}</h1>
+        <p v-if="catDescriptionOf(category)" class="category-hero-desc">{{ catDescriptionOf(category) }}</p>
       </div>
 
       <div v-if="loading" class="row mt-4">
@@ -87,13 +85,6 @@ const sectionTitle = computed(() => {
 
 const featured = computed(() => items.value[0] ?? null);
 
-const heroStyle = computed(() => {
-  const color = category.value?.color ?? "#0d3fa9";
-  return {
-    background: `linear-gradient(120deg, ${color} 0%, ${color}cc 100%)`,
-  };
-});
-
 useSeo(
   computed(() => {
     const c = category.value;
@@ -158,30 +149,38 @@ watch(() => route.params.slug, () => { category.value = null; load(); });
 
 <style scoped>
 .category-area {
-  padding-top: 30px;
+  padding-top: 26px;
 }
+/* Clean editorial page header — plain text, subtle accent underline,
+   no colored banner box */
 .category-hero {
-  border-radius: 14px;
-  padding: 36px 30px;
-  color: #fff;
-  margin-bottom: 10px;
+  padding: 8px 0 20px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
 }
-.category-hero-inner h1 {
-  color: #fff;
-  font-size: 32px;
-  margin-bottom: 6px;
-}
-.category-hero-inner p {
-  color: rgba(255, 255, 255, 0.9);
+.category-hero-title {
   margin: 0;
-  font-size: 15px;
+  font-family: var(--font-heading, "Noto Sans Khmer", sans-serif);
+  font-size: clamp(22px, 1.2vw + 0.9rem, 30px);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--color-text, #0b1c39);
+  overflow-wrap: anywhere;
 }
-@media (max-width: 767px) {
-  .category-hero {
-    padding: 26px 20px;
-  }
-  .category-hero-inner h1 {
-    font-size: 24px;
-  }
+.category-hero-title::after {
+  content: "";
+  display: block;
+  width: 34px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--color-primary, #0d3fa9);
+  margin-top: 10px;
+}
+.category-hero-desc {
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-muted, #667085);
+  max-width: 720px;
 }
 </style>
