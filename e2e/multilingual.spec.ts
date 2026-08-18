@@ -25,20 +25,20 @@ test.describe.serial("multilingual platform features", () => {
     await expect(page.locator("html")).toHaveAttribute("lang", /^(km|en)$/);
 
     // Default is Khmer — nav shows the Khmer label for Home.
-    const navHome = page.locator("header .editorial-nav a", { hasText: "ទំព័រដើម" }).first();
+    const navHome = page.locator("header .g-nav a", { hasText: "ទំព័រដើម" }).first();
     await expect(navHome).toBeVisible();
 
     // Switch to English — nav + section titles flip.
     await page.locator(".language-switcher button", { hasText: "EN" }).first().click();
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    const enHome = page.locator("header .editorial-nav a", { hasText: "Home" }).first();
+    const enHome = page.locator("header .g-nav a", { hasText: "Home" }).first();
     await expect(enHome).toBeVisible();
 
     // Reload — the preference persisted via localStorage.
     await page.reload();
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(
-      page.locator("header .editorial-nav a", { hasText: "Home" }).first()
+      page.locator("header .g-nav a", { hasText: "Home" }).first()
     ).toBeVisible();
 
     // And back to Khmer.
@@ -49,7 +49,7 @@ test.describe.serial("multilingual platform features", () => {
   test("ticker can be enabled and disabled from the admin UI", async ({ page, request }) => {
     // Start disabled (seed default) — no ticker bar on the public site.
     await page.goto(`${PUBLIC_URL}/`);
-    await expect(page.locator(".live-ticker")).toHaveCount(0);
+    await expect(page.locator(".g-ticker")).toHaveCount(0);
 
     // Admin: Live News settings → enable + customize.
     await page.goto("/live-news");
@@ -66,8 +66,8 @@ test.describe.serial("multilingual platform features", () => {
 
     // Public site now shows the ticker with a real headline.
     await page.goto(`${PUBLIC_URL}/`);
-    await expect(page.locator(".live-ticker")).toBeVisible({ timeout: 20_000 });
-    await expect(page.locator(".live-ticker .live-ticker-badge")).toContainText("LIVE");
+    await expect(page.locator(".g-ticker")).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator(".g-ticker-badge")).toContainText("LIVE");
 
     // Ticker content comes from the real API (published articles).
     const ticker = await api(request, "/ticker", null);
@@ -84,7 +84,7 @@ test.describe.serial("multilingual platform features", () => {
     await expect(page.getByText("បានរក្សាទុកការកំណត់បន្ទាត់ព័ត៌មាន")).toBeVisible();
 
     await page.goto(`${PUBLIC_URL}/`);
-    await expect(page.locator(".live-ticker")).toHaveCount(0, { timeout: 20_000 });
+    await expect(page.locator(".g-ticker")).toHaveCount(0, { timeout: 20_000 });
   });
 
   test("theme color save updates the live CSS variables", async ({ page, request }) => {

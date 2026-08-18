@@ -35,10 +35,10 @@ useTheme();
 // Apply the persisted language to <html lang> on boot.
 document.documentElement.lang = locale.isEn ? "en" : "km";
 
-// Load settings once at app start so the theme applies before first paint
-// of content sections (store is cached, so later loads are no-ops).
+// Update page title for Galaxy TV
 onMounted(() => {
   settingsStore.load().then(() => locale.syncWithSettings());
+  document.title = "Galaxy TV 4K | ព័ត៌មាន";
 });
 </script>
 
@@ -50,24 +50,5 @@ onMounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-}
-
-/* Skip link: visible on keyboard focus only */
-.skip-link {
-  position: absolute;
-  top: -48px;
-  left: 12px;
-  z-index: 2000;
-  background: #0d3fa9;
-  color: #ffffff;
-  padding: 10px 18px;
-  border-radius: 0 0 8px 8px;
-  font-family: "Noto Sans Khmer", "Kantumruy", sans-serif;
-  font-size: 14px;
-  text-decoration: none;
-  transition: top 0.2s ease;
-}
-.skip-link:focus-visible {
-  top: 0;
 }
 </style>

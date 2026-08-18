@@ -1,6 +1,6 @@
 <template>
   <img
-    :src="srcValue"
+    :src="current"
     :alt="alt"
     loading="lazy"
     decoding="async"
@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { resolveImage } from "@/utils/format";
 
 const props = withDefaults(
@@ -22,9 +22,7 @@ const props = withDefaults(
   { width: 640 }
 );
 
-const srcValue = computed(() => props.src ?? undefined);
-
-const fallback = "/assets/img/news/KH.jpg";
+const fallback = "/assets/img/logo/logo1.png";
 const current = ref(resolveImage(props.src, fallback, props.width));
 
 watch(

@@ -1,89 +1,391 @@
 /* ==================================================================
-   Navatra 4K TV — Editorial Design System
+   Galaxy TV 4K — Editorial Design System
    ----------------------------------------------------------------
-   A clean, modern, professional layer on top of the original theme.
-   The template carries the brand (logo, colors, structure); this
-   file refines typography, spacing, alignment, cards, sections and
-   components into a consistent editorial system.
+   A clean, modern, professional editorial design for a 4K broadcast
+   news outlet in Cambodia.
 
-   Design rules:
-   - restrained palette (brand navy + blue + accent only)
-   - compact spacing, tight section rhythm
-   - consistent container alignment across hero/sections/footer
-   - subtle borders & hover, no excessive shadows/gradients
-   - readable typography with responsive clamp() sizes
+   Design philosophy:
+   - Authoritative, fast-moving, trustworthy
+   - BBC/Al Jazeera meets Khmer broadcaster
+   - Restrained palette, strong hierarchy
+   - Compact spacing, tight editorial rhythm
+   - No over-design — quality through typography, spacing, imagery
    ================================================================== */
 
 /* ------------------------------------------------------------------
-   Design tokens (admin-configurable via Site Settings → Appearance).
+   1. DESIGN TOKENS — Color Palette
+   ----------------------------------------------------------------
+   Deep Navy (#0b1c39) — header, structural elements
+   Electric Indigo (#4f46e5) — confident accent (Galaxy brand)
+   Magenta Gradient (#7c3aed → #ec4899) — signature gradient
+   Warm Off-White (#f8f7f4) — background (not stark white)
+   Live Red (#dc2626) — ONLY for live/breaking indicators
+   Text Dark (#111827) — primary text
+   Muted (#6b7280) — secondary text
+   Border (#e5e7eb) — subtle dividers
 ------------------------------------------------------------------- */
 :root {
-  --color-primary: #0d3fa9;
-  --color-secondary: #0b1c39;
-  --color-accent: #fc3f00;
+  /* Brand colors */
+  --color-primary: #0b1c39;
+  --color-accent: #4f46e5;
+  --color-accent-light: #6366f1;
+  --color-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+  --color-live: #dc2626;
+  --color-live-glow: rgba(220, 38, 38, 0.3);
+
+  /* Surfaces */
+  --color-bg: #f8f7f4;
   --color-surface: #ffffff;
-  --color-surface-alt: #f7f9fc;
-  --color-text: #0b1c39;
-  --color-muted: #667085;
+  --color-surface-alt: #f1f0ed;
+  --color-surface-elevated: #ffffff;
+
+  /* Text */
+  --color-text: #111827;
+  --color-text-secondary: #4b5563;
+  --color-muted: #6b7280;
   --color-border: #e5e7eb;
-  --font-heading: "Noto Sans Khmer", "Kantumruy", sans-serif;
-  --font-body: "Noto Sans Khmer", "Kantumruy", sans-serif;
-  --font-article: "Noto Sans Khmer", "Kantumruy", sans-serif;
+
+  /* Category colors — distinct per category */
+  --cat-national: #0b1c39;
+  --cat-political: #7c3aed;
+  --cat-international: #0891b2;
+  --cat-business: #059669;
+  --cat-technology: #4f46e5;
+  --cat-sports: #ea580c;
+  --cat-entertainment: #db2777;
+  --cat-default: #4b5563;
+
+  /* Typography */
+  --font-display: "Kantumruy Pro", "Noto Sans Khmer", sans-serif;
+  --font-heading: "Kantumruy Pro", "Noto Sans Khmer", sans-serif;
+  --font-body: "Noto Sans Khmer", "Kantumruy Pro", sans-serif;
+  --font-latin: "Inter", "Noto Sans Khmer", sans-serif;
+
+  /* Type scale */
   --size-hero: 36px;
-  --size-section: 24px;
-  --size-card: 18px;
-  --size-body: 16px;
-  --radius-card: 10px;
-  --radius-button: 8px;
-  --shadow-card: 0 1px 2px rgba(11, 28, 57, 0.05), 0 4px 12px rgba(11, 28, 57, 0.05);
+  --size-section: 22px;
+  --size-card: 17px;
+  --size-body: 15px;
+  --size-small: 13px;
+  --size-caption: 12px;
+
+  /* Spacing scale: 4/8/12/16/24/32/48/64px */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* Layout */
+  --container-max: 1240px;
+  --container-padding: 24px;
+  --radius-card: 8px;
+  --radius-button: 6px;
+  --radius-badge: 4px;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px rgba(11, 28, 57, 0.06), 0 4px 12px rgba(11, 28, 57, 0.04);
+  --shadow-elevated: 0 4px 16px rgba(11, 28, 57, 0.08), 0 8px 32px rgba(11, 28, 57, 0.06);
+  --shadow-header: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* ------------------------------------------------------------------
-   Typography — headings and body use the admin-chosen families.
+   2. RESET & BASE
 ------------------------------------------------------------------- */
-h1, h2, h3, h4, h5, h6, .section-tittle h3, .trend-top-cap h1, .trend-top-cap h2 {
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--size-body);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Khmer script needs more vertical line-height than Latin */
+:lang(km), [lang="km"] {
+  line-height: 1.85;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-accent-light);
+}
+
+/* ------------------------------------------------------------------
+   3. TYPOGRAPHY
+------------------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   color: var(--color-text);
-}
-body, p, li, input, textarea, select, button {
-  font-family: var(--font-body);
-}
-
-/* Brand color applied to links, accents and hover states */
-a:hover,
-.section-title-modern h3,
-.section-title-modern .section-title-line,
-.color1,
-.news-cat,
-.tag-chip {
-  color: var(--color-primary);
+  line-height: 1.35;
+  margin: 0;
 }
 
-/* Cards use the configured radius + shadow */
-.what-img,
-.trend-bottom-img,
-.weekly-img,
-.weekly2-img,
-.trand-right-img,
-.news-row-thumb,
-.video-card,
-.news-detail-wrap,
-.card {
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
+h1 { font-size: clamp(26px, 2vw + 1rem, var(--size-hero)); font-weight: 700; }
+h2 { font-size: clamp(20px, 1.2vw + 0.9rem, 28px); font-weight: 700; }
+h3 { font-size: clamp(18px, 0.8vw + 0.85rem, var(--size-section)); font-weight: 700; }
+h4 { font-size: clamp(15px, 0.5vw + 0.8rem, var(--size-card)); font-weight: 600; }
+
+p {
+  margin: 0 0 var(--sp-4);
+  line-height: 1.85;
 }
 
 /* ------------------------------------------------------------------
-   Responsive typography — sizes interpolate smoothly between phone
-   and desktop via clamp() instead of jumping at a single breakpoint.
+   4. CONTAINER — 12-column grid, max-width 1240px
 ------------------------------------------------------------------- */
-.trend-top-cap h1 {
-  font-size: clamp(24px, 1.7vw + 1rem, var(--size-hero));
-  line-height: 1.35;
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding-inline: var(--sp-4);
+  }
+}
+
+/* ------------------------------------------------------------------
+   5. CATEGORY COLOR SYSTEM
+   Each category gets a distinct color used consistently across
+   badges, section headers, and accent elements.
+------------------------------------------------------------------- */
+.cat-badge {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 3px 10px;
+  border-radius: var(--radius-badge);
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.cat-badge--national { background: var(--cat-national); color: #fff; }
+.cat-badge--political { background: var(--cat-political); color: #fff; }
+.cat-badge--international { background: var(--cat-international); color: #fff; }
+.cat-badge--business { background: var(--cat-business); color: #fff; }
+.cat-badge--technology { background: var(--cat-technology); color: #fff; }
+.cat-badge--sports { background: var(--cat-sports); color: #fff; }
+.cat-badge--entertainment { background: var(--cat-entertainment); color: #fff; }
+.cat-badge--default { background: var(--cat-default); color: #fff; }
+
+/* Legacy color classes — map to category system */
+.color1 { color: var(--cat-national) !important; }
+.color2 { color: var(--cat-political) !important; }
+.color3 { color: var(--cat-international) !important; }
+.color4 { color: var(--cat-business) !important; }
+
+.color1, .color2, .color3, .color4 {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 3px 10px;
+  border-radius: var(--radius-badge);
+  text-transform: uppercase;
+  background: currentColor;
+  color: #fff !important;
+  line-height: 1.4;
+}
+
+/* ------------------------------------------------------------------
+   6. CARD SYSTEM — Consistent ratios + hover
+------------------------------------------------------------------- */
+.card-img {
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.card-img img,
+.trend-top-img img,
+.trend-bottom-img img,
+.what-img img,
+.weekly-img img,
+.weekly2-img img,
+.trand-right-img img,
+.news-row-thumb img,
+.video-card img,
+.single-recent .what-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Aspect ratios */
+.trend-top-img,
+.trend-top-img a,
+.what-img,
+.what-img a,
+.single-recent .what-img,
+.single-recent .what-img a,
+.news-row-thumb,
+.news-row-thumb a {
+  aspect-ratio: 16 / 9;
+}
+
+.trend-bottom-img,
+.trend-bottom-img a,
+.weekly-img,
+.weekly-img a,
+.weekly2-img,
+.weekly2-img a,
+.trand-right-img,
+.trand-right-img a,
+.video-card {
+  aspect-ratio: 4 / 3;
+}
+
+/* Hover zoom */
+.trend-top-img:hover img,
+.trend-bottom-img:hover img,
+.what-img:hover img,
+.weekly-img:hover img,
+.weekly2-img:hover img,
+.trand-right-img:hover img,
+.news-row-thumb:hover img,
+.single-recent .what-img:hover img,
+.video-card:hover img {
+  transform: scale(1.04);
+}
+
+/* Card containers */
+.what-img a,
+.trend-bottom-img a,
+.weekly-img a,
+.weekly2-img a,
+.trand-right-img a,
+.news-row-thumb a,
+.single-recent .what-img a,
+.hero-card-image {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+}
+
+/* ------------------------------------------------------------------
+   7. SECTION TITLES — compact editorial headers
+------------------------------------------------------------------- */
+.section-tittle {
+  position: relative;
 }
 .section-tittle h3 {
-  font-size: clamp(18px, 1vw + 0.85rem, var(--size-section));
+  font-weight: 700;
+  font-family: var(--font-heading);
 }
+.section-tittle h3::after {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--color-accent);
+  margin-top: 8px;
+}
+
+.section-title-modern {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-title-line {
+  width: 4px;
+  height: 22px;
+  border-radius: 3px;
+  background: var(--color-gradient);
+  flex-shrink: 0;
+}
+.section-title-modern h3 {
+  margin: 0;
+}
+.section-title-viewall {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.section-title-viewall:hover {
+  color: var(--color-accent);
+  transform: translateX(2px);
+}
+
+/* ------------------------------------------------------------------
+   8. HERO — clean overlay, readable text
+------------------------------------------------------------------- */
+.trend-top-img {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+}
+.trend-top-cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 48px 24px 20px;
+  background: linear-gradient(to bottom, rgba(11, 28, 57, 0) 0%, rgba(11, 28, 57, 0.85) 100%);
+}
+.trend-top-cap span {
+  display: inline-block;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-badge);
+  margin-bottom: 8px;
+}
+.trend-top-cap h1 a,
+.trend-top-cap h2 a {
+  color: #fff;
+  text-decoration: none;
+}
+.trend-top-cap h1 a:hover,
+.trend-top-cap h2 a:hover {
+  color: #dbe4ff;
+}
+.trend-top-cap h1,
+.trend-top-cap h2 {
+  font-family: var(--font-display);
+  line-height: 1.35;
+}
+
+/* ------------------------------------------------------------------
+   9. CARD TITLES — 2-line clamp, clean hover
+------------------------------------------------------------------- */
 .what-cap h4,
 .what-cap h4 a,
 .trend-bottom-cap h4,
@@ -96,16 +398,26 @@ a:hover,
 .trand-right-cap h4 a,
 .news-row-title,
 .news-row-title a {
-  font-size: clamp(15px, 0.55vw + 0.8rem, var(--size-card));
+  font-size: clamp(15px, 0.5vw + 0.8rem, var(--size-card));
   line-height: 1.5;
-}
-.news-content,
-.news-content p {
-  font-size: clamp(15px, 0.35vw + 0.9rem, var(--size-body));
+  font-family: var(--font-heading);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
-/* Card titles: keep grids aligned with 2-line clamps so long headlines
-   never blow a card out of shape (full title is always on the article). */
+.what-cap h4 a:hover,
+.trend-bottom-cap h4 a:hover,
+.weekly-caption h4 a:hover,
+.weekly2-caption h4 a:hover,
+.trand-right-cap h4 a:hover,
+.news-row-title a:hover,
+.trend-top-cap h1 a:hover,
+.trend-top-cap h2 a:hover {
+  color: var(--color-accent);
+}
+
+/* 2-line clamp for card titles */
 .what-cap h4,
 .trend-bottom-cap h4,
 .trand-right-cap h4,
@@ -115,7 +427,8 @@ a:hover,
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-/* Long words / URLs must never overflow the card or page */
+
+/* Overflow protection */
 .what-cap h4,
 .trend-bottom-cap h4,
 .weekly-caption h4,
@@ -124,325 +437,41 @@ a:hover,
 .news-row-title,
 .trend-top-cap h1,
 .news-content,
-.breaking-ticker a,
-.section-tittle h3,
-.mobile-nav-list a {
+.section-tittle h3 {
   overflow-wrap: anywhere;
 }
 
-/* ------------------------------------------------------------------
-   Container alignment — every section aligns to the same grid.
-------------------------------------------------------------------- */
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin-inline: auto;
-  padding-inline: 24px;
+/* Card meta */
+.card-meta-line {
+  display: flex;
+  gap: 14px;
+  margin-top: 6px;
+  font-size: var(--size-small);
+  color: var(--color-muted);
 }
-@media (max-width: 640px) {
-  .container {
-    padding-inline: 16px;
-  }
-}
-
-/* ------------------------------------------------------------------
-   Compact section rhythm — trim the template's oversized paddings
-   into a tight editorial rhythm.
-------------------------------------------------------------------- */
-.weekly2-news-area.weekly2-pading {
-  padding-top: 56px !important;
-  padding-bottom: 48px !important;
-}
-.youtube-area.video-padding {
-  padding-top: 52px !important;
-  padding-bottom: 40px !important;
-}
-.trending-area {
-  padding-top: 28px !important;
-}
-@media (max-width: 991px) {
-  .weekly2-news-area.weekly2-pading {
-    padding-top: 36px !important;
-    padding-bottom: 30px !important;
-  }
-  .youtube-area.video-padding {
-    padding-top: 36px !important;
-    padding-bottom: 28px !important;
-  }
+.card-meta-line span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-/* What's-new cards: caption flows under the image instead of hanging
-   below it — keeps the grid tight and aligned. */
-.whats-news-area .whats-news-caption .single-what-news .what-cap,
-.about-area .whats-news-caption .single-what-news .what-cap,
-.contact-section .whats-news-caption .single-what-news .what-cap {
-  position: static;
-  width: 100%;
-  padding: 12px 0 0;
-  background: transparent;
-  border-radius: 0;
-}
-.whats-news-area .whats-news-caption .single-what-news .what-cap span,
-.about-area .whats-news-caption .single-what-news .what-cap span,
-.contact-section .whats-news-caption .single-what-news .what-cap span {
-  padding: 4px 10px;
-  margin-bottom: 8px;
-  font-size: 10.5px;
-  border-radius: 4px;
-}
-.single-what-news.mb-100 {
-  margin-bottom: 32px;
-}
-@media (max-width: 991px) {
-  .single-what-news.mb-100 {
-    margin-bottom: 24px;
-  }
-}
-
-/* ------------------------------------------------------------------
-   Premium news card system — consistent image ratios + subtle hover.
-------------------------------------------------------------------- */
-.trend-top-img img,
-.trend-bottom-img img,
-.what-img img,
-.weekly-img img,
-.weekly2-img img,
-.trand-right-img img,
-.news-row-thumb img,
-.single-recent .what-img img,
-.video-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.35s ease;
-  will-change: transform;
-}
-
-/* Fixed ratios — hero is 16:9, compact cards 4:3, row thumbs 16:9 */
-.trend-top-img,
-.trend-top-img a,
-.what-img,
-.what-img a,
-.single-recent .what-img,
-.single-recent .what-img a {
-  aspect-ratio: 16 / 9;
-}
-.trend-bottom-img,
-.trend-bottom-img a,
-.weekly-img,
-.weekly-img a,
-.weekly2-img,
-.weekly2-img a,
-.trand-right-img,
-.trand-right-img a,
-.video-card {
-  aspect-ratio: 4 / 3;
-}
-.news-row-thumb,
-.news-row-thumb a {
-  aspect-ratio: 16 / 9;
-}
-
-/* Subtle premium hover — 1.03 scale, no big zooms */
-.what-img:hover img,
-.trend-bottom-img:hover img,
-.weekly-img:hover img,
-.weekly2-img:hover img,
-.trand-right-img:hover img,
-.news-row-thumb:hover img,
-.single-recent .what-img:hover img,
-.video-card:hover img,
-.trend-top-img:hover img {
-  transform: scale(1.03);
-}
-
-/* Card titles — color deepen on hover instead of jumping */
-.what-cap h4 a,
-.trend-bottom-cap h4 a,
-.weekly-caption h4 a,
-.weekly2-caption h4 a,
-.trand-right-cap h4 a,
-.news-row-title a,
-.single-recent .what-cap h4 a,
-.trend-top-cap h1 a,
-.trend-top-cap h2 a {
-  transition: color 0.25s ease;
-}
-.what-cap h4 a:hover,
-.trend-bottom-cap h4 a:hover,
-.weekly-caption h4 a:hover,
-.weekly2-caption h4 a:hover,
-.trand-right-cap h4 a:hover,
-.news-row-title a:hover,
-.single-recent .what-cap h4 a:hover,
-.trend-top-cap h1 a:hover,
-.trend-top-cap h2 a:hover {
-  color: var(--color-primary);
-}
-
-/* Category chips on cards — clean, quiet */
+/* Category chips on cards */
 .what-cap span,
 .trend-bottom-cap span,
 .weekly2-caption span,
 .single-recent .what-cap span {
   display: inline-block;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 4px 10px;
-  border-radius: 4px;
-  text-transform: uppercase;
-}
-
-/* Video cards — keep the overlay readable, zoom only the image */
-.video-card {
-  position: relative;
-  overflow: hidden;
-}
-.video-card img {
-  height: 100%;
-}
-
-/* ------------------------------------------------------------------
-   Breaking-news ticker — quiet bar, one headline at a time.
-------------------------------------------------------------------- */
-.breaking-ticker {
-  position: relative;
-  overflow: hidden;
-  white-space: nowrap;
-  margin: 0;
-  padding: 0;
-}
-.breaking-ticker .news-item {
-  display: block;
-  padding: 0;
-  font-size: 14px;
-  line-height: 1.5;
-}
-.breaking-ticker .news-item a {
-  color: inherit;
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.breaking-ticker .news-item a:hover {
-  color: var(--color-primary);
-}
-.trending-animated {
-  overflow: hidden;
-  height: 21px;
-}
-.ticker-enter-active,
-.ticker-leave-active {
-  transition: opacity 0.35s ease, transform 0.35s ease;
-}
-.ticker-enter-from {
-  opacity: 0;
-  transform: translateY(8px);
-}
-.ticker-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-.ticker-enter-active {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-}
-
-/* Trending list header — clean, small label chip.
-   Overrides the template's heavy black pill (khmer.css) with a
-   compact brand chip: no gradient, no shadow, tiny padding. */
-.trending-tittle strong {
-  display: inline-block;
-  font-family: var(--font-heading);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: #fff;
-  background: var(--color-primary, #0d3fa9);
-  padding: 4px 11px;
-  border-radius: 4px;
-  box-shadow: none;
-  line-height: 1.5;
-  min-width: 0;
-}
-/* Tighten the container — the template's 31px top padding is
-   excessive next to the trending-area's own 28px spacing. */
-.trending-tittle {
-  padding-top: 14px;
-}
-@media (max-width: 991px) {
-  .trending-tittle {
-    padding-top: 10px;
-  }
-}
-@media (max-width: 767px) {
-  .trending-tittle strong {
-    font-size: 11.5px;
-    padding: 3px 10px;
-  }
-}
-
-/* ------------------------------------------------------------------
-   Section titles — compact editorial headers with "view all".
-------------------------------------------------------------------- */
-.section-tittle {
-  position: relative;
-}
-.section-tittle h3 {
-  font-weight: 700;
-}
-.section-tittle h3::after {
-  content: "";
-  display: block;
-  width: 32px;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--color-primary);
-  margin-top: 8px;
-}
-
-/* ------------------------------------------------------------------
-   Hero (trend-top) — clean overlay, readable text.
-------------------------------------------------------------------- */
-.trend-top-img {
-  position: relative;
-  overflow: hidden;
-}
-.trend-top-cap {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 40px 24px 20px;
-  background: linear-gradient(to bottom, rgba(11, 28, 57, 0) 0%, rgba(11, 28, 57, 0.78) 100%);
-}
-.trend-top-cap span {
-  display: inline-block;
-  background: var(--color-primary);
-  color: #fff;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   padding: 3px 10px;
-  border-radius: 4px;
-  margin-bottom: 8px;
-}
-.trend-top-cap h1 a,
-.trend-top-cap h2 a {
-  color: #fff;
-  text-decoration: none;
-}
-.trend-top-cap h1 a:hover,
-.trend-top-cap h2 a:hover {
-  color: #dbe4ff;
+  border-radius: var(--radius-badge);
+  text-transform: uppercase;
+  margin-bottom: 6px;
 }
 
 /* ------------------------------------------------------------------
-   Sidebar popular list — compact numbered rows.
+   10. SIDEBAR — compact trending list
 ------------------------------------------------------------------- */
 .trand-right-single {
   display: flex;
@@ -459,31 +488,108 @@ a:hover,
 }
 
 /* ------------------------------------------------------------------
-   Article page typography.
+   11. VIDEO SECTION
+------------------------------------------------------------------- */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+@media (max-width: 991px) {
+  .video-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 575px) {
+  .video-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.video-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+}
+.video-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: transform 0.25s ease;
+  z-index: 2;
+}
+.video-card:hover .video-play {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+.video-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 28px 14px 12px;
+  background: linear-gradient(to bottom, rgba(11, 28, 57, 0) 0%, rgba(11, 28, 57, 0.8) 100%);
+  z-index: 1;
+}
+.video-overlay h4 {
+  color: #fff;
+  font-size: 13.5px;
+  line-height: 1.45;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.video-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-accent);
+  color: #fff;
+  padding: 11px 22px;
+  border-radius: var(--radius-button);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+.video-cta:hover {
+  background: #4338ca;
+  color: #fff;
+}
+
+/* ------------------------------------------------------------------
+   12. ARTICLE PAGE
 ------------------------------------------------------------------- */
 .news-content {
   font-size: 16px;
   line-height: 1.95;
-  color: #333;
+  color: #374151;
 }
 .news-content p {
   font-size: 16px;
   line-height: 1.95;
-  color: #333;
+  color: #374151;
   margin-bottom: 18px;
 }
 .news-title {
   font-size: clamp(22px, 1.4vw + 1rem, 34px);
   font-weight: 700;
-  line-height: 1.4;
+  line-height: 1.35;
   color: var(--color-text);
+  font-family: var(--font-display);
   margin: 10px 0 12px;
   overflow-wrap: anywhere;
 }
 .news-lead {
   font-size: clamp(15px, 0.4vw + 0.9rem, 17px);
   line-height: 1.75;
-  color: #444;
+  color: #4b5563;
   font-weight: 500;
   margin-bottom: 16px;
 }
@@ -500,36 +606,54 @@ a:hover,
   align-items: center;
   gap: 5px;
 }
-.news-meta i {
-  font-size: 13px;
-}
 .news-cat {
   display: inline-block;
-  background: var(--color-primary);
+  background: var(--color-accent);
   color: #fff;
   font-size: 11.5px;
   font-weight: 600;
   padding: 4px 12px;
-  border-radius: 4px;
-}
-
-/* Responsive tables inside article content */
-.news-content table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 18px 0;
-  font-size: 14.5px;
-}
-.news-content table th,
-.news-content table td {
-  border: 1px solid var(--color-border);
-  padding: 8px 12px;
+  border-radius: var(--radius-badge);
 }
 
 /* ------------------------------------------------------------------
-   Sticky navigation compensation (see SiteHeader).
-   Desktop pins the black nav bar (72px when pinned); mobile pins the
-   black brand bar (68px).
+   13. BUTTONS & FORMS
+------------------------------------------------------------------- */
+.boxed-btn {
+  display: inline-block;
+  background: var(--color-accent);
+  color: #fff !important;
+  border: none;
+  padding: 11px 26px;
+  border-radius: var(--radius-button);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+.boxed-btn:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+
+.form-control {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-button);
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--color-text);
+  transition: border-color 0.2s ease;
+}
+.form-control:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  outline: none;
+}
+
+/* ------------------------------------------------------------------
+   14. STICKY NAVIGATION补偿
 ------------------------------------------------------------------- */
 body.has-editorial-sticky {
   padding-top: 72px;
@@ -541,7 +665,7 @@ body.has-editorial-sticky {
 }
 
 /* ------------------------------------------------------------------
-   Scroll-reveal — sections fade + rise 12px as they enter the viewport.
+   15. SCROLL REVEAL
 ------------------------------------------------------------------- */
 .reveal {
   opacity: 0;
@@ -555,7 +679,7 @@ body.has-editorial-sticky {
 }
 
 /* ------------------------------------------------------------------
-   Carousel slides — fixed widths for the lightweight carousel.
+   16. CAROUSEL
 ------------------------------------------------------------------- */
 .carousel-track .weekly-single,
 .carousel-track .weekly2-single,
@@ -579,28 +703,68 @@ body.has-editorial-sticky {
   transform: none;
   box-shadow: none;
 }
-.carousel-track .weekly2-single .weekly2-caption span,
-.carousel-track .single-recent .what-cap span {
-  padding: 4px 10px;
-  margin-bottom: 8px;
-  font-size: 10.5px;
+
+/* ------------------------------------------------------------------
+   17. WHATS-NEW — card caption flows under image
+------------------------------------------------------------------- */
+.whats-news-area .whats-news-caption .single-what-news .what-cap,
+.about-area .whats-news-caption .single-what-news .what-cap,
+.contact-section .whats-news-caption .single-what-news .what-cap {
+  position: static;
+  width: 100%;
+  padding: 12px 0 0;
+  background: transparent;
+  border-radius: 0;
 }
-.carousel-track .weekly2-single .weekly2-caption p {
-  margin: 8px 0 4px;
-  font-size: 12.5px;
-  color: var(--color-muted);
-}
-.single-recent.mb-100 {
-  margin-bottom: 32px;
-}
-@media (max-width: 991px) {
-  .single-recent.mb-100 {
-    margin-bottom: 24px;
-  }
+.single-what-news.mb-100 {
+  margin-bottom: 28px;
 }
 
 /* ------------------------------------------------------------------
-   Global keyboard focus indicator (accessibility).
+   18. SECTION RHYTHM — tight editorial spacing
+------------------------------------------------------------------- */
+.weekly2-news-area.weekly2-pading {
+  padding-top: 48px !important;
+  padding-bottom: 40px !important;
+}
+.youtube-area.video-padding {
+  padding-top: 44px !important;
+  padding-bottom: 36px !important;
+}
+.trending-area {
+  padding-top: 24px !important;
+}
+
+/* ------------------------------------------------------------------
+   19. SKELETON LOADERS
+------------------------------------------------------------------- */
+.skeleton {
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-card);
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton-text {
+  height: 14px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+.skeleton-text-sm {
+  height: 11px;
+  width: 60%;
+  border-radius: 3px;
+}
+.skeleton-img {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-card);
+}
+
+/* ------------------------------------------------------------------
+   20. ACCESSIBILITY
 ------------------------------------------------------------------- */
 a:focus-visible,
 button:focus-visible,
@@ -608,12 +772,31 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 [tabindex]:focus-visible {
-  outline: 3px solid #ffb400;
+  outline: 3px solid #f59e0b;
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* Respect users who prefer reduced motion */
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -48px;
+  left: 12px;
+  z-index: 2000;
+  background: var(--color-accent);
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 0 0 8px 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+.skip-link:focus-visible {
+  top: 0;
+}
+
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -625,241 +808,174 @@ select:focus-visible,
   }
 }
 
-/* Lazy image fade-in */
+/* ------------------------------------------------------------------
+   21. LAZY IMAGE
+------------------------------------------------------------------- */
 .lazy-img {
   display: block;
   max-width: 100%;
   transition: opacity 0.35s ease;
 }
-.what-img a,
-.trend-bottom-img a,
-.weekly-img a,
-.weekly2-img a,
-.trand-right-img a,
-.news-row-thumb a,
-.single-recent .what-img a {
-  display: block;
+
+/* ------------------------------------------------------------------
+   22. NEWS LIST / ROW CARDS
+------------------------------------------------------------------- */
+.news-row {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.news-row:last-child {
+  border-bottom: none;
+}
+.news-row-thumb {
+  flex-shrink: 0;
+  width: 200px;
+  border-radius: var(--radius-card);
   overflow: hidden;
 }
-
-/* ------------------------------------------------------------------
-   Buttons & forms — clean, compact, consistent.
-------------------------------------------------------------------- */
-.boxed-btn {
-  display: inline-block;
-  background: var(--color-primary);
-  color: #fff !important;
-  border: 1px solid var(--color-primary);
-  padding: 11px 26px;
-  border-radius: var(--radius-button);
-  font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
-  text-align: center;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-}
-.boxed-btn:hover {
-  background: var(--color-secondary);
-  border-color: var(--color-secondary);
-  color: #fff !important;
-}
-.btn.boxed-btn {
+.news-row-body {
+  flex: 1;
   min-width: 0;
-  padding: 11px 26px;
-  border-radius: var(--radius-button);
 }
-
-.form-control {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-button);
-  padding: 10px 14px;
-  font-family: var(--font-body);
-  font-size: 14.5px;
+.news-row-title {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.45;
+  margin-bottom: 6px;
+}
+.news-row-title a {
   color: var(--color-text);
+  text-decoration: none;
 }
-.form-control:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(13, 63, 169, 0.12);
-}
-
-/* ------------------------------------------------------------------
-   Category page header — clean editorial text (no banner box);
-   the scoped styles in CategoryView.vue own the look.
-------------------------------------------------------------------- */
-
-/* ------------------------------------------------------------------
-   Video section.
-------------------------------------------------------------------- */
-.video-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
-}
-@media (max-width: 991px) {
-  .video-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+.news-row-title a:hover {
+  color: var(--color-accent);
 }
 @media (max-width: 575px) {
-  .video-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .news-row-thumb {
+    width: 120px;
   }
 }
-.video-play {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 46px;
-  height: 46px;
+
+/* ------------------------------------------------------------------
+   23. BACK TO TOP
+------------------------------------------------------------------- */
+.back-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 900;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--color-primary);
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  transition: transform 0.25s ease;
-  z-index: 2;
+  font-size: 18px;
+  box-shadow: var(--shadow-elevated);
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
-.video-card:hover .video-play {
-  transform: translate(-50%, -50%) scale(1.1);
+.back-to-top:hover {
+  transform: translateY(-2px);
+  background: #4338ca;
 }
-.video-overlay {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 28px 14px 12px;
-  background: linear-gradient(to bottom, rgba(11, 28, 57, 0) 0%, rgba(11, 28, 57, 0.75) 100%);
-  z-index: 1;
-}
-.video-overlay h4 {
+
+/* ------------------------------------------------------------------
+   24. CATEGORY PAGE
+------------------------------------------------------------------- */
+.category-hero {
+  position: relative;
+  padding: 48px 0;
   color: #fff;
-  font-size: 13.5px;
-  line-height: 1.45;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.video-caption .top-caption span {
-  font-weight: 700;
-  font-size: 15px;
+.category-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  opacity: 0.95;
 }
-.video-caption .bottom-caption h2 {
-  font-size: clamp(20px, 1.2vw + 0.9rem, 28px);
-  color: var(--color-text);
+.category-hero-inner {
+  position: relative;
+  z-index: 1;
 }
-.video-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--color-primary);
+.category-hero h1 {
   color: #fff;
-  padding: 11px 22px;
-  border-radius: var(--radius-button);
-  font-weight: 600;
-  font-size: 14px;
-  text-decoration: none;
-  transition: background 0.2s ease;
+  font-family: var(--font-display);
+  margin-bottom: 8px;
 }
-.video-cta:hover {
-  background: var(--color-secondary);
-  color: #fff;
+.category-hero p {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
 }
 
 /* ------------------------------------------------------------------
-   Footer refinements — quieter, aligned, not oversized.
+   25. SEARCH
 ------------------------------------------------------------------- */
-.footer-area {
-  background: var(--color-secondary);
-}
-.footer-area .footer-tittle h4 {
-  color: #fff;
-  font-size: 16px;
-  margin-bottom: 18px;
-}
-.footer-area .footer-pera p {
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 14px;
-  line-height: 1.8;
-}
-.footer-area .footer-social a {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 15px;
-}
-.footer-area .footer-social a:hover {
-  color: #fff;
-}
-.footer-bottom-area {
-  background: rgba(0, 0, 0, 0.25);
-}
-.footer-bottom-area .footer-copy-right p {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 13px;
-}
-.footer-bottom-area .footer-menu a {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
-}
-.footer-bottom-area .footer-menu a:hover {
-  color: #fff;
-}
-
-/* Footer newsletter form — clean */
-.footer-form input {
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
+.search-input {
+  width: 100%;
+  border: 2px solid var(--color-border);
   border-radius: var(--radius-button);
-  padding: 10px 44px 10px 14px;
+  padding: 14px 20px;
   font-family: var(--font-body);
-  font-size: 13.5px;
+  font-size: 16px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  transition: border-color 0.2s ease;
+}
+.search-input:focus {
+  border-color: var(--color-accent);
   outline: none;
-  width: 100%;
-}
-.footer-form input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-.footer-form input:focus {
-  border-color: var(--color-primary);
-}
-.footer-form .email_icon {
-  background: var(--color-primary);
-  border: none;
-  border-radius: var(--radius-button);
-  color: #fff;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-.footer-form .email_icon:hover {
-  background: var(--color-accent);
-}
-
-/* Instagram grid in footer — tight, square */
-.insta-feed {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-}
-.insta-feed img {
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 6px;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 /* ------------------------------------------------------------------
-   Mobile header / sticky bar cleanup (legacy classes no longer used
-   by the new header, kept for template remnants).
+   26. AD SLOT
 ------------------------------------------------------------------- */
-@media (max-width: 767px) {
-  .header-area .header-bottom {
-    padding: 0 12px !important;
-  }
+.ad-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+}
+.ad-slot-label {
+  font-size: 10px;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.ad-img {
+  max-height: 90px;
+  width: auto;
+  border-radius: var(--radius-card);
+}
+
+/* ------------------------------------------------------------------
+   27. MODAL
+------------------------------------------------------------------- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+.modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  background: var(--color-surface);
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: var(--shadow-elevated);
 }
