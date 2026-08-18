@@ -24,6 +24,7 @@ const articleFields = {
   status: articleStatusEnum.optional(),
   isFeatured: z.boolean().optional(),
   isBreaking: z.boolean().optional(),
+  galleryColumns: z.number().int().min(2).max(4).optional(),
   publishedAt: z.string().nullable().optional(),
   tagIds: z.array(z.number().int().positive()).max(20).optional(),
   authorId: z.number().int().positive().optional(),

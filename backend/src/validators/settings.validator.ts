@@ -98,6 +98,22 @@ export const settingsUpdateSchema = z.object({
     mutedTextColor: hexColor.optional(),
     borderColor: hexColor.optional(),
 
+    // --- Layout/zone colors (navbar, page background, footer) ---
+    bodyBgColor: hexColor.optional(),
+    headerBgColor: hexColor.optional(),
+    headerTextColor: hexColor.optional(),
+    footerBgColor: hexColor.optional(),
+    footerTextColor: hexColor.optional(),
+
+    // --- Layout style (container width + grid presets) ---
+    layoutStyle: z.enum(["boxed", "wide", "fluid"]).optional(),
+
+    // --- Social share link templates ({url}/{title} placeholders) ---
+    shareFacebook: z.string().trim().min(1).max(500).optional(),
+    shareTikTok: z.string().trim().min(1).max(500).optional(),
+    shareTelegram: z.string().trim().min(1).max(500).optional(),
+    shareWhatsapp: z.string().trim().min(1).max(500).optional(),
+
     fontHeading: z.enum(FONT_CHOICES).optional(),
     fontBody: z.enum(FONT_CHOICES).optional(),
     fontArticle: z.enum(FONT_CHOICES).optional(),

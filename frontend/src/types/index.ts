@@ -55,12 +55,25 @@ export interface Article {
   isFeatured: boolean;
   isBreaking: boolean;
   views: number;
+  galleryColumns: number;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
   author: Author;
   category: Category;
   tags: Tag[];
+  images: ArticleImage[];
+}
+
+export interface ArticleImage {
+  id: number;
+  mediaId: number;
+  url: string;
+  altText: string | null;
+  caption: string | null;
+  width: number | null;
+  height: number | null;
+  sortOrder: number;
 }
 
 export interface Paginated<T> {
@@ -117,6 +130,23 @@ export interface SiteSettings {
   textColor: string;
   mutedTextColor: string;
   borderColor: string;
+
+  // Layout/zone colors (navbar, page background, footer)
+  bodyBgColor: string;
+  headerBgColor: string;
+  headerTextColor: string;
+  footerBgColor: string;
+  footerTextColor: string;
+
+  // Layout style (container width)
+  layoutStyle: "boxed" | "wide" | "fluid";
+
+  // Social share link templates ({url}/{title} placeholders)
+  shareFacebook: string;
+  shareTikTok: string;
+  shareTelegram: string;
+  shareWhatsapp: string;
+
   fontHeading: string;
   fontBody: string;
   fontArticle: string;
@@ -128,12 +158,24 @@ export interface SiteSettings {
   shadowPreset: "none" | "subtle" | "medium" | "strong";
 }
 
+export interface HomepageSectionConfig {
+  columns?: number;
+  sidebar?: boolean;
+}
+
+export interface HomepageSectionPublic {
+  key: string;
+  label: string;
+  config: HomepageSectionConfig | null;
+}
+
 export interface HomepageSection {
   id: number;
   key: string;
   label: string;
   enabled: boolean;
   sortOrder: number;
+  config: HomepageSectionConfig | null;
 }
 
 export interface NavigationItem {

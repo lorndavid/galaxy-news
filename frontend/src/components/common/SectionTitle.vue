@@ -25,11 +25,12 @@ withDefaults(
   align-items: center;
   gap: 12px;
   margin-bottom: 24px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-text, #111827);
 }
 .g-section-accent {
   width: 4px;
   height: 24px;
-  border-radius: 3px;
   background: linear-gradient(180deg, #4f46e5, #7c3aed);
   flex-shrink: 0;
 }

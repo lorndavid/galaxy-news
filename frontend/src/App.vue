@@ -1,6 +1,7 @@
 <template>
   <div class="news-app">
     <a href="#main-content" class="skip-link">{{ isEn ? "Skip to content" : "រំលងទៅកាន់មាតិកា" }}</a>
+    <PageLoader />
     <SiteHeader v-if="!route.meta.bare" />
     <LiveNewsTicker v-if="!route.meta.bare" />
     <main id="main-content" tabindex="-1">
@@ -22,6 +23,7 @@ import SiteHeader from "@/components/layout/SiteHeader.vue";
 import SiteFooter from "@/components/layout/SiteFooter.vue";
 import LiveNewsTicker from "@/components/common/LiveNewsTicker.vue";
 import BackToTop from "@/components/common/BackToTop.vue";
+import PageLoader from "@/components/common/PageLoader.vue";
 import { useSettingsStore } from "@/stores/settings";
 import { useLocaleStore } from "@/stores/locale";
 import { useTheme } from "@/composables/useTheme";

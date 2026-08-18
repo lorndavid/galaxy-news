@@ -27,6 +27,7 @@
 :root {
   /* Brand colors */
   --color-primary: #0b1c39;
+  --color-primary-contrast: #ffffff;
   --color-accent: #4f46e5;
   --color-accent-light: #6366f1;
   --color-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
@@ -44,6 +45,15 @@
   --color-text-secondary: #4b5563;
   --color-muted: #6b7280;
   --color-border: #e5e7eb;
+
+  /* Layout zones (admim-configurable) */
+  --color-header-bg: #ffffff;
+  --color-header-text: #0b1c39;
+  --color-header-muted: #4b5563;
+  --color-footer-bg: #0b1c39;
+  --color-footer-text: #ffffff;
+  --color-footer-muted: rgba(255, 255, 255, 0.62);
+  --color-footer-border: rgba(255, 255, 255, 0.16);
 
   /* Category colors — distinct per category */
   --cat-national: #0b1c39;
@@ -81,17 +91,84 @@
   --sp-12: 48px;
   --sp-16: 64px;
 
-  /* Layout */
+  /* Layout — flat editorial grid by default (no radius, no shadows) */
   --container-max: 1240px;
   --container-padding: 24px;
-  --radius-card: 8px;
-  --radius-button: 6px;
-  --radius-badge: 4px;
+  --grid-gap: 20px;
+  --radius-card: 0px;
+  --radius-button: 0px;
+  --radius-badge: 0px;
 
-  /* Shadows */
-  --shadow-card: 0 1px 3px rgba(11, 28, 57, 0.06), 0 4px 12px rgba(11, 28, 57, 0.04);
-  --shadow-elevated: 0 4px 16px rgba(11, 28, 57, 0.08), 0 8px 32px rgba(11, 28, 57, 0.06);
-  --shadow-header: 0 2px 12px rgba(0, 0, 0, 0.15);
+  /* Shadows — flat by default (see theme presets in admin) */
+  --shadow-card: none;
+  --shadow-elevated: none;
+  --shadow-header: none;
+}
+
+/* Layout width presets (admin → Settings → Layout) */
+:root[data-layout="wide"] {
+  --container-max: 1440px;
+}
+:root[data-layout="fluid"] {
+  --container-max: 100%;
+}
+
+/* Flat design mode — the admin theme defect is "sharp" radius + "none"
+   shadow, so the whole site renders without any corners or shadows. */
+:root[data-flat="true"] *,
+:root[data-flat="true"] *::before,
+:root[data-flat="true"] *::after {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* ------------------------------------------------------------------
+   1b. GRID SYSTEM — responsive 12-column layout utilities.
+   Sections compose cards with explicit column counts set from the
+   admin (Homepage builder → per-section grid), with sane defaults.
+------------------------------------------------------------------- */
+.g-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--grid-gap);
+}
+.g-col-12 { grid-column: span 12; }
+.g-col-6 { grid-column: span 6; }
+.g-col-5 { grid-column: span 5; }
+.g-col-4 { grid-column: span 4; }
+.g-col-3 { grid-column: span 3; }
+.g-col-2 { grid-column: span 2; }
+@media (max-width: 991px) {
+  .g-col-6, .g-col-5 { grid-column: span 6; }
+  .g-col-4, .g-col-3, .g-col-2 { grid-column: span 4; }
+}
+@media (max-width: 640px) {
+  .g-col-12, .g-col-6, .g-col-5, .g-col-4, .g-col-3, .g-col-2 {
+    grid-column: span 12;
+  }
+}
+
+/* Card grids driven by the admin "columns" setting */
+.g-cards {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols, 4), 1fr);
+  gap: var(--grid-gap);
+}
+@media (max-width: 991px) {
+  .g-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .g-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 420px) {
+  .g-cards {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ------------------------------------------------------------------
@@ -585,6 +662,18 @@ p {
   font-family: var(--font-display);
   margin: 10px 0 12px;
   overflow-wrap: anywhere;
+  padding-bottom: 14px;
+  position: relative;
+}
+/* Small single line under the news title */
+.news-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 64px;
+  height: 2px;
+  background: var(--color-accent);
 }
 .news-lead {
   font-size: clamp(15px, 0.4vw + 0.9rem, 17px);

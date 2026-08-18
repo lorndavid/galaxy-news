@@ -71,6 +71,7 @@ export const kh = {
   footer: {
     about: "អំពីយើង",
     latest: "ព័ត៌មានថ្មីៗ",
+    categories: "ប្រភេទ",
     newsletter: "ព្រឹត្តិបត្រ",
     newsletterDesc: "សូមចុះឈ្មោះដើម្បីទទួលបានព័ត៌មានថ្មីៗប្រចាំថ្ងៃ",
     emailPlaceholder: "អាសយដ្ឋានអ៊ីមែល",

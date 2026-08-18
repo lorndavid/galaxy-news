@@ -91,6 +91,59 @@
             ព័ត៌មានក្តៅ
           </label>
         </div>
+
+        <!-- Gallery Images -->
+        <div v-if="isEdit">
+          <label class="label">រូបភាពបន្ថែម (Gallery)</label>
+
+          <!-- Gallery grid layout -->
+          <div class="mb-2 flex items-center gap-2">
+            <span class="text-xs font-medium text-slate-500">ប្លង់ Grid:</span>
+            <div v-for="n in [2, 3, 4]" :key="n" class="flex items-center gap-1">
+              <button
+                type="button"
+                class="flex h-8 w-8 items-center justify-center rounded border text-xs font-semibold transition-colors"
+                :class="form.galleryColumns === n ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300 bg-white text-slate-600 hover:border-brand-400'"
+                @click="form.galleryColumns = n"
+              >
+                {{ n }}
+              </button>
+            </div>
+            <span class="text-[11px] text-slate-400">ជួរឈរ</span>
+          </div>
+
+          <div class="space-y-2">
+            <div v-for="(img, idx) in galleryImages" :key="img.id" class="rounded border border-slate-200 p-2">
+              <div class="flex items-center gap-2">
+                <img :src="img.url" :alt="img.altText || ''" class="h-12 w-16 rounded object-cover" />
+                <div class="min-w-0 flex-1 space-y-1">
+                  <input v-model="img.altText" class="input !py-1 !text-xs" placeholder="Alt text" @change="updateGalleryImage(img)" />
+                  <input v-model="img.caption" class="input !py-1 !text-xs" placeholder="Caption (អក្ខរកម្មនៅក្រោមរូប)" @change="updateGalleryImage(img)" />
+                </div>
+                <div class="flex flex-col items-center gap-0.5">
+                  <button type="button" class="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30" :disabled="idx === 0" title="ផ្លាស់ទីឡើងលើ" @click="moveGalleryImage(idx, -1)">
+                    <ChevronUp class="h-4 w-4" />
+                  </button>
+                  <button type="button" class="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30" :disabled="idx === galleryImages.length - 1" title="ផ្លាស់ទីចុះក្រោម" @click="moveGalleryImage(idx, 1)">
+                    <ChevronDown class="h-4 w-4" />
+                  </button>
+                </div>
+                <button type="button" class="p-1 text-red-500 hover:text-red-700" @click="removeGalleryImage(img.id)">
+                  <XCircle class="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button type="button" class="btn-secondary flex-1 !py-1.5 text-xs" @click="mediaGalleryOpen = true">
+                <ImageIcon class="h-3.5 w-3.5" /> បន្ថែមរូបភាព
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-400">
+              រូបភាពទាំងអស់នឹងបង្ហាញនៅទំព័រព័ត៌មានលម្អិតក្នុង Grid ដែលបានជ្រើសរើស។
+            </p>
+          </div>
+        </div>
+
         <div>
           <label class="label">ផ្សាយនៅថ្ងៃ</label>
           <input v-model="form.publishedAt" type="datetime-local" class="input" />
@@ -188,7 +241,7 @@
       </div>
     </div>
 
-    <!-- Media picker -->
+    <!-- Media picker (featured image) -->
     <Modal v-model="mediaOpen" title="ជ្រើសរើសរូបភាព">
       <div class="grid grid-cols-3 gap-2">
         <button
@@ -202,6 +255,45 @@
       </div>
       <button v-if="!mediaItems.length" class="btn-secondary mt-3 w-full" type="button" @click="loadMedia">ផ្ទុកមេឌា</button>
       <button class="btn-secondary mt-3 w-full" type="button" @click="loadMoreMedia">ផ្ទុកបន្ថែម</button>
+    </Modal>
+
+    <!-- Media picker (gallery) — multi-select -->
+    <Modal v-model="mediaGalleryOpen" title="បន្ថែមរូបភាពទៅ Gallery">
+      <div class="grid grid-cols-3 gap-2">
+        <button
+          v-for="m in mediaItems"
+          :key="m.id"
+          type="button"
+          class="relative overflow-hidden rounded-lg border-2 transition-colors"
+          :class="gallerySelected.has(m.id) ? 'border-brand-600' : 'border-transparent hover:border-emerald-500'"
+          @click="toggleGallerySelect(m.id)"
+        >
+          <img :src="m.secureUrl" :alt="m.altText ?? m.fileName" class="h-20 w-full object-cover" />
+          <span
+            v-if="gallerySelected.has(m.id)"
+            class="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand-600 text-white"
+          >
+            <Check class="h-3.5 w-3.5" />
+          </span>
+        </button>
+      </div>
+      <p v-if="!mediaItems.length" class="mt-3 text-center text-sm text-slate-400">
+        គ្មានមេឌា — ផ្ទុកពីបណ្ណាល័យ
+      </p>
+      <div class="mt-3 flex items-center justify-between gap-2">
+        <button class="btn-secondary !py-1.5 text-xs" type="button" @click="loadMoreMedia">ផ្ទុកបន្ថែម</button>
+        <div class="flex items-center gap-2">
+          <span v-if="gallerySelected.size" class="text-xs font-medium text-slate-500">បានជ្រើសរើស {{ gallerySelected.size }}</span>
+          <button
+            class="btn-primary !py-1.5 text-xs"
+            type="button"
+            :disabled="!gallerySelected.size || galleryAdding"
+            @click="addGalleryImages"
+          >
+            {{ galleryAdding ? "កំពុងបន្ថែម..." : "បន្ថែមចូល Gallery" }}
+          </button>
+        </div>
+      </div>
     </Modal>
 
     <!-- Telegram send confirmation -->
@@ -221,7 +313,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { CheckCircle, Save, Image as ImageIcon, Send, Loader2, RefreshCw, XCircle, ExternalLink } from "lucide-vue-next";
+import { CheckCircle, Save, Image as ImageIcon, Send, Loader2, RefreshCw, XCircle, ExternalLink, ChevronUp, ChevronDown, Check } from "lucide-vue-next";
 import { adminService } from "@/services/admin.service";
 import { useToastStore } from "@/stores/toast";
 import RichTextEditor from "@/components/editor/RichTextEditor.vue";
@@ -241,6 +333,10 @@ const tags = ref<Tag[]>([]);
 const mediaItems = ref<Media[]>([]);
 const mediaPage = ref(1);
 const mediaOpen = ref(false);
+const mediaGalleryOpen = ref(false);
+const gallerySelected = ref<Set<number>>(new Set());
+const galleryAdding = ref(false);
+const galleryImages = ref<{ id: number; mediaId: number; url: string; altText: string | null; caption: string | null; sortOrder: number }[]>([]);
 const saving = ref(false);
 const sending = ref(false);
 const confirmOpen = ref(false);
@@ -289,6 +385,7 @@ const form = reactive({
   featuredImage: "",
   isFeatured: false,
   isBreaking: false,
+  galleryColumns: 3,
   publishedAt: "",
   status: "DRAFT",
 });
@@ -308,6 +405,7 @@ async function save(status: string) {
       featuredImage: form.featuredImage || null,
       isFeatured: form.isFeatured,
       isBreaking: form.isBreaking,
+      galleryColumns: form.galleryColumns,
       publishedAt: form.publishedAt ? new Date(form.publishedAt).toISOString() : null,
       status,
     };
@@ -350,6 +448,83 @@ async function loadMoreMedia() {
 function pickImage(url: string) {
   form.featuredImage = url;
   mediaOpen.value = false;
+}
+
+// ---------- Gallery Images ----------
+
+const articleId = computed(() => Number(route.params.id) || 0);
+
+async function loadGallery() {
+  if (!articleId.value) return;
+  try {
+    galleryImages.value = await adminService.getArticleImages(articleId.value);
+  } catch {
+    /* ignore */
+  }
+}
+
+function toggleGallerySelect(mediaId: number) {
+  if (gallerySelected.value.has(mediaId)) {
+    gallerySelected.value.delete(mediaId);
+  } else {
+    gallerySelected.value.add(mediaId);
+  }
+}
+
+async function addGalleryImages() {
+  if (!articleId.value || !gallerySelected.value.size) return;
+  galleryAdding.value = true;
+  try {
+    for (const mediaId of [...gallerySelected.value]) {
+      await adminService.addArticleImage(articleId.value, mediaId, galleryImages.value.length);
+    }
+    gallerySelected.value = new Set();
+    await loadGallery();
+  } catch {
+    /* ignore */
+  } finally {
+    galleryAdding.value = false;
+    mediaGalleryOpen.value = false;
+  }
+}
+
+async function updateGalleryImage(img: { id: number; altText: string | null; caption: string | null }) {
+  if (!articleId.value) return;
+  try {
+    await adminService.updateArticleImage(articleId.value, img.id, {
+      altText: img.altText,
+      caption: img.caption,
+    });
+  } catch {
+    /* ignore */
+  }
+}
+
+async function moveGalleryImage(idx: number, dir: -1 | 1) {
+  const arr = galleryImages.value;
+  const j = idx + dir;
+  if (j < 0 || j >= arr.length || !articleId.value) return;
+  [arr[idx], arr[j]] = [arr[j], arr[idx]];
+  const first = arr[idx];
+  const second = arr[j];
+  try {
+    await Promise.all([
+      adminService.updateArticleImage(articleId.value, first.id, { sortOrder: first.sortOrder }),
+      adminService.updateArticleImage(articleId.value, second.id, { sortOrder: second.sortOrder }),
+    ]);
+  } catch {
+    await loadGallery();
+  }
+}
+
+async function removeGalleryImage(imageId: number) {
+  if (!articleId.value) return;
+  try {
+    await adminService.removeArticleImage(articleId.value, imageId);
+    galleryImages.value = galleryImages.value.filter((i) => i.id !== imageId);
+  } catch {
+    /* ignore */
+  }
 }
 
 // ---------- Telegram ----------
@@ -416,9 +591,11 @@ onMounted(async () => {
     form.featuredImage = a.featuredImage ?? "";
     form.isFeatured = a.isFeatured;
     form.isBreaking = a.isBreaking;
+    form.galleryColumns = a.galleryColumns ?? 3;
     form.status = a.status;
     form.publishedAt = a.publishedAt ? new Date(a.publishedAt).toISOString().slice(0, 16) : "";
     await refreshPublication();
+    await loadGallery();
   }
 });
 

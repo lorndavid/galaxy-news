@@ -41,6 +41,14 @@ const THEME_FIELDS = [
   "textColor",
   "mutedTextColor",
   "borderColor",
+  // Layout/zone colors
+  "bodyBgColor",
+  "headerBgColor",
+  "headerTextColor",
+  "footerBgColor",
+  "footerTextColor",
+  // Layout style
+  "layoutStyle",
   "fontHeading",
   "fontBody",
   "fontArticle",
@@ -52,6 +60,14 @@ const THEME_FIELDS = [
   "shadowPreset",
 ] as const;
 
+// Social share link templates for the article share rail / row.
+const SHARE_FIELDS = [
+  "shareFacebook",
+  "shareTikTok",
+  "shareTelegram",
+  "shareWhatsapp",
+] as const;
+
 const DEFAULT_SETTINGS = { siteName: "Navatra 4K TV" };
 
 export async function getPublic() {
@@ -60,6 +76,7 @@ export async function getPublic() {
   const out: Record<string, unknown> = {};
   for (const field of PUBLIC_FIELDS) out[field] = settings[field];
   for (const field of THEME_FIELDS) out[field] = settings[field];
+  for (const field of SHARE_FIELDS) out[field] = settings[field];
   return out;
 }
 
@@ -83,7 +100,7 @@ export async function updateSettings(input: Record<string, unknown>, userId: num
   const data: Record<string, unknown> = {};
   // The ticker config rides on the same settings row; persist it with the
   // same update path so one endpoint drives theme + languages + ticker.
-  for (const field of [...PUBLIC_FIELDS, ...THEME_FIELDS]) {
+  for (const field of [...PUBLIC_FIELDS, ...THEME_FIELDS, ...SHARE_FIELDS]) {
     if (input[field] !== undefined) data[field] = input[field];
   }
 

@@ -10,6 +10,16 @@ export const sectionKeys = [
   "recent",
 ] as const;
 
+// Per-section layout/grid options (stored as JSON in HomepageSection.config).
+// `columns` drives the card grid width, `sidebar` toggles a side rail.
+export const sectionConfigSchema = z
+  .object({
+    columns: z.number().int().min(2).max(6).optional(),
+    sidebar: z.boolean().optional(),
+  })
+  .strict()
+  .optional();
+
 export const homepageSectionsUpdateSchema = z.object({
   body: z.object({
     sections: z
@@ -18,6 +28,7 @@ export const homepageSectionsUpdateSchema = z.object({
           key: z.enum(sectionKeys),
           enabled: z.boolean().optional(),
           label: z.string().trim().min(1).max(80).optional(),
+          config: sectionConfigSchema,
         })
       )
       .min(1),

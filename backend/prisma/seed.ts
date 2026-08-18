@@ -417,6 +417,34 @@ const siteSettings = {
   tickerBgColor: "#0b1c39",
   tickerTextColor: "#ffffff",
   tickerAccentColor: "#fc3f00",
+  // Theme tokens — flat editorial look by default (no radius, no shadows)
+  primaryColor: "#0d3fa9",
+  secondaryColor: "#0b1c39",
+  accentColor: "#fc3f00",
+  surfaceColor: "#ffffff",
+  textColor: "#0b1c39",
+  mutedTextColor: "#667085",
+  borderColor: "#e5e7eb",
+  bodyBgColor: "#f8f7f4",
+  headerBgColor: "#ffffff",
+  headerTextColor: "#0b1c39",
+  footerBgColor: "#0b1c39",
+  footerTextColor: "#ffffff",
+  layoutStyle: "boxed",
+  // Social share link templates
+  shareFacebook: "https://www.facebook.com/sharer/sharer.php?u={url}",
+  shareTikTok: "https://www.tiktok.com/share?url={url}",
+  shareTelegram: "https://t.me/share/url?url={url}&text={title}",
+  shareWhatsapp: "https://wa.me/?text={title} {url}",
+  fontHeading: "Noto Sans Khmer",
+  fontBody: "Noto Sans Khmer",
+  fontArticle: "Noto Sans Khmer",
+  fontSizeHero: 36,
+  fontSizeSection: 24,
+  fontSizeCard: 18,
+  fontSizeBody: 16,
+  radiusPreset: "sharp",
+  shadowPreset: "none",
 };
 
 async function seedSettings() {
@@ -457,22 +485,28 @@ async function seedAds() {
 }
 
 // Homepage sections — the order here defines the default layout.
+// `config` holds per-section layout options (columns / sidebar), stored as JSON.
 const homepageSections = [
-  { key: "breaking", label: "បន្ទាត់ព័ត៌មានក្តៅ", enabled: true, sortOrder: 1 },
-  { key: "hero", label: "ព័ត៌មានកំពូល (Hero)", enabled: true, sortOrder: 2 },
-  { key: "weekly", label: "ព័ត៌មានប្រចាំសប្តាហ៍", enabled: true, sortOrder: 3 },
-  { key: "whats-new", label: "អ្វីដែលថ្មី", enabled: true, sortOrder: 4 },
-  { key: "latest", label: "ព័ត៌មានថ្មីៗ", enabled: true, sortOrder: 5 },
-  { key: "video", label: "វីដេអូ", enabled: true, sortOrder: 6 },
-  { key: "recent", label: "អត្ថបទថ្មីៗ", enabled: true, sortOrder: 7 },
+  { key: "breaking", label: "បន្ទាត់ព័ត៌មានក្តៅ", enabled: true, sortOrder: 1, config: null },
+  { key: "hero", label: "ព័ត៌មានកំពូល (Hero)", enabled: true, sortOrder: 2, config: { sidebar: true } },
+  { key: "weekly", label: "ព័ត៌មានប្រចាំសប្តាហ៍", enabled: true, sortOrder: 3, config: null },
+  { key: "whats-new", label: "អ្វីដែលថ្មី", enabled: true, sortOrder: 4, config: { columns: 5 } },
+  { key: "latest", label: "ព័ត៌មានថ្មីៗ", enabled: true, sortOrder: 5, config: null },
+  { key: "video", label: "វីដេអូ", enabled: true, sortOrder: 6, config: { columns: 5 } },
+  { key: "recent", label: "អត្ថបទថ្មីៗ", enabled: true, sortOrder: 7, config: null },
 ];
 
 async function seedHomepageSections() {
   for (const s of homepageSections) {
     await prisma.homepageSection.upsert({
       where: { key: s.key },
-      update: { label: s.label, enabled: s.enabled, sortOrder: s.sortOrder },
-      create: s,
+      update: {
+        label: s.label,
+        enabled: s.enabled,
+        sortOrder: s.sortOrder,
+        config: s.config ? JSON.stringify(s.config) : null,
+      },
+      create: { key: s.key, label: s.label, enabled: s.enabled, sortOrder: s.sortOrder, config: s.config ? JSON.stringify(s.config) : null },
     });
   }
 }

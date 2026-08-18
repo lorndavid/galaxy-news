@@ -73,6 +73,12 @@ adminRouter.get("/articles/:id", validate(articleParamsSchema), articleControlle
 adminRouter.patch("/articles/:id", validate(articleParamsSchema), validate(articleUpdateSchema), articleController.update);
 adminRouter.delete("/articles/:id", validate(articleParamsSchema), articleController.remove);
 
+// ---- Article Gallery Images ----
+adminRouter.get("/articles/:id/images", validate(articleParamsSchema), articleController.getImages);
+adminRouter.post("/articles/:id/images", validate(articleParamsSchema), articleController.addImage);
+adminRouter.patch("/articles/:articleId/images/:imageId", articleController.updateImage);
+adminRouter.delete("/articles/:articleId/images/:imageId", articleController.removeImage);
+
 // ---- Categories ----
 adminRouter.get("/categories", contentController.listCategories);
 adminRouter.post("/categories", requireEditor, validate(categoryCreateSchema), contentController.createCategory);

@@ -102,10 +102,12 @@ model Article {
   isFeatured    Boolean      @default(false)
   isBreaking    Boolean      @default(false)
   views         Int          @default(0)
+  galleryColumns Int         @default(3) // gallery grid columns (2-4)
   publishedAt   DateTime?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   tags          ArticleTag[]
+  images        ArticleImage[]
   comments      Comment[]
   viewLogs      ViewLog[]
   telegramPublications TelegramPublication[]
@@ -166,6 +168,23 @@ model ArticleTag {
   @@index([tagId])
 }
 
+// Gallery images for an article (ordered by sortOrder)
+model ArticleImage {
+  id        Int      @id @default(autoincrement())
+  articleId Int
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  mediaId   Int
+  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  altText   String?
+  caption   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@unique([articleId, mediaId])
+  @@index([articleId])
+  @@index([mediaId])
+}
+
 model Comment {
   id        Int      @id @default(autoincrement())
   articleId Int
@@ -199,6 +218,7 @@ model Media {
   folder      String   @default("articles") // articles | categories | authors | ads | gallery | site
   createdById Int?
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  articleImages ArticleImage[]
   createdAt   DateTime @default(now())
 
   @@index([createdById])
@@ -268,6 +288,23 @@ model SiteSettings {
   mutedTextColor  String  @default("#667085")
   borderColor     String  @default("#e5e7eb")
 
+  // --- Layout/zone colors (navbar, page background, footer) ---
+  bodyBgColor     String  @default("#f8f7f4") // page background behind content
+  headerBgColor   String  @default("#ffffff") // navbar/utility bar background
+  headerTextColor String  @default("#0b1c39") // navbar text & links
+  footerBgColor   String  @default("#0b1c39") // footer background
+  footerTextColor String  @default("#ffffff") // footer text & links
+
+  // --- Layout style (container width + grid presets) ---
+  layoutStyle     String  @default("boxed") // boxed (1240px) | wide (1440px) | fluid (100%)
+
+  // --- Social share link templates (article share rail / row) ---
+  // {url} and {title} are replaced with the article page URL and title.
+  shareFacebook  String  @default("https://www.facebook.com/sharer/sharer.php?u={url}")
+  shareTikTok    String  @default("https://www.tiktok.com/share?url={url}")
+  shareTelegram  String  @default("https://t.me/share/url?url={url}&text={title}")
+  shareWhatsapp  String  @default("https://wa.me/?text={title} {url}")
+
   fontHeading String @default("Noto Sans Khmer") // headings & titles
   fontBody    String @default("Noto Sans Khmer") // body & UI
   fontArticle String @default("Noto Sans Khmer") // article content
@@ -277,8 +314,8 @@ model SiteSettings {
   fontSizeCard    Int @default(18) // card titles (px)
   fontSizeBody    Int @default(16) // article body (px)
 
-  radiusPreset String @default("medium") // sharp | minimal | medium | rounded
-  shadowPreset String @default("subtle") // none | subtle | medium | strong
+  radiusPreset String @default("sharp") // sharp | minimal | medium | rounded
+  shadowPreset String @default("none") // none | subtle | medium | strong
 
   // --- Telegram integration (secret token — NEVER exposed publicly) ---
   telegramBotToken     String?  // stored encrypted-at-rest only on the backend

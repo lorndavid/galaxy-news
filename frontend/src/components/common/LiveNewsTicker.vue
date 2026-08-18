@@ -3,6 +3,7 @@
     v-if="data && data.enabled && data.items.length"
     class="g-ticker"
     :class="`g-ticker--${data.speed}`"
+    :style="tickerStyle"
     role="marquee"
     aria-label="Live news ticker"
   >
@@ -51,6 +52,11 @@ function displayTitle(item: { title: string; titleEn: string | null }) {
   return locale.pick(item.title, item.titleEn);
 }
 
+const tickerStyle = computed(() => ({
+  background: data.value?.backgroundColor ?? "var(--color-primary, #0b1c39)",
+  color: data.value?.textColor ?? "#ffffff",
+}));
+
 async function load() {
   try {
     data.value = await contentService.ticker();
@@ -81,11 +87,10 @@ onUnmounted(() => {
   overflow: hidden;
   position: relative;
   z-index: 990;
-  background: var(--color-primary, #0b1c39);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid color-mix(in srgb, currentColor 14%, transparent);
 }
 
-/* ─── Diagonal-cut LIVE badge ─── */
+/* ─── LIVE badge ─── */
 .g-ticker-badge {
   display: inline-flex;
   align-items: center;
@@ -156,14 +161,14 @@ onUnmounted(() => {
   font-family: var(--font-body, "Noto Sans Khmer", sans-serif);
   font-size: 14px;
   line-height: 40px;
-  color: rgba(255, 255, 255, 0.9);
+  color: color-mix(in srgb, currentColor 88%, transparent);
   text-decoration: none;
   transition: color 0.2s ease;
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  border-right: 1px solid color-mix(in srgb, currentColor 14%, transparent);
   overflow-wrap: anywhere;
 }
 .g-ticker-item:hover {
-  color: #fff;
+  color: currentColor;
   text-decoration: underline;
   text-underline-offset: 3px;
 }

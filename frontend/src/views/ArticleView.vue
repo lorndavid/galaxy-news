@@ -1,5 +1,33 @@
 <template>
   <div class="news-detail-area">
+    <!-- Floating share rail — left side, appears on scroll -->
+    <Transition name="share-rail">
+      <aside v-if="showShareRail && shareLinks.length" class="g-share-rail" aria-label="ចែករំលែកអត្ថបទ">
+        <span class="g-share-rail-label">{{ t.article.share }}</span>
+        <a
+          v-for="l in shareLinks"
+          :key="l.key"
+          :href="l.href"
+          target="_blank"
+          rel="noopener noreferrer"
+          :style="{ background: l.color }"
+          :aria-label="l.label"
+          :title="l.label"
+        >
+          <i :class="l.icon"></i>
+        </a>
+        <button
+          class="g-share-rail-copy"
+          :style="{ background: '#0b1c39' }"
+          :aria-label="t.article.share"
+          :title="copied ? '✓' : 'Copy link'"
+          @click="copyLink"
+        >
+          <i :class="copied ? 'ti-check' : 'ti-link'"></i>
+        </button>
+      </aside>
+    </Transition>
+
     <div class="container">
       <div v-if="loading" class="row"><div class="col-12"><SkeletonArticle /></div></div>
 
@@ -8,15 +36,6 @@
       <div v-else-if="article" class="row">
         <div class="col-lg-8">
           <div class="news-detail-wrap">
-            <!-- Breadcrumb -->
-            <div class="news-breadcrumb">
-              <RouterLink to="/">{{ t.nav.home }}</RouterLink>
-              <span class="sep">/</span>
-              <RouterLink :to="`/category/${article.category?.slug}`">{{ catName(article) }}</RouterLink>
-              <span class="sep">/</span>
-              <span class="current">{{ shortTitle }}</span>
-            </div>
-
             <span class="news-cat" :style="catStyle">{{ catName(article) }}</span>
             <h1 class="news-title">{{ title(article) }}</h1>
 
@@ -29,6 +48,21 @@
 
             <div class="news-thumb">
               <ArticleThumb :src="article.featuredImage" :alt="title(article)" />
+            </div>
+
+            <!-- Gallery images — grid layout set from the admin editor -->
+            <div v-if="article.images?.length" class="news-gallery" :style="{ '--gallery-cols': article.galleryColumns || 3 }">
+              <button
+                v-for="(img, i) in article.images"
+                :key="img.id"
+                type="button"
+                class="news-gallery-item"
+                :aria-label="img.altText || title(article)"
+                @click="openLightbox(i)"
+              >
+                <img :src="img.url" :alt="img.altText || title(article)" loading="lazy" decoding="async" />
+                <span v-if="img.caption" class="news-gallery-caption">{{ img.caption }}</span>
+              </button>
             </div>
 
             <div class="news-body">
@@ -50,10 +84,14 @@
             <div class="news-social">
               <h4>{{ t.article.share }}</h4>
               <div class="social-row">
-                <a :href="share.facebook" class="fb" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i> Facebook</a>
-                <a :href="share.tiktok" class="tt" target="_blank" rel="noopener"><i class="fab fa-tiktok"></i> TikTok</a>
-                <a :href="share.telegram" class="yt" target="_blank" rel="noopener"><i class="fab fa-telegram-plane"></i> Telegram</a>
-                <a :href="share.whatsapp" class="ig" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                <a
+                  v-for="l in shareLinks"
+                  :key="l.key"
+                  :href="l.href"
+                  :class="shareClass(l.key)"
+                  target="_blank"
+                  rel="noopener"
+                ><i :class="l.icon"></i> {{ l.label }}</a>
               </div>
             </div>
 
@@ -115,11 +153,35 @@
         </div>
       </div>
     </div>
+
+    <!-- Gallery lightbox -->
+    <Teleport to="body">
+      <Transition name="lightbox">
+        <div
+          v-if="lightboxIndex !== null"
+          class="g-lightbox"
+          role="dialog"
+          aria-modal="true"
+          :aria-label="t.article.share"
+        >
+          <button type="button" class="g-lightbox-close" aria-label="បិទ" @click="closeLightbox"><i class="ti-close"></i></button>
+          <button type="button" class="g-lightbox-prev" aria-label="មុន" @click="lightboxPrev"><i class="ti-angle-left"></i></button>
+          <figure class="g-lightbox-figure">
+            <img :src="currentLightbox?.url" :alt="currentLightbox?.altText || (article ? title(article) : '')" />
+            <figcaption v-if="currentLightbox?.caption" class="g-lightbox-caption">{{ currentLightbox.caption }}</figcaption>
+          </figure>
+          <button type="button" class="g-lightbox-next" aria-label="បន្ទាប់" @click="lightboxNext"><i class="ti-angle-right"></i></button>
+          <span class="g-lightbox-count">
+            {{ lightboxIndex !== null ? String(lightboxIndex + 1).padStart(2, "0") : "00" }} / {{ String(article?.images?.length ?? 0).padStart(2, "0") }}
+          </span>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useSeo } from "@/composables/useSeo";
 import { articleService } from "@/services/article.service";
@@ -136,6 +198,7 @@ import SidebarPopular from "@/components/article/SidebarPopular.vue";
 import AdSlot from "@/components/ads/AdSlot.vue";
 import NavatraPoster from "@/components/article/NavatraPoster.vue";
 import { useLocalized } from "@/composables/useLocalized";
+import { useShareLinks } from "@/composables/useShareLinks";
 import { formatKhmerDate, formatKhmerDateFull, formatViews, readingTime, toKhmerDigits } from "@/utils/format";
 
 const route = useRoute();
@@ -163,11 +226,6 @@ const commentMsg = ref("");
 
 const { title, excerpt, content, catName, t } = useLocalized();
 
-const shortTitle = computed(() => {
-  const ttl = title(article.value as never) ?? "";
-  return ttl.length > 40 ? `${ttl.slice(0, 40)}...` : ttl;
-});
-
 const localizedExcerpt = computed(() => (article.value ? excerpt(article.value) : ""));
 const localizedContent = computed(() => (article.value ? content(article.value) : ""));
 
@@ -175,6 +233,16 @@ const catStyle = computed(() => {
   const color = article.value?.category?.color;
   return color ? { background: color, borderColor: color } : {};
 });
+
+function shareClass(key: string): string {
+  const map: Record<string, string> = {
+    facebook: "fb",
+    tiktok: "tt",
+    telegram: "yt",
+    whatsapp: "ig",
+  };
+  return map[key] ?? "fb";
+}
 
 const sanitizedContent = computed(() => {
   const raw = localizedContent.value;
@@ -186,12 +254,67 @@ const sanitizedContent = computed(() => {
 });
 
 const pageUrl = computed(() => window.location.href);
-const share = computed(() => ({
-  facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl.value)}`,
-  tiktok: `https://www.tiktok.com/share?url=${encodeURIComponent(pageUrl.value)}`,
-  telegram: `https://t.me/share/url?url=${encodeURIComponent(pageUrl.value)}&text=${encodeURIComponent(title(article.value as never))}`,
-  whatsapp: `https://wa.me/?text=${encodeURIComponent(`${title(article.value as never)} ${pageUrl.value}`)}`,
-}));
+const shareTitle = computed(() => title(article.value as never));
+const { links: shareLinks } = useShareLinks(() => pageUrl.value, () => shareTitle.value);
+
+// ---- Floating share rail (left side, appears on scroll) ----
+const showShareRail = ref(false);
+const copied = ref(false);
+let copyTimer: number | undefined;
+let scrollTimer: number | undefined;
+
+function onScroll() {
+  if (scrollTimer) window.clearTimeout(scrollTimer);
+  scrollTimer = window.setTimeout(() => {
+    showShareRail.value = window.scrollY > 520;
+  }, 60);
+}
+
+async function copyLink() {
+  try {
+    await navigator.clipboard.writeText(pageUrl.value);
+    copied.value = true;
+    if (copyTimer) window.clearTimeout(copyTimer);
+    copyTimer = window.setTimeout(() => (copied.value = false), 1600);
+  } catch {
+    // clipboard unavailable — do nothing
+  }
+}
+
+// ---- Gallery lightbox ----
+const lightboxIndex = ref<number | null>(null);
+const galleryImages = computed(() => article.value?.images ?? []);
+const currentLightbox = computed(() =>
+  lightboxIndex.value !== null ? galleryImages.value[lightboxIndex.value] : null
+);
+const lightboxCount = computed(() => galleryImages.value.length);
+
+function openLightbox(i: number) {
+  lightboxIndex.value = i;
+  document.body.style.overflow = "hidden";
+}
+
+function closeLightbox() {
+  lightboxIndex.value = null;
+  document.body.style.overflow = "";
+}
+
+function lightboxPrev() {
+  if (lightboxIndex.value === null || !lightboxCount.value) return;
+  lightboxIndex.value = (lightboxIndex.value - 1 + lightboxCount.value) % lightboxCount.value;
+}
+
+function lightboxNext() {
+  if (lightboxIndex.value === null || !lightboxCount.value) return;
+  lightboxIndex.value = (lightboxIndex.value + 1) % lightboxCount.value;
+}
+
+function onKeydown(e: KeyboardEvent) {
+  if (lightboxIndex.value === null) return;
+  if (e.key === "Escape") closeLightbox();
+  if (e.key === "ArrowLeft") lightboxPrev();
+  if (e.key === "ArrowRight") lightboxNext();
+}
 
 useSeo(
   computed(() => {
@@ -288,11 +411,209 @@ async function submitComment() {
 onMounted(() => {
   syncLocaleFromRoute();
   settingsStore.load();
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("keydown", onKeydown);
   load();
+});
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", onScroll);
+  window.removeEventListener("keydown", onKeydown);
+  document.body.style.overflow = "";
+  if (scrollTimer) window.clearTimeout(scrollTimer);
+  if (copyTimer) window.clearTimeout(copyTimer);
 });
 </script>
 
 <style scoped>
+/* ─── Floating share rail (left side) ─── */
+.g-share-rail {
+  position: fixed;
+  left: 18px;
+  top: 46%;
+  transform: translateY(-50%);
+  z-index: 940;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.g-share-rail-label {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted, #6b7280);
+  writing-mode: vertical-rl;
+  margin-bottom: 2px;
+}
+.g-share-rail a,
+.g-share-rail button {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+.g-share-rail a:hover,
+.g-share-rail button:hover {
+  transform: translateX(3px);
+  filter: brightness(1.12);
+}
+@media (max-width: 1399px) {
+  .g-share-rail {
+    display: none;
+  }
+}
+.share-rail-enter-active,
+.share-rail-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.share-rail-enter-from,
+.share-rail-leave-to {
+  opacity: 0;
+  transform: translateY(-50%) translateX(-10px);
+}
+
+/* ─── Gallery grid (columns from the admin editor) ─── */
+.news-gallery {
+  margin: 22px 0;
+  display: grid;
+  grid-template-columns: repeat(var(--gallery-cols, 3), 1fr);
+  gap: 12px;
+}
+.news-gallery-item {
+  position: relative;
+  display: block;
+  padding: 0;
+  border: none;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  overflow: hidden;
+  text-align: left;
+  cursor: zoom-in;
+  transition: filter 0.2s ease;
+}
+.news-gallery-item:hover {
+  filter: brightness(0.96);
+}
+.news-gallery-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+.news-gallery-caption {
+  display: block;
+  margin: 0;
+  padding: 8px 10px 10px;
+  font-size: 12.5px;
+  color: var(--color-muted, #6b7280);
+  font-style: italic;
+  line-height: 1.5;
+}
+@media (max-width: 767px) {
+  .news-gallery {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 460px) {
+  .news-gallery {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Lightbox ─── */
+.g-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 8, 18, 0.94);
+  padding: 24px;
+}
+.g-lightbox-figure {
+  margin: 0;
+  max-width: min(1080px, 92vw);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.g-lightbox-figure img {
+  max-width: 100%;
+  max-height: 78vh;
+  object-fit: contain;
+  display: block;
+}
+.g-lightbox-caption {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13.5px;
+  font-style: italic;
+  text-align: center;
+}
+.g-lightbox-close,
+.g-lightbox-prev,
+.g-lightbox-next {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.g-lightbox-close {
+  top: 18px;
+  right: 18px;
+  width: 42px;
+  height: 42px;
+  font-size: 18px;
+}
+.g-lightbox-prev,
+.g-lightbox-next {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 64px;
+  font-size: 20px;
+}
+.g-lightbox-prev { left: 14px; }
+.g-lightbox-next { right: 14px; }
+.g-lightbox-close:hover,
+.g-lightbox-prev:hover,
+.g-lightbox-next:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+.g-lightbox-count {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.6);
+  font-family: var(--font-latin), monospace;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+.lightbox-enter-active,
+.lightbox-leave-active {
+  transition: opacity 0.22s ease;
+}
+.lightbox-enter-from,
+.lightbox-leave-to {
+  opacity: 0;
+}
+
+/* ─── Comments ─── */
 .comment-list {
   margin-bottom: 10px;
 }

@@ -71,6 +71,7 @@ export const en = {
   footer: {
     about: "About Us",
     latest: "Latest News",
+    categories: "Categories",
     newsletter: "Newsletter",
     newsletterDesc: "Subscribe to receive daily news updates",
     emailPlaceholder: "Email address",

@@ -1,6 +1,6 @@
 <template>
   <header class="g-header" :class="{ 'is-sticky': isSticky }">
-    <!-- ─── Row 1: Utility bar (white, date + social + language) ─── -->
+    <!-- ─── Row 1: Utility bar (date + social + language) ─── -->
     <div class="g-utility">
       <div class="container g-utility-inner">
         <p class="g-utility-date">
@@ -20,17 +20,12 @@
       </div>
     </div>
 
-    <!-- ─── Row 2: Brand bar (deep navy, logo + ad banner) ─── -->
+    <!-- ─── Row 2: Brand bar (primary, centered masthead logo) ─── -->
     <div class="g-brand">
       <div class="container g-brand-inner">
         <RouterLink to="/" class="g-brand-logo" :aria-label="`${siteName} — ទំព័រដើម`">
           <img :src="logoUrl" :alt="siteName" />
         </RouterLink>
-
-        <!-- Admin-managed banner ad (position: header) -->
-        <div class="g-brand-ad">
-          <AdSlot position="header" />
-        </div>
 
         <!-- Mobile burger — right side -->
         <button
@@ -45,7 +40,7 @@
       </div>
     </div>
 
-    <!-- ─── Row 3: Nav bar (white → dark on scroll, centered links) ─── -->
+    <!-- ─── Row 3: Nav bar (centered links + search) ─── -->
     <div class="g-navbar">
       <div class="container g-navbar-inner">
         <!-- Logo appears on left when sticky -->
@@ -81,8 +76,48 @@
             </li>
           </ul>
         </nav>
+
+        <!-- Desktop search toggle -->
+        <button
+          class="g-search-toggle"
+          type="button"
+          :aria-label="locale.t.common.search"
+          :aria-expanded="desktopSearchOpen"
+          :class="{ 'is-open': desktopSearchOpen }"
+          @click="desktopSearchOpen = !desktopSearchOpen"
+        >
+          <i class="fas fa-search" aria-hidden="true"></i>
+        </button>
       </div>
     </div>
+
+    <!-- ─── Desktop search bar (slide-down) ─── -->
+    <Transition name="g-search-slide">
+      <form v-if="desktopSearchOpen" class="g-search-bar" role="search" @submit.prevent="submitSearch">
+        <div class="container g-search-bar-inner">
+          <i class="fas fa-search g-search-bar-icon" aria-hidden="true"></i>
+          <input
+            ref="desktopSearchInput"
+            v-model="searchInput"
+            type="text"
+            :placeholder="locale.t.search.placeholder"
+            :aria-label="locale.t.common.search"
+          />
+          <button type="submit" class="g-search-go">
+            <i class="fas fa-arrow-right" aria-hidden="true"></i>
+            <span>{{ locale.t.common.search }}</span>
+          </button>
+          <button
+            type="button"
+            class="g-search-close"
+            :aria-label="locale.t.common.close"
+            @click="desktopSearchOpen = false"
+          >
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+        </div>
+      </form>
+    </Transition>
 
     <!-- ─── Mobile drawer ─── -->
     <Transition name="g-mobile-drop">
@@ -106,6 +141,7 @@
                 :to="`/category/${item.value ?? ''}`"
                 @click="mobileOpen = false"
               >
+                <i class="ti-angle-right" aria-hidden="true"></i>
                 {{ locale.pick(item.label, item.labelEn) }}
               </RouterLink>
               <a
@@ -115,6 +151,7 @@
                 rel="noopener"
                 @click="mobileOpen = false"
               >
+                <i class="ti-angle-right" aria-hidden="true"></i>
                 {{ locale.pick(item.label, item.labelEn) }}
               </a>
               <RouterLink
@@ -122,6 +159,7 @@
                 :to="navPath(item)"
                 @click="mobileOpen = false"
               >
+                <i class="ti-angle-right" aria-hidden="true"></i>
                 {{ locale.pick(item.label, item.labelEn) }}
               </RouterLink>
             </li>
@@ -133,12 +171,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useSettingsStore } from "@/stores/settings";
 import { useLocaleStore } from "@/stores/locale";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher.vue";
-import AdSlot from "@/components/ads/AdSlot.vue";
 import type { NavigationItem } from "@/types";
 import { contentService } from "@/services/content.service";
 import { toKhmerDigits } from "@/utils/format";
@@ -151,6 +188,8 @@ const locale = useLocaleStore();
 const searchInput = ref("");
 const navItems = ref<NavigationItem[]>([]);
 const mobileOpen = ref(false);
+const desktopSearchOpen = ref(false);
+const desktopSearchInput = ref<HTMLInputElement | null>(null);
 const isSticky = ref(false);
 let scrollTimer: number | undefined;
 
@@ -166,6 +205,13 @@ const todayLabel = computed(() => {
     "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ",
   ];
   return `ថ្ងៃ${days[now.getDay()]} ទី${toKhmerDigits(now.getDate())} ខែ${months[now.getMonth()]} ឆ្នាំ${toKhmerDigits(now.getFullYear())}`;
+});
+
+watch(desktopSearchOpen, async (open) => {
+  if (open) {
+    await nextTick();
+    desktopSearchInput.value?.focus();
+  }
 });
 
 function isActive(path: string): boolean {
@@ -203,6 +249,8 @@ function submitSearch() {
   const q = searchInput.value.trim();
   if (!q) return;
   mobileOpen.value = false;
+  desktopSearchOpen.value = false;
+  searchInput.value = "";
   router.push({ name: "search", query: { q } });
 }
 
@@ -231,22 +279,24 @@ onUnmounted(() => {
 <style scoped>
 /* ==================================================================
    Galaxy TV Header — 3-row editorial layout
-   Row 1: Utility bar (white, date + social + language)
-   Row 2: Brand bar (deep navy, logo + admin ad banner)
-   Row 3: Nav bar (white centered → dark sticky with logo)
+   Row 1: Utility bar (header bg, date + social + language)
+   Row 2: Brand bar (primary, logo + admin ad banner)
+   Row 3: Nav bar (header bg centered → sticky with logo)
+   All row colors come from the admin theme (--color-header-*).
 =================================================================== */
 
 /* ─── Shared ─── */
 .g-header {
   position: relative;
   z-index: 1000;
-  background: #fff;
+  background: var(--color-header-bg);
+  color: var(--color-header-text);
 }
 
 /* ─── Row 1: Utility bar ─── */
 .g-utility {
-  background: #fff;
-  color: var(--color-text);
+  background: var(--color-header-bg);
+  color: var(--color-header-text);
   border-bottom: 1px solid var(--color-border);
   font-size: 12.5px;
 }
@@ -263,7 +313,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   font-family: var(--font-body);
-  color: var(--color-text-secondary);
+  color: var(--color-header-muted);
 }
 .g-utility-dot {
   width: 6px;
@@ -284,7 +334,7 @@ onUnmounted(() => {
   list-style: none;
 }
 .g-utility-social a {
-  color: var(--color-text-secondary);
+  color: var(--color-header-muted);
   font-size: 13px;
   transition: color 0.2s ease;
 }
@@ -295,26 +345,28 @@ onUnmounted(() => {
   .g-utility { display: none; }
 }
 
-/* ─── Row 2: Brand bar (deep navy) ─── */
+/* ─── Row 2: Brand bar — clean centered masthead ─── */
 .g-brand {
   background: var(--color-primary);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 2px solid var(--color-header-bg);
 }
 .g-brand-inner {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 24px;
-  min-height: 80px;
+  justify-content: center;
+  min-height: 88px;
 }
 .g-brand-logo {
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 .g-brand-logo img {
-  height: 64px;
+  height: 66px;
   width: auto;
-  max-width: 320px;
+  max-width: 340px;
   object-fit: contain;
 }
 @media (max-width: 640px) {
@@ -324,27 +376,10 @@ onUnmounted(() => {
   }
   .g-brand-inner {
     min-height: 64px;
-    gap: 12px;
   }
 }
 
-/* Ad banner (admin-managed, position: header) — right side */
-.g-brand-ad {
-  margin-left: auto;
-  flex-shrink: 0;
-  min-width: 0;
-}
-.g-brand-ad :deep(.ad-slot) {
-  margin: 0;
-  align-items: flex-end;
-}
-.g-brand-ad :deep(.ad-img) {
-  max-height: 62px;
-  width: auto;
-  border-radius: 6px;
-}
-
-/* Burger (mobile) */
+/* Burger (mobile) — anchored right of the masthead */
 .g-burger {
   display: none;
   flex-direction: column;
@@ -354,31 +389,32 @@ onUnmounted(() => {
   height: 42px;
   padding: 0 10px;
   border: none;
-  border-radius: 8px;
   background: transparent;
   cursor: pointer;
-  margin-left: auto;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   transition: background 0.2s ease;
 }
 .g-burger:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: color-mix(in srgb, var(--color-header-text) 10%, transparent);
 }
 .g-burger span {
   display: block;
   height: 2px;
   width: 100%;
-  background: #fff;
-  border-radius: 2px;
+  background: var(--color-primary-contrast, #fff);
   transition: transform 0.25s ease, opacity 0.25s ease;
 }
 .g-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 .g-burger.open span:nth-child(2) { opacity: 0; }
 .g-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* ─── Row 3: Nav bar ─── */
+/* ─── Row 3: Nav bar — single clean line under the menu ─── */
 .g-navbar {
-  background: #fff;
-  border-bottom: 1px solid var(--color-border);
+  background: var(--color-header-bg);
+  border-bottom: 2px solid var(--color-text);
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .g-navbar-inner {
@@ -386,7 +422,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   min-height: 50px;
-  gap: 24px;
+  gap: 16px;
 }
 
 /* Logo inside nav — hidden at top, revealed when sticky */
@@ -402,6 +438,9 @@ onUnmounted(() => {
   object-fit: contain;
 }
 
+.g-nav {
+  flex: 1;
+}
 .g-nav ul {
   display: flex;
   align-items: center;
@@ -411,10 +450,14 @@ onUnmounted(() => {
   padding: 0;
   list-style: none;
 }
+/* Newspaper index: vertical separators between menu items */
+.g-nav li + li {
+  border-left: 1px solid var(--color-border);
+}
 .g-nav li a {
   display: inline-block;
   padding: 12px 16px;
-  color: var(--color-text);
+  color: var(--color-header-text);
   font-family: var(--font-body);
   font-size: 15px;
   font-weight: 500;
@@ -431,7 +474,6 @@ onUnmounted(() => {
   right: 16px;
   height: 2px;
   background: var(--color-accent);
-  border-radius: 2px;
   transform: scaleX(0);
   transition: transform 0.25s ease;
 }
@@ -450,6 +492,28 @@ onUnmounted(() => {
   transform: scaleX(1);
 }
 
+/* Desktop search toggle */
+.g-search-toggle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-left: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-header-text);
+  font-size: 15px;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.g-search-toggle:hover,
+.g-search-toggle.is-open {
+  color: var(--color-primary-contrast, #fff);
+  background: var(--color-primary);
+}
+
 /* ─── Sticky state ─── */
 .is-sticky .g-brand,
 .is-sticky .g-navbar {
@@ -463,8 +527,8 @@ onUnmounted(() => {
   box-shadow: var(--shadow-header);
 }
 .is-sticky .g-navbar {
-  background: var(--color-primary);
-  border-bottom-color: rgba(255, 255, 255, 0.1);
+  background: var(--color-header-bg);
+  border-bottom-color: var(--color-text);
   box-shadow: var(--shadow-header);
 }
 .is-sticky .g-navbar-inner {
@@ -480,16 +544,16 @@ onUnmounted(() => {
 }
 .is-sticky .g-nav li a {
   padding: 14px 18px;
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--color-header-text);
 }
 .is-sticky .g-nav li a::after {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--color-accent);
 }
 .is-sticky .g-nav li a:hover {
-  color: #fff;
+  color: var(--color-accent);
 }
 .is-sticky .g-nav li a.is-active {
-  color: #fff;
+  color: var(--color-accent);
   font-weight: 700;
 }
 .is-sticky .g-nav {
@@ -504,9 +568,87 @@ onUnmounted(() => {
   }
 }
 
+/* ─── Desktop search bar ─── */
+.g-search-bar {
+  background: var(--color-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 14px 0;
+}
+.g-search-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.g-search-bar-icon {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.g-search-bar-inner input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 8px 2px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.g-search-bar-inner input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+.g-search-bar-inner input:focus {
+  border-bottom-color: var(--color-accent);
+}
+.g-search-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: var(--color-accent);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 18px;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+.g-search-go:hover {
+  filter: brightness(1.1);
+}
+.g-search-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 15px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.g-search-close:hover {
+  color: #fff;
+}
+.g-search-slide-enter-active,
+.g-search-slide-leave-active {
+  transition: all 0.22s ease;
+}
+.g-search-slide-enter-from,
+.g-search-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
 /* ─── Mobile drawer ─── */
 .g-mobile {
-  background: #fff;
+  background: var(--color-header-bg);
   border-bottom: 1px solid var(--color-border);
   padding: 16px;
   max-height: calc(100vh - 120px);
@@ -520,10 +662,10 @@ onUnmounted(() => {
 .g-mobile-search input {
   flex: 1;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-button);
   padding: 10px 14px;
   font-size: 14px;
   font-family: var(--font-body);
+  color: var(--color-header-text);
   outline: none;
   transition: border-color 0.2s ease;
 }
@@ -534,13 +676,12 @@ onUnmounted(() => {
   border: none;
   background: var(--color-accent);
   color: #fff;
-  border-radius: var(--radius-button);
   padding: 0 16px;
   cursor: pointer;
   transition: background 0.2s ease;
 }
 .g-mobile-search button:hover {
-  background: #4338ca;
+  filter: brightness(1.1);
 }
 .g-mobile-list {
   margin: 0;
@@ -548,20 +689,26 @@ onUnmounted(() => {
   list-style: none;
 }
 .g-mobile-list li {
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--color-border);
 }
 .g-mobile-list li:last-child {
   border-bottom: none;
 }
 .g-mobile-list a {
-  display: block;
-  padding: 14px 6px;
-  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 6px;
+  color: var(--color-header-text);
   font-size: 15px;
   font-family: var(--font-body);
   font-weight: 500;
   text-decoration: none;
   transition: color 0.2s ease;
+}
+.g-mobile-list a i {
+  font-size: 12px;
+  color: var(--color-muted);
 }
 .g-mobile-list a.router-link-active {
   color: var(--color-accent);

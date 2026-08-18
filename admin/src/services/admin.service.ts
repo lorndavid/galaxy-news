@@ -3,6 +3,7 @@ import type {
   ActivityLog,
   Advertisement,
   Article,
+  ArticleImage,
   Category,
   Comment,
   ContactMessage,
@@ -44,7 +45,7 @@ export const adminService = {
   homepageSections() {
     return unwrap<HomepageSection[]>(api.get("/admin/homepage/sections"));
   },
-  updateHomepageSections(sections: { key: string; enabled?: boolean; label?: string }[]) {
+  updateHomepageSections(sections: { key: string; enabled?: boolean; label?: string; config?: Record<string, unknown> | null }[]) {
     return unwrap<HomepageSection[]>(api.put("/admin/homepage/sections", { sections }));
   },
   reorderHomepageSections(order: { key: string; sortOrder: number }[]) {
@@ -86,6 +87,20 @@ export const adminService = {
   },
   bulkArticles(ids: number[], action: "publish" | "unpublish" | "delete") {
     return unwrap<{ count: number }>(api.post("/admin/articles/bulk", { ids, action }));
+  },
+
+  // ---- Article Gallery Images ----
+  getArticleImages(articleId: number) {
+    return unwrap<ArticleImage[]>(api.get(`/admin/articles/${articleId}/images`));
+  },
+  addArticleImage(articleId: number, mediaId: number, sortOrder?: number) {
+    return unwrap<ArticleImage>(api.post(`/admin/articles/${articleId}/images`, { mediaId, sortOrder }));
+  },
+  updateArticleImage(articleId: number, imageId: number, data: { altText?: string | null; caption?: string | null; sortOrder?: number }) {
+    return unwrap<ArticleImage>(api.patch(`/admin/articles/${articleId}/images/${imageId}`, data));
+  },
+  removeArticleImage(articleId: number, imageId: number) {
+    return api.delete(`/admin/articles/${articleId}/images/${imageId}`);
   },
 
   // Categories

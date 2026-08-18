@@ -19,20 +19,20 @@
 
       <!-- Latest news column -->
       <div class="g-footer-col">
-        <h4>{{ t.footer.latest }}</h4>
+        <h4><i class="ti-new-window g-footer-col-icon" aria-hidden="true"></i> {{ t.footer.latest }}</h4>
         <ul class="g-footer-links">
           <li v-for="a in latestArticles.slice(0, 4)" :key="a.id">
-            <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
+            <RouterLink :to="`/article/${a.slug}`"><i class="ti-angle-right" aria-hidden="true"></i>{{ title(a) }}</RouterLink>
           </li>
         </ul>
       </div>
 
       <!-- Categories column -->
       <div class="g-footer-col">
-        <h4>ប្រភេទ</h4>
+        <h4><i class="ti-layout-grid2 g-footer-col-icon" aria-hidden="true"></i> {{ t.footer.categories }}</h4>
         <ul class="g-footer-links">
           <li v-for="cat in footerCategories" :key="cat.id">
-            <RouterLink :to="`/category/${cat.slug}`">{{ catNameOf(cat) }}</RouterLink>
+            <RouterLink :to="`/category/${cat.slug}`"><i class="ti-angle-right" aria-hidden="true"></i>{{ catNameOf(cat) }}</RouterLink>
           </li>
         </ul>
       </div>
@@ -65,9 +65,9 @@
       <div class="container g-footer-bottom-inner">
         <p>&copy; {{ year }} {{ siteName }} · {{ t.footer.rights }}</p>
         <ul>
-          <li><RouterLink to="/about">{{ t.footer.terms }}</RouterLink></li>
-          <li><RouterLink to="/about">{{ t.footer.privacy }}</RouterLink></li>
-          <li><RouterLink to="/contact">{{ t.footer.contact }}</RouterLink></li>
+          <li><RouterLink to="/about"><i class="ti-info-alt" aria-hidden="true"></i>{{ t.footer.terms }}</RouterLink></li>
+          <li><RouterLink to="/about"><i class="ti-shield" aria-hidden="true"></i>{{ t.footer.privacy }}</RouterLink></li>
+          <li><RouterLink to="/contact"><i class="ti-email" aria-hidden="true"></i>{{ t.footer.contact }}</RouterLink></li>
         </ul>
       </div>
     </div>
@@ -143,10 +143,11 @@ onMounted(async () => {
 <style scoped>
 /* ==================================================================
    Galaxy TV Footer — clean professional editorial footer
+   Colors come from the admin theme (--color-footer-*).
 =================================================================== */
 .g-footer {
-  background: var(--color-primary, #0b1c39);
-  color: rgba(255, 255, 255, 0.7);
+  background: var(--color-footer-bg, #0b1c39);
+  color: var(--color-footer-text, #ffffff);
   margin-top: 56px;
 }
 
@@ -172,18 +173,16 @@ onMounted(async () => {
 
 /* Brand */
 .g-footer-logo img {
-  height: 40px;
+  height: 52px;
   width: auto;
-  max-width: 200px;
+  max-width: 240px;
   object-fit: contain;
-  filter: brightness(0) invert(1);
-  opacity: 0.95;
 }
 .g-footer-desc {
   margin: 14px 0 16px;
   font-size: 13.5px;
   line-height: 1.8;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--color-footer-muted, rgba(255, 255, 255, 0.55));
 }
 .g-footer-social {
   display: flex;
@@ -198,9 +197,8 @@ onMounted(async () => {
   justify-content: center;
   width: 34px;
   height: 34px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.8);
+  background: color-mix(in srgb, var(--color-footer-text, #fff) 12%, transparent);
+  color: var(--color-footer-muted, rgba(255, 255, 255, 0.8));
   font-size: 13px;
   transition: background 0.2s ease, color 0.2s ease;
 }
@@ -209,13 +207,36 @@ onMounted(async () => {
   color: #fff;
 }
 
+/* Columns — separated by vertical newspaper rules */
+.g-footer-col + .g-footer-col {
+  border-left: 1px solid var(--color-footer-border, rgba(255, 255, 255, 0.12));
+  padding-left: 36px;
+}
+@media (max-width: 991px) {
+  .g-footer-col + .g-footer-col {
+    border-left: none;
+    padding-left: 0;
+  }
+  .g-footer-col:nth-child(n + 3) {
+    border-top: 1px solid var(--color-footer-border, rgba(255, 255, 255, 0.12));
+    padding-top: 28px;
+  }
+}
+
 /* Columns */
 .g-footer-col h4 {
-  color: #fff;
+  color: var(--color-footer-text, #ffffff);
   font-size: 14.5px;
   font-weight: 700;
   margin: 0 0 16px;
   font-family: var(--font-heading);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.g-footer-col-icon {
+  color: var(--color-accent, #4f46e5);
+  font-size: 15px;
 }
 .g-footer-links {
   margin: 0;
@@ -230,21 +251,32 @@ onMounted(async () => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--color-footer-muted, rgba(255, 255, 255, 0.65));
   font-size: 13.5px;
   line-height: 1.6;
   text-decoration: none;
   transition: color 0.2s ease;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.g-footer-links a i {
+  font-size: 10px;
+  flex-shrink: 0;
+  margin-top: 4px;
 }
 .g-footer-links a:hover {
-  color: #fff;
+  color: var(--color-footer-text, #ffffff);
+}
+.g-footer-links a:hover i {
+  color: var(--color-accent, #4f46e5);
 }
 
 /* Newsletter */
 .g-footer-newsletter-desc {
   font-size: 13.5px;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-footer-muted, rgba(255, 255, 255, 0.5));
   margin: 0 0 14px;
 }
 .g-footer-newsletter {
@@ -254,10 +286,9 @@ onMounted(async () => {
 .g-footer-newsletter input {
   flex: 1;
   min-width: 0;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  border-radius: var(--radius-button);
+  border: 1px solid var(--color-footer-border, rgba(255, 255, 255, 0.15));
+  background: color-mix(in srgb, var(--color-footer-text, #fff) 8%, transparent);
+  color: var(--color-footer-text, #ffffff);
   padding: 10px 14px;
   font-family: var(--font-body);
   font-size: 13.5px;
@@ -265,7 +296,7 @@ onMounted(async () => {
   transition: border-color 0.2s ease;
 }
 .g-footer-newsletter input::placeholder {
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--color-footer-muted, rgba(255, 255, 255, 0.35));
 }
 .g-footer-newsletter input:focus {
   border-color: var(--color-accent, #4f46e5);
@@ -277,14 +308,13 @@ onMounted(async () => {
   justify-content: center;
   width: 42px;
   border: none;
-  border-radius: var(--radius-button);
   background: var(--color-accent, #4f46e5);
   color: #fff;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: filter 0.2s ease;
 }
 .g-footer-newsletter-btn:hover {
-  background: #7c3aed;
+  filter: brightness(1.1);
 }
 .g-footer-msg {
   margin: 10px 0 0;
@@ -300,7 +330,6 @@ onMounted(async () => {
   height: 13px;
   border: 2px solid rgba(255, 255, 255, 0.35);
   border-top-color: #fff;
-  border-radius: 50%;
   animation: g-spin 0.7s linear infinite;
 }
 @keyframes g-spin {
@@ -309,8 +338,8 @@ onMounted(async () => {
 
 /* Bottom bar */
 .g-footer-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid var(--color-footer-border, rgba(255, 255, 255, 0.08));
+  background: color-mix(in srgb, #000 15%, var(--color-footer-bg, #0b1c39));
 }
 .g-footer-bottom-inner {
   display: flex;
@@ -324,7 +353,7 @@ onMounted(async () => {
 .g-footer-bottom p {
   margin: 0;
   font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-footer-muted, rgba(255, 255, 255, 0.5));
 }
 .g-footer-bottom ul {
   display: flex;
@@ -334,12 +363,15 @@ onMounted(async () => {
   list-style: none;
 }
 .g-footer-bottom a {
-  color: rgba(255, 255, 255, 0.6);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-footer-muted, rgba(255, 255, 255, 0.6));
   font-size: 12.5px;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 .g-footer-bottom a:hover {
-  color: #fff;
+  color: var(--color-footer-text, #ffffff);
 }
 </style>

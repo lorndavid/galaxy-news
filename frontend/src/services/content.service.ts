@@ -1,5 +1,5 @@
 import { api, unwrap } from "./api";
-import type { Advertisement, Category, NavigationItem, SiteSettings, Tag, TickerData } from "@/types";
+import type { Advertisement, Category, HomepageSectionPublic, NavigationItem, SiteSettings, Tag, TickerData } from "@/types";
 
 export const contentService = {
   settings() {
@@ -15,7 +15,7 @@ export const contentService = {
     return unwrap<Advertisement[]>(api.get(`/ads/${position}`));
   },
   homepageSections() {
-    return unwrap<string[]>(api.get("/homepage/sections"));
+    return unwrap<HomepageSectionPublic[]>(api.get("/homepage/sections"));
   },
   navigation() {
     return unwrap<NavigationItem[]>(api.get("/navigation"));

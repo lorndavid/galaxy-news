@@ -30,13 +30,13 @@
         <div class="row">
           <div class="col-lg-8">
             <SectionTitle :title="sectionTitle" />
-            <div v-if="items.length" class="row">
-              <div v-for="a in items" :key="a.id" class="col-lg-6 col-md-6">
-                <ArticleCard :article="a" />
-              </div>
+            <div v-if="items.length">
+              <NewsRowCard v-for="a in items" :key="a.id" :article="a" />
             </div>
             <EmptyState v-else :message="t.common.noResults" />
-            <Pagination :page="page" :total-pages="totalPages" @change="goToPage" />
+            <div v-if="totalPages > 1" class="mb-2">
+              <Pagination :page="page" :total-pages="totalPages" @change="goToPage" />
+            </div>
           </div>
           <div class="col-lg-4">
             <SidebarPopular :articles="popular" />
@@ -60,7 +60,7 @@ import SkeletonCard from "@/components/common/SkeletonCard.vue";
 import ErrorState from "@/components/common/ErrorState.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
 import Pagination from "@/components/common/Pagination.vue";
-import ArticleCard from "@/components/article/ArticleCard.vue";
+import NewsRowCard from "@/components/article/NewsRowCard.vue";
 import TrendingTopCard from "@/components/article/TrendingTopCard.vue";
 import SidebarPopular from "@/components/article/SidebarPopular.vue";
 import NavatraPoster from "@/components/article/NavatraPoster.vue";
