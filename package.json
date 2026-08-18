@@ -24,7 +24,8 @@
     "prisma:seed": "npm run prisma:seed -w backend",
     "db:setup": "npm run db:setup -w backend",
     "test:e2e": "playwright test",
-    "test:e2e:headed": "playwright test --headed"
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:telegram": "docker compose up -d --build mock-telegram && TELEGRAM_API_BASE=http://mock-telegram:8448 docker compose up -d backend && E2E_TELEGRAM=1 npx playwright test e2e/telegram.spec.ts; docker compose up -d backend"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

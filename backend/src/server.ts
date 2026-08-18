@@ -4,10 +4,14 @@ import { env } from "./config/env";
 import { logger } from "./lib/logger";
 import { prisma } from "./lib/prisma";
 import { ensureBucket } from "./lib/minio";
+import { startTelegramWorker, stopTelegramWorker } from "./jobs/telegram.worker";
 
 async function bootstrap() {
   // Create the MinIO bucket if missing (safe when MinIO is down).
   await ensureBucket();
+
+  // Telegram auto-publish worker (Redis-backed queue; safe when Redis is down).
+  startTelegramWorker();
 
   const app = createApp();
   const server = http.createServer(app);
@@ -18,6 +22,7 @@ async function bootstrap() {
 
   async function shutdown(signal: string) {
     logger.info({ signal }, "Shutting down gracefully");
+    stopTelegramWorker();
     server.close(async () => {
       await prisma.$disconnect();
       process.exit(0);

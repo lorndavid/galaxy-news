@@ -47,6 +47,12 @@ export const env = {
   },
   uploadsDir: path.resolve(process.cwd(), "uploads"),
   maxUploadMb: Number(process.env.MAX_UPLOAD_MB ?? 8),
+  telegram: {
+    // Overridable so tests can point at a mock Telegram API. NEVER put the
+    // bot token here — it is stored through the protected admin settings.
+    apiBase: process.env.TELEGRAM_API_BASE ?? "https://api.telegram.org",
+  },
+  publicSiteUrl: (process.env.PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, ""),
 };
 
 export function redisConfigured(): boolean {

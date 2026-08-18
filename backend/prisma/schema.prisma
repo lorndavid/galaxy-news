@@ -108,6 +108,7 @@ model Article {
   tags          ArticleTag[]
   comments      Comment[]
   viewLogs      ViewLog[]
+  telegramPublications TelegramPublication[]
 
   @@index([slug])
   @@index([status, publishedAt])
@@ -121,6 +122,30 @@ model Article {
 // Per-view event log — powers the dashboard views-over-time chart.
 // One row per non-bot article view; the article counter stays the source
 // of truth for totals, this table adds the time dimension.
+// One publication record per article per destination (composite unique on
+// articleId + chatId) — powers the Telegram auto-publish status shown in
+// the admin, per-chat duplicate protection and manual retries.
+// Statuses: PENDING | PROCESSING | PUBLISHED | FAILED
+model TelegramPublication {
+  id                 Int       @id @default(autoincrement())
+  articleId          Int
+  article            Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  status             String    @default("PENDING") // PENDING | PROCESSING | PUBLISHED | FAILED
+  telegramMessageId  Int?      // Telegram message_id of the sent photo
+  chatId             String?   // destination chat (@username or numeric id)
+  languageMode       String    @default("both") // both | kh | en
+  attempts           Int       @default(0)
+  errorMessage       String?
+  nextAttemptAt      DateTime? // backoff schedule for retries
+  publishedAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@unique([articleId, chatId])
+  @@index([articleId])
+  @@index([status])
+}
+
 model ViewLog {
   id        Int      @id @default(autoincrement())
   articleId Int
@@ -254,6 +279,16 @@ model SiteSettings {
 
   radiusPreset String @default("medium") // sharp | minimal | medium | rounded
   shadowPreset String @default("subtle") // none | subtle | medium | strong
+
+  // --- Telegram integration (secret token — NEVER exposed publicly) ---
+  telegramBotToken     String?  // stored encrypted-at-rest only on the backend
+  telegramChatId       String?  // LEGACY single channel/group id or @username
+  telegramDestinations String?  // JSON array of destinations (chatId, type, label, enabled)
+  telegramSiteUrl      String?  // public site URL used for button links (defaults to env)
+  telegramEnabled      Boolean  @default(false) // auto-publish new articles when ON
+  telegramLanguageMode String   @default("both") // both | kh | en — which buttons to send
+  telegramButtonKh     String   @default("🇰🇭 អានជាភាសាខ្មែរ")
+  telegramButtonEn     String   @default("🇬🇧 Read in English")
 
   updatedAt DateTime @updatedAt
 }

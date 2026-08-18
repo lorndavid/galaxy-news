@@ -5,7 +5,7 @@
       class="lang-btn"
       :class="{ active: store.locale === 'kh' }"
       :aria-pressed="store.locale === 'kh'"
-      @click="store.setLocale('kh')"
+      @click="switchLang('kh')"
     >
       ខ្មែរ
     </button>
@@ -15,7 +15,7 @@
       class="lang-btn"
       :class="{ active: store.locale === 'en' }"
       :aria-pressed="store.locale === 'en'"
-      @click="store.setLocale('en')"
+      @click="switchLang('en')"
     >
       EN
     </button>
@@ -23,9 +23,26 @@
 </template>
 
 <script setup lang="ts">
-import { useLocaleStore } from "@/stores/locale";
+import { useRoute, useRouter } from "vue-router";
+import { useLocaleStore, type Locale } from "@/stores/locale";
 
 const store = useLocaleStore();
+const route = useRoute();
+const router = useRouter();
+
+/** On article pages the language switch navigates between the language-prefixed
+ *  URLs (/kh/news/… ↔ /en/news/…) so the same article stays open. */
+function switchLang(next: Locale) {
+  store.setLocale(next);
+  const slug = route.params.slug as string | undefined;
+  const isArticle =
+    route.name === "article" ||
+    route.name === "article-kh" ||
+    route.name === "article-en";
+  if (isArticle && slug) {
+    void router.push(`/${next}/news/${slug}`);
+  }
+}
 </script>
 
 <style scoped>

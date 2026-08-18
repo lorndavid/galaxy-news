@@ -62,6 +62,7 @@ export interface Article {
   author: { id: number; name: string; avatar: string | null; role: UserRole };
   category: Category;
   tags: Tag[];
+  telegramPublications?: TelegramPublication[];
 }
 
 export interface Paginated<T> {
@@ -218,6 +219,77 @@ export interface SiteSettings {
   fontSizeBody: number;
   radiusPreset: "sharp" | "minimal" | "medium" | "rounded";
   shadowPreset: "none" | "subtle" | "medium" | "strong";
+}
+
+export type TelegramLanguageMode = "both" | "kh" | "en";
+
+export type TelegramDestinationType = "private" | "group" | "supergroup" | "channel";
+
+export interface TelegramDestination {
+  id: string;
+  chatId: string;
+  type: TelegramDestinationType;
+  label: string;
+  enabled: boolean;
+}
+
+export interface TelegramDestinationInput {
+  id?: string;
+  chatId: string;
+  type?: TelegramDestinationType;
+  label?: string;
+  enabled?: boolean;
+}
+
+export interface TelegramSettings {
+  botTokenMasked: string;
+  chatIdMasked: string;
+  destinations: TelegramDestination[];
+  siteUrl: string;
+  enabled: boolean;
+  languageMode: TelegramLanguageMode;
+  buttonKh: string;
+  buttonEn: string;
+  connected: boolean;
+}
+
+export interface TelegramTestResult {
+  success: boolean;
+  message: string;
+  bot?: { username: string; name: string };
+  chats?: { chatId: string; title: string; type: string }[];
+  chat?: { title: string; type: string };
+  warning?: string;
+}
+
+export interface TelegramDiscoveredChat {
+  chatId: string;
+  type: string;
+  title: string;
+  username: string | null;
+}
+
+export type TelegramPublicationStatus = "PENDING" | "PROCESSING" | "PUBLISHED" | "FAILED";
+
+export interface TelegramPublication {
+  id: number;
+  articleId: number;
+  status: TelegramPublicationStatus;
+  telegramMessageId: number | null;
+  chatId: string | null;
+  languageMode: string;
+  attempts: number;
+  errorMessage: string | null;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TelegramStats {
+  published: number;
+  pending: number;
+  processing: number;
+  failed: number;
 }
 
 export interface HomepageSection {

@@ -293,6 +293,7 @@ const navGroups = computed(() => {
       items: [
         { to: "/users", label: "អ្នកប្រើប្រាស់", icon: Users, adminOnly: true },
         { to: "/settings", label: "ការកំណត់", icon: Settings, adminOnly: true },
+        { to: "/settings/telegram", label: "Telegram", icon: Send, adminOnly: true },
         { to: "/activity", label: "ប្រវត្តិសកម្មភាព", icon: Activity, adminOnly: true },
       ],
     },

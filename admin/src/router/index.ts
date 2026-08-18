@@ -30,6 +30,7 @@ const router = createRouter({
         { path: "ads", name: "ads", component: () => import("@/views/AdsView.vue"), meta: { title: "ផ្សាយពាណិជ្ជកម្ម" } },
         { path: "live-news", name: "live-news", component: () => import("@/views/LiveNewsView.vue"), meta: { title: "បន្ទាត់ព័ត៌មានផ្ទាល់", requiresAdmin: true } },
         { path: "settings", name: "settings", component: () => import("@/views/SettingsView.vue"), meta: { title: "ការកំណត់គេហទំព័រ", requiresAdmin: true } },
+        { path: "settings/telegram", name: "settings-telegram", component: () => import("@/views/TelegramSettingsView.vue"), meta: { title: "Telegram Integration", requiresAdmin: true } },
         { path: "homepage-builder", name: "homepage-builder", component: () => import("@/views/HomepageBuilderView.vue"), meta: { title: "អ្នកបង្កើតទំព័រដើម", requiresAdmin: true } },
         { path: "navigation-builder", name: "navigation-builder", component: () => import("@/views/NavigationBuilderView.vue"), meta: { title: "អ្នកបង្កើតម៉ឺនុយ", requiresAdmin: true } },
         { path: "activity", name: "activity", component: () => import("@/views/ActivityView.vue"), meta: { title: "ប្រវត្តិសកម្មភាព", requiresAdmin: true } },

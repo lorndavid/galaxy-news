@@ -20,6 +20,20 @@ export const router = createRouter({
       component: () => import("@/views/ArticleView.vue"),
       meta: { title: "Navatra 4K TV" },
     },
+    // Language-prefixed article URLs — used by Telegram buttons and SEO.
+    // The URL language always wins over the stored preference.
+    {
+      path: "/kh/news/:slug",
+      name: "article-kh",
+      component: () => import("@/views/ArticleView.vue"),
+      meta: { title: "Navatra 4K TV", locale: "kh" },
+    },
+    {
+      path: "/en/news/:slug",
+      name: "article-en",
+      component: () => import("@/views/ArticleView.vue"),
+      meta: { title: "Navatra 4K TV", locale: "en" },
+    },
     {
       path: "/category/:slug",
       name: "category",

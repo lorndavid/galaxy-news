@@ -318,6 +318,14 @@ GET    /admin/messages               contact messages          (ADMIN+)
 DELETE /admin/messages/:id
 
 GET    /admin/ads                    advertisement CRUD        (write: EDITOR+)
+
+GET    /admin/settings/telegram            Telegram settings (token masked)     (ADMIN+)
+PUT    /admin/settings/telegram            save & verify (getMe + every getChat) (ADMIN+)
+POST   /admin/settings/telegram/test       test connection without saving       (ADMIN+)
+POST   /admin/settings/telegram/discover   list chats the bot has seen (getUpdates) (ADMIN+)
+GET    /admin/telegram/stats               published/pending/failed counts      (ADMIN+)
+GET    /admin/articles/:id/telegram        publication status (per destination)
+POST   /admin/articles/:id/telegram/send   queue a send / retry (force for resend)
 ```
 
 ### Permissions
@@ -357,6 +365,64 @@ under `backend/uploads` — nothing breaks.
 - **Failure handling**: if Redis is unavailable the middleware falls back to
   an in-memory cache and the app keeps serving from SQLite — Redis is an
   optimization, never a single point of failure. Errors are logged.
+
+---
+
+## Telegram auto-publishing
+
+Publish articles to **any number of Telegram chats automatically** — channels,
+supergroups, groups and private (personal) chats — image + caption + bilingual
+inline buttons. Configure once in **Admin → ប្រព័ន្ធ → Telegram**:
+
+1. Bot token from @BotFather.
+2. **Chat destinations** — add as many as you need, each with its own type
+   (Channel / Supergroup / Group / Personal) and on/off toggle. A personal
+   destination is the chat id of a user who pressed Start on your bot.
+3. **ស្វែងរក Chats** (Discover) — reads the bot's `getUpdates` and lists every
+   chat it has seen (users who started it, groups and channels where it was
+   added) so you can add them as destinations in one click.
+4. **Site URL** — the public site URL used for the inline button links.
+   Telegram **rejects localhost/private IPs**, so set your public https
+   domain here (defaults to `PUBLIC_SITE_URL`).
+5. **Save & Test Connection** — the backend calls `getMe` + `getChat` for
+   EVERY destination and only persists when all pass (invalid values are
+   never saved).
+6. Toggle **ផ្សាយដោយស្វ័យប្រវត្តិ** to auto-publish new articles, and choose
+   the button language mode (both / Khmer / English).
+
+When an article is published the API enqueues a job on a Redis-backed queue
+(`tgq:telegram`); the in-process worker sends `sendPhoto` to **every enabled
+destination** with an HTML caption and two inline buttons that deep-link to
+the language-prefixed article URLs:
+
+```
+🇰🇭 អានជាភាសាខ្មែរ   →  /kh/news/<slug>
+🇬🇧 Read in English  →  /en/news/<slug>
+```
+
+- The image is fetched server-side from MinIO (never an arbitrary URL) and
+  uploaded to Telegram as multipart — no public bucket needed, no SSRF.
+- The article HTTP request never waits on Telegram; status (PENDING →
+  PROCESSING → PUBLISHED / FAILED) is tracked **per destination** in
+  `TelegramPublication` (one row per article+chat) and shown in the article
+  editor with retry + resend per chat.
+- Duplicate protection: a chat that already received the article is never
+  sent again; resend requires explicit confirmation. Failures retry up to 3×
+  with backoff (respecting Telegram's `retry_after`).
+- The bot token is stored only in the SiteSettings row, masked in admin
+  responses, never exposed to the public site, never logged, and never put
+  in job payloads.
+
+The E2E suite runs against an in-repo mock Telegram API:
+
+```bash
+npm run test:e2e:telegram
+```
+
+It points the backend at `mock-telegram` (a compose service) via
+`TELEGRAM_API_BASE=http://mock-telegram:8448`, exercises the full
+admin → publish → sendPhoto → language-URL flow, then restores the
+real-API configuration. The regular `npm run test:e2e` skips it.
 
 ---
 

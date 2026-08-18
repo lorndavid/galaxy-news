@@ -23,6 +23,25 @@ const DEFAULT_TTL_SECONDS = 30;
 // for the same key wait on the same promise instead of hitting the DB.
 const inflight = new Map<string, Promise<string>>();
 
+// ----------------------------------------------------------------
+// Generation counter — the deterministic guard against stale writes.
+//
+// Every cache write captures the generation when its request started. A
+// mutation invalidation bumps the generation BEFORE clearing keys, so any
+// in-flight GET that read pre-mutation data (even one that finishes and
+// writes AFTER the clear) sees its captured generation mismatch and drops
+// its own write instead of resurrecting stale content.
+// ----------------------------------------------------------------
+let generation = 0;
+
+export function cacheGeneration(): number {
+  return generation;
+}
+
+function bumpGeneration(): void {
+  generation++;
+}
+
 // Public feed key prefixes (relative to the `navatra:` PREFIX in redis.ts).
 const FEED = {
   articles: "pub/api/v1/articles",
@@ -45,9 +64,10 @@ const FEED = {
 };
 
 /** Drop every cached entry (safety net / manual flush). */
-export function clearPublicCache(): Promise<void> {
+export async function clearPublicCache(): Promise<void> {
   inflight.clear();
-  return cacheClear();
+  bumpGeneration();
+  await cacheClear();
 }
 
 /** Drop only the matching feed keys, e.g. clearPublicCachePrefix("/articles/breaking"). */
@@ -65,6 +85,7 @@ export function clearPublicCachePrefix(prefix: string): Promise<void> {
  */
 export async function invalidateAdminMutation(req: Request): Promise<void> {
   inflight.clear();
+  bumpGeneration(); // before clearing: stale in-flight writes are now dropped
   const path = req.path;
   const body = (req.body ?? {}) as Record<string, unknown>;
   const prefixes = new Set<string>();
@@ -198,16 +219,39 @@ export function ttlCache(ttlSeconds = DEFAULT_TTL_SECONDS) {
 
         // Generate the response once; the wrapped send caches + resolves,
         // then the underlying send delivers the response body.
+        const genAtStart = cacheGeneration();
         const generated = new Promise<string>((resolve) => {
           const originalSend = res.send.bind(res);
+          // Stale-write protection. An admin mutation bumps the generation
+          // and clears the cache; a GET that read pre-mutation data and
+          // writes AFTER the clear would otherwise resurrect stale content
+          // (e.g. a page torn down mid-request while the mutation runs).
+          // The write completes before the response is delivered, and if the
+          // generation moved since this request started the write is dropped.
+          let aborted = false;
+          res.on("close", () => {
+            if (!res.writableEnded) aborted = true;
+          });
           res.send = ((body: unknown) => {
             const text = typeof body === "string" ? body : "";
+            const deliver = () => {
+              resolve(text);
+              return originalSend(body);
+            };
             if (res.statusCode < 400 && text) {
-              void cacheSet(key, text, ttlSeconds);
               res.setHeader("X-Cache", "MISS");
+              void cacheSet(key, text, ttlSeconds).then(() => {
+                if (aborted || cacheGeneration() !== genAtStart) {
+                  // Client vanished or a mutation invalidated the cache while
+                  // this response was being generated — drop the stale write.
+                  void cacheClearPrefix(key);
+                }
+                deliver();
+              });
+            } else {
+              deliver();
             }
-            resolve(text);
-            return originalSend(body);
+            return res;
           }) as typeof res.send;
 
           next();

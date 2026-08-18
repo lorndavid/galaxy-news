@@ -1,28 +1,10 @@
 <template>
   <div>
-    <!-- Trending Area (breaking ticker + hero + trending list) -->
-    <div v-if="showSection('breaking') || showSection('hero')" v-reveal class="trending-area fix">
+    <!-- Trending Area (hero + trending list) -->
+    <div v-if="showSection('hero')" v-reveal class="trending-area fix">
       <div class="container">
         <div class="trending-main">
-          <!-- Breaking ticker -->
-          <div v-if="showSection('breaking')" class="row">
-            <div class="col-lg-12">
-              <div class="trending-tittle">
-                <strong>{{ t.home.trending }}</strong>
-                <div class="trending-animated">
-                  <ul class="breaking-ticker" :aria-label="t.home.trending">
-                    <Transition name="ticker" mode="out-in">
-                      <li v-if="breaking.length" :key="tickerIndex" class="news-item">
-                        <RouterLink :to="`/article/${breaking[tickerIndex].slug}`">{{ title(breaking[tickerIndex]) }}</RouterLink>
-                      </li>
-                    </Transition>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="showSection('hero')" class="row">
+          <div class="row">
             <div class="col-lg-8">
               <!-- Hero -->
               <TrendingTopCard v-if="hero" :article="hero" is-hero />
@@ -303,7 +285,6 @@ useSeo(
   }))
 );
 
-const breaking = ref<Article[]>([]);
 const featured = ref<Article[]>([]);
 const latest = ref<Article[]>([]);
 const popular = ref<Article[]>([]);
@@ -312,28 +293,11 @@ const categories = ref<Category[]>([]);
 const activeTab = ref("all");
 const tabCache = ref<Record<string, Article[]>>({});
 const tabLoading = ref(false);
-const tickerIndex = ref(0);
 const enabledSections = ref<Set<string>>(new Set());
-let tickerTimer: number | undefined;
 
 // Sections come from the admin Homepage Builder (cached by the API).
 function showSection(key: string) {
   return enabledSections.value.has(key);
-}
-
-// Rotate the breaking headline every 4s. Stops while the tab is hidden.
-function startTicker() {
-  if (!breaking.value.length) return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  if (tickerTimer) window.clearInterval(tickerTimer);
-  tickerTimer = window.setInterval(() => {
-    tickerIndex.value = (tickerIndex.value + 1) % breaking.value.length;
-  }, 4000);
-}
-
-function stopTicker() {
-  if (tickerTimer) window.clearInterval(tickerTimer);
-  tickerTimer = undefined;
 }
 
 const hero = computed(() => featured.value[0] ?? null);
@@ -375,23 +339,16 @@ onMounted(async () => {
   }
   // Reuse the store's cached categories instead of a second API call.
   categories.value = categoryStore.categories;
-  const [br, feat, lat, pop] = await Promise.all([
-    articleService.breaking().catch(() => []),
+  const [feat, lat, pop] = await Promise.all([
     articleService.featured(6).catch(() => []),
     articleService.latest(10).catch(() => []),
     articleService.popular(5).catch(() => []),
   ]);
-  breaking.value = br;
   featured.value = feat;
   popular.value = pop;
   // One fetch serves both the "all" tab and the recent list
   latest.value = lat.slice(0, 8);
   recent.value = lat.slice(0, 10);
   tabCache.value["all"] = lat.slice(0, 8);
-  startTicker();
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) stopTicker();
-    else startTicker();
-  });
 });
 </script>

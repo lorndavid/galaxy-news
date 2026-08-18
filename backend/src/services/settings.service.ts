@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma";
+import { maskSecret } from "../lib/telegram";
 import { logActivity } from "./activity.service";
 
 const PUBLIC_FIELDS = [
@@ -64,7 +65,16 @@ export async function getPublic() {
 
 export async function getAdmin() {
   const settings = await prisma.siteSettings.findFirst();
-  if (settings) return settings;
+  if (settings) {
+    // The Telegram bot token is a secret — even admin responses only see a
+    // masked form (the dedicated /admin/settings/telegram endpoints handle
+    // the real credentials).
+    return {
+      ...settings,
+      telegramBotToken: settings.telegramBotToken ? maskSecret(settings.telegramBotToken) : null,
+      telegramChatId: settings.telegramChatId ? maskSecret(settings.telegramChatId) : null,
+    };
+  }
   return prisma.siteSettings.create({ data: {} });
 }
 

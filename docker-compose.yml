@@ -43,6 +43,11 @@ services:
       MINIO_PUBLIC_URL: /minio
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       ADMIN_URL: ${ADMIN_URL:-http://localhost:3001}
+      # Telegram — the bot token itself is stored through the protected
+      # admin settings, NOT here. TELEGRAM_API_BASE lets the E2E suite
+      # point the backend at the in-stack mock Telegram API.
+      TELEGRAM_API_BASE: ${TELEGRAM_API_BASE:-https://api.telegram.org}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-http://localhost:3000}
     volumes:
       # The DB lives in its own dir — never mount the whole /app/prisma
       # (schema/migrations/seed must always come from the image, otherwise
@@ -90,6 +95,16 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
+
+  # Mock Telegram Bot API — used only by the E2E suite when the backend is
+  # started with TELEGRAM_API_BASE=http://mock-telegram:8448. It is always
+  # built so the switch is a single env var, but normal runs never call it.
+  mock-telegram:
+    build:
+      context: ./e2e/mock-telegram
+    restart: unless-stopped
+    ports:
+      - "8448:8448"
 
   frontend:
     build:

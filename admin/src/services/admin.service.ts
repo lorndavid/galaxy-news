@@ -14,6 +14,12 @@ import type {
   Paginated,
   SiteSettings,
   Tag,
+  TelegramDestinationInput,
+  TelegramDiscoveredChat,
+  TelegramPublication,
+  TelegramSettings,
+  TelegramStats,
+  TelegramTestResult,
   User,
 } from "@/types";
 
@@ -177,5 +183,38 @@ export const adminService = {
   },
   deleteAd(id: number) {
     return api.delete(`/admin/ads/${id}`);
+  },
+
+  // Telegram integration
+  telegramSettings() {
+    return unwrap<TelegramSettings>(api.get("/admin/settings/telegram"));
+  },
+  saveTelegramSettings(payload: {
+    botToken?: string;
+    destinations?: TelegramDestinationInput[];
+    siteUrl?: string;
+    enabled?: boolean;
+    languageMode?: string;
+    buttonKh?: string;
+    buttonEn?: string;
+  }) {
+    return unwrap<{ settings: TelegramSettings; test: TelegramTestResult }>(
+      api.put("/admin/settings/telegram", payload)
+    );
+  },
+  testTelegramConnection(payload: { botToken?: string; destinations?: TelegramDestinationInput[] }) {
+    return unwrap<TelegramTestResult>(api.post("/admin/settings/telegram/test", payload));
+  },
+  discoverTelegramChats() {
+    return unwrap<TelegramDiscoveredChat[]>(api.post("/admin/settings/telegram/discover", {}));
+  },
+  telegramStats() {
+    return unwrap<TelegramStats>(api.get("/admin/telegram/stats"));
+  },
+  telegramPublication(articleId: number) {
+    return unwrap<TelegramPublication[]>(api.get(`/admin/articles/${articleId}/telegram`));
+  },
+  sendToTelegram(articleId: number, force = false) {
+    return unwrap<TelegramPublication[]>(api.post(`/admin/articles/${articleId}/telegram/send`, { force }));
   },
 };

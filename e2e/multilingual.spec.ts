@@ -104,12 +104,18 @@ test.describe.serial("multilingual platform features", () => {
     const settings = res.data as { primaryColor: string };
     expect(settings.primaryColor).toBe(nextColor);
 
-    // Public site applies it as a CSS variable.
+    // Public site applies it as a CSS variable (the theme is applied after
+    // the settings fetch resolves — poll instead of asserting once).
     await page.goto(`${PUBLIC_URL}/`);
-    const color = await page.evaluate(() =>
-      getComputedStyle(document.documentElement).getPropertyValue("--color-primary").trim()
-    );
-    expect(color.toLowerCase()).toBe(nextColor);
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(() =>
+            getComputedStyle(document.documentElement).getPropertyValue("--color-primary").trim()
+          ),
+        { timeout: 20_000 }
+      )
+      .toBe(nextColor);
 
     // Restore the brand color so we don't leave the site recolored.
     await page.goto("/settings");

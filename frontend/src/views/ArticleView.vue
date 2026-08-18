@@ -1,24 +1,6 @@
 <template>
   <div class="news-detail-area">
     <div class="container">
-      <!-- Breaking ticker -->
-      <div class="row">
-        <div class="col-lg-12">
-          <div class="trending-tittle">
-            <strong>{{ t.home.trending }}</strong>
-            <div class="trending-animated">
-              <ul class="breaking-ticker" :aria-label="t.home.trending">
-                <Transition name="ticker" mode="out-in">
-                  <li v-if="breaking.length" :key="tickerIndex" class="news-item">
-                    <RouterLink :to="`/article/${breaking[tickerIndex].slug}`">{{ title(breaking[tickerIndex]) }}</RouterLink>
-                  </li>
-                </Transition>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div v-if="loading" class="row"><div class="col-12"><SkeletonArticle /></div></div>
 
       <div v-else-if="error" class="row"><div class="col-12"><ErrorState :message="error" @retry="load" /></div></div>
@@ -137,10 +119,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useSeo } from "@/composables/useSeo";
 import { articleService } from "@/services/article.service";
+import { useLocaleStore } from "@/stores/locale";
 import { useSettingsStore } from "@/stores/settings";
 import type { Article, Comment } from "@/types";
 import ArticleThumb from "@/components/common/ArticleThumb.vue";
@@ -156,31 +139,23 @@ import { useLocalized } from "@/composables/useLocalized";
 import { formatKhmerDate, formatKhmerDateFull, formatViews, readingTime, toKhmerDigits } from "@/utils/format";
 
 const route = useRoute();
+const localeStore = useLocaleStore();
 const settingsStore = useSettingsStore();
+
+// The language in the URL (/kh/news/…, /en/news/…) takes priority over the
+// stored preference — Telegram deep links must open in the right language.
+function syncLocaleFromRoute() {
+  const loc = route.meta.locale as "kh" | "en" | undefined;
+  if (loc) localeStore.setLocale(loc);
+}
+watch(() => route.meta.locale, syncLocaleFromRoute);
 
 const article = ref<Article | null>(null);
 const related = ref<Article[]>([]);
 const popular = ref<Article[]>([]);
-const breaking = ref<Article[]>([]);
 const comments = ref<Comment[]>([]);
 const loading = ref(true);
 const error = ref("");
-const tickerIndex = ref(0);
-let tickerTimer: number | undefined;
-
-function startTicker() {
-  if (!breaking.value.length) return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  if (tickerTimer) window.clearInterval(tickerTimer);
-  tickerTimer = window.setInterval(() => {
-    tickerIndex.value = (tickerIndex.value + 1) % breaking.value.length;
-  }, 4000);
-}
-
-function stopTicker() {
-  if (tickerTimer) window.clearInterval(tickerTimer);
-  tickerTimer = undefined;
-}
 
 const commentForm = reactive({ name: "", email: "", content: "" });
 const commentSending = ref(false);
@@ -274,18 +249,15 @@ async function load() {
   error.value = "";
   try {
     const slug = String(route.params.slug);
-    const [a, rel, pop, br] = await Promise.all([
+    const [a, rel, pop] = await Promise.all([
       articleService.getBySlug(slug),
       articleService.related(slug).catch(() => []),
       articleService.popular(5).catch(() => []),
-      articleService.breaking().catch(() => []),
     ]);
     article.value = a;
     related.value = rel.slice(0, 6);
     popular.value = pop;
-    breaking.value = br;
     comments.value = await articleService.comments(a.id).catch(() => []);
-    startTicker();
   } catch (e) {
     error.value = e instanceof Error ? e.message : t.article.loadFailed;
   } finally {
@@ -314,12 +286,9 @@ async function submitComment() {
 }
 
 onMounted(() => {
+  syncLocaleFromRoute();
   settingsStore.load();
   load();
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) stopTicker();
-    else startTicker();
-  });
 });
 </script>
 

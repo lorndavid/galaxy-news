@@ -7,6 +7,7 @@ import { articleInclude, serializeArticle } from "../utils/serialize";
 import { slugify } from "../utils/slugify";
 import { sanitizeContent } from "../utils/sanitize";
 import { logActivity } from "./activity.service";
+import { maybeAutoPublish } from "./telegram.service";
 
 // ---------- Shared helpers ----------
 
@@ -254,7 +255,11 @@ export async function getAdmin(id: number) {
     include: articleInclude,
   });
   if (!article) throw ApiError.notFound("Article not found");
-  return serializeArticle(article);
+  const telegramPublications = await prisma.telegramPublication.findMany({
+    where: { articleId: id },
+    orderBy: { id: "asc" },
+  });
+  return { ...serializeArticle(article), telegramPublications };
 }
 
 export interface ArticleInput {
@@ -319,6 +324,8 @@ export async function createArticle(input: ArticleInput, userId: number, role: R
     meta: { title, status: article.status },
     ip,
   });
+  // Auto-publish to Telegram (async, never blocks or breaks article save).
+  if (article.status === ArticleStatus.PUBLISHED) await maybeAutoPublish(article.id);
   return serializeArticle(article);
 }
 
@@ -388,6 +395,8 @@ export async function updateArticle(
     meta: { title: article.title, status: article.status },
     ip,
   });
+  // Auto-publish to Telegram (async, never blocks or breaks article save).
+  if (article.status === ArticleStatus.PUBLISHED) await maybeAutoPublish(article.id);
   return serializeArticle(article);
 }
 
@@ -471,6 +480,10 @@ export async function bulkArticles(
       })
     )
   );
+  // Auto-publish freshly published articles to Telegram (async).
+  if (action === "publish") {
+    await Promise.all(existing.map((a) => maybeAutoPublish(a.id)));
+  }
   return { count: existing.length };
 }
 

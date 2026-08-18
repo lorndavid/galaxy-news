@@ -76,24 +76,10 @@
         </div>
         <div>
           <label class="label">រូបភាពចំណងជើង</label>
-          <div class="flex items-center gap-3">
-            <img
-              :src="form.featuredImage ?? '/assets/img/news/KH.jpg'"
-              alt=""
-              class="h-16 w-24 rounded-lg border border-slate-200 object-cover"
-            />
-            <div class="space-y-2">
-              <button type="button" class="btn-secondary !py-1.5 text-xs" @click="mediaOpen = true">
-                <ImageIcon class="h-3.5 w-3.5" /> ជ្រើសរើសរូបភាព
-              </button>
-              <button
-                v-if="form.featuredImage"
-                type="button"
-                class="btn-ghost !py-1.5 text-xs text-red-600"
-                @click="form.featuredImage = ''"
-              >លុប</button>
-            </div>
-          </div>
+          <ImageUploader v-model="form.featuredImage" folder="articles" />
+          <button type="button" class="btn-secondary mt-2 w-full !py-1.5 text-xs" @click="mediaOpen = true">
+            <ImageIcon class="h-3.5 w-3.5" /> ជ្រើសរើសពីបណ្ណាល័យមេឌា
+          </button>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <label class="flex items-center gap-2 text-sm text-slate-600">
@@ -119,6 +105,87 @@
           </select>
         </div>
       </div>
+
+      <!-- Telegram publishing panel (edit mode only) -->
+      <div v-if="isEdit" class="card space-y-3 p-5">
+        <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <Send class="h-4 w-4 text-sky-600" /> Telegram Publishing
+        </h3>
+
+        <!-- Not sent -->
+        <div v-if="!pubs.length" class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+          <span class="h-2 w-2 rounded-full bg-slate-400"></span>
+          <span class="text-sm text-slate-500">មិនទាន់បានផ្សាយ</span>
+        </div>
+
+        <!-- In flight (any) -->
+        <div v-if="inFlight" class="flex items-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2.5">
+          <Loader2 class="h-4 w-4 animate-spin text-sky-600" />
+          <span class="text-sm font-medium text-sky-700">កំពុងផ្សាយទៅ Telegram…</span>
+        </div>
+
+        <!-- Per-destination status rows -->
+        <div v-if="pubs.length" class="space-y-1.5">
+          <div
+            v-for="(p, idx) in pubs"
+            :key="p.id || p.chatId || idx"
+            class="rounded-lg border px-3 py-2"
+            :class="statusRowClass(p.status)"
+          >
+            <p class="flex items-center justify-between gap-2 text-sm">
+              <span class="flex items-center gap-2 font-medium" :class="statusTextClass(p.status)">
+                <CheckCircle v-if="p.status === 'PUBLISHED'" class="h-4 w-4" />
+                <XCircle v-else-if="p.status === 'FAILED'" class="h-4 w-4" />
+                <Loader2 v-else class="h-4 w-4 animate-spin" />
+                {{ statusLabel(p.status) }}
+              </span>
+              <span class="font-mono text-[11px] text-slate-500">{{ p.chatId }}</span>
+            </p>
+            <p v-if="p.status === 'FAILED' && p.errorMessage" class="mt-1 text-xs leading-relaxed text-red-700/80">
+              {{ p.errorMessage }}
+            </p>
+            <p v-if="p.status === 'FAILED'" class="mt-0.5 text-[11px] text-red-500">ការព្យាយាម៖ {{ p.attempts }} / 3</p>
+            <div v-if="p.status === 'PUBLISHED'" class="mt-1 flex items-center gap-3 text-xs text-emerald-700/80">
+              <span v-if="p.telegramMessageId">ID: {{ p.telegramMessageId }}</span>
+              <a
+                v-if="p.telegramMessageId"
+                :href="telegramMessageUrl(p.chatId, p.telegramMessageId)"
+                target="_blank"
+                rel="noopener"
+                class="inline-flex items-center gap-1 font-medium underline hover:text-emerald-800"
+              >
+                <ExternalLink class="h-3 w-3" /> បើកក្នុង Telegram
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+          <button
+            v-if="!pubs.length || allFailed"
+            type="button"
+            class="btn-primary !py-1.5 text-xs"
+            :disabled="sending"
+            @click="openSendConfirm(false)"
+          >
+            <Send v-if="!sending" class="h-3.5 w-3.5" />
+            <Loader2 v-else class="h-3.5 w-3.5 animate-spin" />
+            {{ allFailed ? 'ព្យាយាមម្តងទៀត' : 'ផ្ញើទៅ Telegram' }}
+          </button>
+          <button
+            v-else-if="allPublished"
+            type="button"
+            class="btn-secondary !py-1.5 text-xs"
+            :disabled="sending"
+            @click="openSendConfirm(true)"
+          >
+            <RefreshCw class="h-3.5 w-3.5" /> ផ្ញើម្តងទៀត
+          </button>
+        </div>
+        <p class="text-[11px] text-slate-400">
+          ប្រសិនបើ «ផ្សាយដោយស្វ័យប្រវត្តិ» ត្រូវបានបើក អត្ថបទនឹងត្រូវផ្ញើដោយស្វ័យប្រវត្តិទៅគ្រប់ destination នៅពេលបោះពុម្ពផ្សាយ។
+        </p>
+      </div>
     </div>
 
     <!-- Media picker -->
@@ -136,18 +203,32 @@
       <button v-if="!mediaItems.length" class="btn-secondary mt-3 w-full" type="button" @click="loadMedia">ផ្ទុកមេឌា</button>
       <button class="btn-secondary mt-3 w-full" type="button" @click="loadMoreMedia">ផ្ទុកបន្ថែម</button>
     </Modal>
+
+    <!-- Telegram send confirmation -->
+    <ConfirmDialog
+      v-model="confirmOpen"
+      :title="resend ? 'ផ្ញើម្តងទៀតទៅ Telegram?' : 'ផ្ញើអត្ថបទទៅ Telegram?'"
+      :message="resend
+        ? 'អត្ថបទនេះបានផ្សាយទៅ Telegram រួចហើយ។ តើអ្នកចង់ផ្ញើសារថ្មីម្តងទៀតទេ?'
+        : 'អត្ថបទនឹងត្រូវបានផ្ញើទៅកាន់ឆានែល/ក្រុម Telegram ដែលបានកំណត់។'"
+      confirm-label="ផ្ញើ"
+      :busy="sending"
+      @confirm="doSend"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { CheckCircle, Save, Image as ImageIcon } from "lucide-vue-next";
+import { CheckCircle, Save, Image as ImageIcon, Send, Loader2, RefreshCw, XCircle, ExternalLink } from "lucide-vue-next";
 import { adminService } from "@/services/admin.service";
 import { useToastStore } from "@/stores/toast";
 import RichTextEditor from "@/components/editor/RichTextEditor.vue";
 import Modal from "@/components/ui/Modal.vue";
-import type { Category, Media, Tag } from "@/types";
+import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
+import ImageUploader from "@/components/media/ImageUploader.vue";
+import type { Category, Media, Tag, TelegramPublication } from "@/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -155,13 +236,46 @@ const toast = useToastStore();
 
 const isEdit = computed(() => !!route.params.id);
 
-// (computed imported above)
 const categories = ref<Category[]>([]);
 const tags = ref<Tag[]>([]);
 const mediaItems = ref<Media[]>([]);
 const mediaPage = ref(1);
 const mediaOpen = ref(false);
 const saving = ref(false);
+const sending = ref(false);
+const confirmOpen = ref(false);
+const resend = ref(false);
+const pubs = ref<TelegramPublication[]>([]);
+let pollTimer: ReturnType<typeof setInterval> | null = null;
+
+const inFlight = computed(() => pubs.value.some((p) => p.status === "PENDING" || p.status === "PROCESSING"));
+const allPublished = computed(() => pubs.value.length > 0 && pubs.value.every((p) => p.status === "PUBLISHED"));
+const allFailed = computed(() => pubs.value.length > 0 && pubs.value.every((p) => p.status === "FAILED"));
+
+function statusLabel(status: string): string {
+  const map: Record<string, string> = { PENDING: "កំពុងរង់ចាំ", PROCESSING: "កំពុងផ្សាយ…", PUBLISHED: "បានផ្សាយ", FAILED: "បរាជ័យ" };
+  return map[status] ?? status;
+}
+
+function statusRowClass(status: string): string {
+  const map: Record<string, string> = {
+    PUBLISHED: "border-emerald-200 bg-emerald-50",
+    FAILED: "border-red-200 bg-red-50",
+    PENDING: "border-amber-200 bg-amber-50",
+    PROCESSING: "border-sky-200 bg-sky-50",
+  };
+  return map[status] ?? "border-slate-200 bg-slate-50";
+}
+
+function statusTextClass(status: string): string {
+  const map: Record<string, string> = {
+    PUBLISHED: "text-emerald-700",
+    FAILED: "text-red-700",
+    PENDING: "text-amber-700",
+    PROCESSING: "text-sky-700",
+  };
+  return map[status] ?? "text-slate-600";
+}
 
 const form = reactive({
   title: "",
@@ -200,10 +314,13 @@ async function save(status: string) {
     if (isEdit.value) {
       await adminService.updateArticle(Number(route.params.id), payload);
       toast.success("បានរក្សាទុកអត្ថបទ");
+      // Refresh the Telegram status — a publish may have enqueued a job.
+      await refreshPublication();
     } else {
       const created = await adminService.createArticle(payload);
       toast.success("បានបង្កើតអត្ថបទ");
       router.replace(`/articles/${created.id}/edit`);
+      await refreshPublication();
     }
   } catch (e) {
     toast.error(e instanceof Error ? e.message : "រក្សាទុកបរាជ័យ");
@@ -235,6 +352,54 @@ function pickImage(url: string) {
   mediaOpen.value = false;
 }
 
+// ---------- Telegram ----------
+
+async function refreshPublication() {
+  if (!isEdit.value) return;
+  try {
+    pubs.value = await adminService.telegramPublication(Number(route.params.id));
+    updatePolling();
+  } catch {
+    /* non-fatal — panel just stays as-is */
+  }
+}
+
+function updatePolling() {
+  const hasInflight = inFlight.value;
+  if (hasInflight && !pollTimer) {
+    pollTimer = setInterval(() => void refreshPublication(), 3000);
+  } else if (!hasInflight && pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
+}
+
+function openSendConfirm(force: boolean) {
+  resend.value = force;
+  confirmOpen.value = true;
+}
+
+async function doSend() {
+  if (!isEdit.value) return;
+  sending.value = true;
+  try {
+    await adminService.sendToTelegram(Number(route.params.id), resend.value);
+    toast.success("បានបញ្ចូលក្នុងជួរផ្សាយ Telegram");
+    confirmOpen.value = false;
+    await refreshPublication();
+  } catch (e) {
+    toast.error(e instanceof Error ? e.message : "ការផ្ញើបរាជ័យ");
+  } finally {
+    sending.value = false;
+  }
+}
+
+function telegramMessageUrl(chatId: string | null, messageId: number): string {
+  // @username chats resolve directly; numeric ids need the t.me/c/ form.
+  if (chatId?.startsWith("@")) return `https://t.me/${chatId.slice(1)}/${messageId}`;
+  return `https://t.me/c/${String(chatId ?? "").replace("-100", "")}/${messageId}`;
+}
+
 onMounted(async () => {
   categories.value = await adminService.categories().catch(() => []);
   tags.value = await adminService.tags().catch(() => []);
@@ -253,6 +418,11 @@ onMounted(async () => {
     form.isBreaking = a.isBreaking;
     form.status = a.status;
     form.publishedAt = a.publishedAt ? new Date(a.publishedAt).toISOString().slice(0, 16) : "";
+    await refreshPublication();
   }
+});
+
+onUnmounted(() => {
+  if (pollTimer) clearInterval(pollTimer);
 });
 </script>
