@@ -37,6 +37,11 @@ export default defineConfig({
   projects: [
     { name: "critical-flow", testMatch: /critical-flow\.spec\.ts/ },
     { name: "multilingual", testMatch: /multilingual\.spec\.ts/ },
+    { name: "api", testMatch: /api\.spec\.ts/ },
+    { name: "security", testMatch: /security\.spec\.ts/ },
+    { name: "frontend", testMatch: /frontend\.spec\.ts/ },
+    { name: "admin-comprehensive", testMatch: /admin-comprehensive\.spec\.ts/ },
+    { name: "media", testMatch: /media\.spec\.ts/ },
     // Gated on E2E_TELEGRAM=1 (needs the mock-Telegram stack — see
     // `npm run test:e2e:telegram`); otherwise all tests are skipped.
     { name: "telegram", testMatch: /telegram\.spec\.ts/ },
