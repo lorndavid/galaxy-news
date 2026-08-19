@@ -168,6 +168,7 @@ import {
   LayoutTemplate,
   MenuSquare,
   Activity,
+  HeartPulse,
   UserCircle,
   LogOut,
   Menu,
@@ -295,6 +296,7 @@ const navGroups = computed(() => {
         { to: "/settings", label: "ការកំណត់", icon: Settings, adminOnly: true },
         { to: "/settings/telegram", label: "Telegram", icon: Send, adminOnly: true },
         { to: "/activity", label: "ប្រវត្តិសកម្មភាព", icon: Activity, adminOnly: true },
+        { to: "/system/health", label: "សុខភាពប្រព័ន្ធ", icon: HeartPulse, adminOnly: true },
       ],
     },
     {

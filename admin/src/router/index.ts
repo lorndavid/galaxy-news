@@ -34,6 +34,7 @@ const router = createRouter({
         { path: "homepage-builder", name: "homepage-builder", component: () => import("@/views/HomepageBuilderView.vue"), meta: { title: "អ្នកបង្កើតទំព័រដើម", requiresAdmin: true } },
         { path: "navigation-builder", name: "navigation-builder", component: () => import("@/views/NavigationBuilderView.vue"), meta: { title: "អ្នកបង្កើតម៉ឺនុយ", requiresAdmin: true } },
         { path: "activity", name: "activity", component: () => import("@/views/ActivityView.vue"), meta: { title: "ប្រវត្តិសកម្មភាព", requiresAdmin: true } },
+        { path: "system/health", name: "system-health", component: () => import("@/views/SystemHealthView.vue"), meta: { title: "សុខភាពប្រព័ន្ធ", requiresAdmin: true } },
         { path: "profile", name: "profile", component: () => import("@/views/ProfileView.vue"), meta: { title: "ប្រវត្តិរូប" } },
       ],
     },

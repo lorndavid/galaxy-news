@@ -753,6 +753,19 @@ body.has-sticky-nav {
   }
 }
 
+/* Respect users who prefer reduced motion — neutralize all animation and
+   smooth scrolling while keeping layouts identical (WCAG 2.3.3). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ------------------------------------------------------------------
    15. SCROLL REVEAL
 ------------------------------------------------------------------- */

@@ -156,6 +156,7 @@ helmet → cors → json/urlencoded(1mb) → cookieParser
 
 - CORS allows the frontend, admin, and any localhost:port origin; credentials enabled.
 - `x-powered-by` disabled; helmet with `crossOriginResourcePolicy: cross-origin` (images are served cross-origin to both apps).
+- A small header middleware sets `Permissions-Policy` (denies camera/mic/geolocation/payment/usb/battery/WebAuthn; allows `fullscreen=(self)` for video embeds).
 
 ### 5.2 Authentication & authorization
 
@@ -331,10 +332,11 @@ Sections are driven by `HomepageSection` rows the admin can enable/reorder/confi
 ## 9. Media pipeline
 
 1. Admin uploads via **Multer** (`POST /admin/media/upload`, `1mb` cap).
-2. Files are pushed to **MinIO** (`news-media` bucket) with signed-ish public URLs served through the **`/minio` proxy** (immutable 1-year `Cache-Control`).
-3. If MinIO is unavailable, files land in `/uploads` (7-day browser cache) — the same UI keeps working.
-4. Uploaded media feeds the **featured image picker** and the **gallery multi-select** (add several gallery images at once, reorder, alt/caption per image).
-5. On media delete, both storage backends are cleaned up.
+2. Uploads are validated twice: the **MIME whitelist** (JPG/PNG/WEBP/GIF — SVG is rejected as a stored-XSS vector) and **magic-byte sniffing** of the in-memory buffer, so a renamed executable or disguised payload is rejected even if the client lies about the Content-Type.
+3. Files are pushed to **MinIO** (`news-media` bucket) with signed-ish public URLs served through the **`/minio` proxy** (immutable 1-year `Cache-Control`).
+4. If MinIO is unavailable, files land in `/uploads` (7-day browser cache) — the same UI keeps working.
+5. Uploaded media feeds the **featured image picker** and the **gallery multi-select** (add several gallery images at once, reorder, alt/caption per image).
+6. On media delete, both storage backends are cleaned up.
 
 ---
 
@@ -355,6 +357,7 @@ Sections are driven by `HomepageSection` rows the admin can enable/reorder/confi
 | **Settings** | general, social, **share-link templates**, fonts, sizes, **zone colors (navbar/body/footer)**, layout style, radius/shadow presets + **live mini-site preview** |
 | **Telegram** | token/chat management (masked), channel discovery, test, stats |
 | **Activity** | full audit log |
+| **System health** | `/system/health` — live API/Database/Redis/MinIO status with latency, last-checked time and auto-refresh every 30s (backed by the real backend `/health` probe, proxied through nginx) |
 | **Profile** | own account |
 
 ---
@@ -378,13 +381,15 @@ The Settings appearance tab renders a **mini site mockup** (navbar, headline, ca
 
 | Suite | Covers |
 |-------|--------|
-| `api.spec.ts` | full public + admin API contract, pagination shapes, cache headers (HIT/MISS), deletes, validation 400s |
-| `security.spec.ts` | authz (editor vs admin), rate limiting, JWT rejection, IDOR, XSS payloads in comments/contact |
-| `frontend.spec.ts` | visitor journeys: homepage sections, category pages, article detail, search, about/contact, 404 |
-| `multilingual.spec.ts` | kh/en switch, ticker enable/theme, banner CRUD |
-| `media.spec.ts` | upload → MinIO proxy → media library → featured/gallery selection |
-| `admin-comprehensive.spec.ts` | full CMS CRUD incl. homepage + navigation builders |
-| `telegram.spec.ts` | publish envelope against the in-stack `mock-telegram`, retries, message ids |
+| `api.spec.ts` | full public + admin API contract, pagination shapes, cache headers (HIT/MISS), deletes, validation 400s, health dependencies |
+| `security.spec.ts` | authz (editor vs admin), rate limiting, JWT rejection, IDOR, XSS payloads in comments/contact, secret non-exposure |
+| `frontend.spec.ts` | visitor journeys: homepage sections, category pages, article detail, search, about/contact, 404, no-horizontal-overflow at 375/768/1920px, `lang`/`dir` per language route |
+| `multilingual.spec.ts` | kh/en switch, ticker enable/theme, banner CRUD, live CSS variable updates |
+| `media.spec.ts` | upload → MinIO proxy → media library → magic-byte rejection of non-images → delete |
+| `admin-comprehensive.spec.ts` | full CMS CRUD incl. homepage + navigation builders, no-overflow on desktop/tablet |
+| `telegram.spec.ts` | publish envelope against the in-stack `mock-telegram`, chat discovery, retries, bilingual buttons, duplicate-block, auto-publish on/off |
+
+**Latest full-suite result (against the Docker stack):** 96 core tests + 8 Telegram tests = **104 tests, 104 passed, 0 failed** (`8` Telegram tests run separately via the documented `test:e2e:telegram` flow, which points the backend at the mock Telegram API).
 
 Local gate: `npm run lint` (all three apps) + `npm run typecheck -w backend` + `npm run build` (vue-tsc + vite for frontend & admin) + `npm run test:e2e`.
 
@@ -406,9 +411,11 @@ docker compose up -d --build
 
 ## 14. Security posture
 
-- Helmet headers; CORS allow-list; `1mb` body cap; per-IP rate limit on `/api/v1`.
+- Helmet headers; CORS allow-list; `1mb` body cap; per-IP rate limit on `/api/v1` + stricter auth limiter (100/15m), `Permissions-Policy` and `Referrer-Policy` headers.
+- Upload hardening: image MIME whitelist (**SVG deliberately excluded**), magic-byte verification of the file content, server-side object keys, size cap.
 - JWT access + rotating refresh cookies; bcrypt password hashing; route-level RBAC; Telegram secrets masked and never exposed.
 - Strict zod validation on all inputs (enums over free strings, hex-color regex, bounded pagination).
 - Content sanitized on render (scripts/iframes/event handlers stripped server-tagged HTML).
 - Cache-generation guard prevents serving stale data after mutations.
+- Accessibility & SEO guardrails: `<html lang>`/`dir` update reactively per language route; global `prefers-reduced-motion` handling.
 - Audit log records every sensitive admin mutation with actor + IP.

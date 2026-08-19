@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import SiteHeader from "@/components/layout/SiteHeader.vue";
 import SiteFooter from "@/components/layout/SiteFooter.vue";
@@ -32,10 +32,26 @@ const route = useRoute();
 const settingsStore = useSettingsStore();
 const locale = useLocaleStore();
 const isEn = computed(() => locale.isEn);
+const currentLang = computed(() => {
+  // Language-prefixed article URLs (/kh/news/*, /en/news/*) win; otherwise
+  // the user's stored preference applies.
+  const metaLocale = route.meta.locale as string | undefined;
+  if (metaLocale === "kh") return "km";
+  if (metaLocale === "en") return "en";
+  return isEn.value ? "en" : "km";
+});
 useTheme();
 
-// Apply the persisted language to <html lang> on boot.
-document.documentElement.lang = locale.isEn ? "en" : "km";
+// Keep <html lang> (and dir) in sync with the active language so assistive
+// tech and search engines always read the correct language (WCAG 3.1.1).
+watch(
+  currentLang,
+  (lang) => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = "ltr";
+  },
+  { immediate: true }
+);
 
 // Update page title for Galaxy TV
 onMounted(() => {

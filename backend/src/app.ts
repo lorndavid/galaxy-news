@@ -21,9 +21,24 @@ export function createApp() {
     helmet({
       // Images are served cross-origin to the public site and admin.
       crossOriginResourcePolicy: { policy: "cross-origin" },
+      // CSP stays disabled: Google Fonts, inline styles and the admin
+      // editor's inline styles need it, and a blind policy would break the
+      // apps. Revisit with a data-driven policy when the bundles are stable.
       contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+      referrerPolicy: { policy: "strict-origin-when-cross-origin" },
     })
   );
+
+  // Permissions-Policy — deny camera/mic/geolocation/payments etc., while
+  // keeping fullscreen for the site's video embeds.
+  app.use((_req, res, next) => {
+    res.setHeader(
+      "Permissions-Policy",
+      "camera=(), microphone=(), geolocation=(), payment=(), usb=(), battery=(), publickey-credentials-get=(), fullscreen=(self)"
+    );
+    next();
+  });
 
   app.use(
     cors({
