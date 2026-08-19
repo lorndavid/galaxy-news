@@ -324,6 +324,7 @@ export interface TelegramStats {
 export interface HomepageSectionConfig {
   columns?: number;
   sidebar?: boolean;
+  left?: boolean;
 }
 
 export interface HomepageSection {
@@ -335,12 +336,18 @@ export interface HomepageSection {
   config: HomepageSectionConfig | null;
 }
 
+export interface NavigationItemConfig {
+  layout?: "grid" | "list";
+  columns?: number;
+}
+
 export interface NavigationItem {
   id: number;
   label: string;
   labelEn: string | null;
-  type: "home" | "category" | "page" | "link";
+  type: string;
   value: string | null;
+  config: NavigationItemConfig | null;
   sortOrder: number;
   isActive: boolean;
 }

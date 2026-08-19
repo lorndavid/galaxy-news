@@ -1,9 +1,8 @@
 <template>
   <div class="g-popular-sidebar">
     <h3 class="g-popular-title">{{ t.home.popular }}</h3>
-    <article v-for="(article, i) in articles" :key="article.id" class="g-popular-row">
+    <article v-for="article in articles" :key="article.id" class="g-popular-row">
       <RouterLink :to="`/article/${article.slug}`" class="g-popular-thumb">
-        <span class="g-popular-num" aria-hidden="true">{{ String(i + 1).padStart(2, "0") }}</span>
         <ArticleThumb :src="article.featuredImage" :alt="title(article)" :width="160" />
       </RouterLink>
       <div class="g-popular-body">
@@ -75,19 +74,6 @@ const { title, t } = useLocalized();
 }
 .g-popular-row:hover .g-popular-thumb :deep(img) {
   transform: scale(1.05);
-}
-.g-popular-num {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  z-index: 2;
-  background: var(--color-primary, #0b1c39);
-  color: #fff;
-  font-family: "Inter", sans-serif;
-  font-size: 10px;
-  font-weight: 800;
-  line-height: 1;
-  padding: 3px 5px;
 }
 
 /* Text (right) */

@@ -55,7 +55,8 @@
 
         <nav class="g-nav" aria-label="ម៉ឺនុយចម្បង">
           <ul>
-            <li v-for="item in navItems" :key="item.id">
+            <!-- Home + main items (max 6 direct, 7th slot = "More") -->
+            <li v-for="item in navBarItems" :key="item.id">
               <RouterLink
                 v-if="item.type === 'category'"
                 :to="`/category/${item.value ?? ''}`"
@@ -78,6 +79,28 @@
               >
                 {{ locale.pick(item.label, item.labelEn) }}
               </RouterLink>
+            </li>
+
+            <!-- Extra admin items collapse into a hover dropdown -->
+            <li v-if="moreNavItems.length" class="g-nav-more">
+              <a href="#" @click.prevent>
+                {{ locale.t.nav.more }} <i class="ti-angle-down" aria-hidden="true"></i>
+              </a>
+              <ul class="g-nav-more-dropdown">
+                <li v-for="item in moreNavItems" :key="item.id">
+                  <a
+                    v-if="item.type === 'link'"
+                    :href="item.value ?? '#'"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {{ locale.pick(item.label, item.labelEn) }}
+                  </a>
+                  <RouterLink v-else :to="navPath(item)">
+                    {{ locale.pick(item.label, item.labelEn) }}
+                  </RouterLink>
+                </li>
+              </ul>
             </li>
           </ul>
         </nav>
@@ -140,7 +163,7 @@
         </form>
         <nav aria-label="ម៉ឺនុយទូរស័ព្ទ">
           <ul class="g-mobile-list">
-            <li v-for="item in navItems" :key="item.id">
+            <li v-for="item in allNavItems" :key="item.id">
               <RouterLink
                 v-if="item.type === 'category'"
                 :to="`/category/${item.value ?? ''}`"
@@ -237,6 +260,39 @@ function navPath(item: NavigationItem) {
   return item.value ?? "/";
 }
 
+/** Bar capacity: 7 slots total — 6 direct items + "More". */
+const MAX_BAR_ITEMS = 7;
+
+/** Home is always the first item in the bar (unless the admin already added one). */
+const homeItem = computed<NavigationItem>(() => ({
+  id: -1,
+  label: locale.t.nav.home,
+  labelEn: "Home",
+  type: "home",
+  value: "/",
+  config: null,
+  sortOrder: 0,
+  isActive: true,
+}));
+
+/** Home first, then admin items in their sort order (no duplicate Home). */
+const allNavItems = computed(() => {
+  const hasHome = navItems.value.some((i) => i.type === "home");
+  return hasHome ? navItems.value : [homeItem.value, ...navItems.value];
+});
+
+/** Items rendered directly in the bar (max 6 when "More" is present). */
+const navBarItems = computed(() =>
+  allNavItems.value.length > MAX_BAR_ITEMS
+    ? allNavItems.value.slice(0, MAX_BAR_ITEMS - 1)
+    : allNavItems.value
+);
+
+/** Overflow items — shown in the clean one-column "More" dropdown. */
+const moreNavItems = computed(() =>
+  allNavItems.value.length > MAX_BAR_ITEMS ? allNavItems.value.slice(MAX_BAR_ITEMS - 1) : []
+);
+
 function submitSearch() {
   const q = searchInput.value.trim();
   if (!q) return;
@@ -264,9 +320,9 @@ onMounted(() => {
     .then((items) => { navItems.value = items; })
     .catch(() => {
       navItems.value = [
-        { id: 0, label: "ទំព័រដើម", labelEn: "Home", type: "home", value: "/", sortOrder: 1, isActive: true },
-        { id: 0, label: "បញ្ជីព័ត៌មាន", labelEn: "News List", type: "page", value: "news", sortOrder: 2, isActive: true },
-        { id: 0, label: "ប្រភេទ", labelEn: "Categories", type: "page", value: "categories", sortOrder: 3, isActive: true },
+        { id: 0, label: "ទំព័រដើម", labelEn: "Home", type: "home", value: "/", config: null, sortOrder: 1, isActive: true },
+        { id: 0, label: "បញ្ជីព័ត៌មាន", labelEn: "News List", type: "page", value: "news", config: null, sortOrder: 2, isActive: true },
+        { id: 0, label: "ប្រភេទ", labelEn: "Categories", type: "page", value: "categories", config: null, sortOrder: 3, isActive: true },
       ];
     });
   window.addEventListener("scroll", onScroll, { passive: true });
@@ -470,8 +526,8 @@ onUnmounted(() => {
   padding: 0;
   list-style: none;
 }
-/* Newspaper index: vertical separators between menu items */
-.g-nav li + li {
+/* Vertical separators between top-level menu items */
+.g-nav > ul > li + li {
   border-left: 1px solid var(--color-border);
 }
 .g-nav li a {
@@ -492,6 +548,85 @@ onUnmounted(() => {
 .g-nav li a.is-active {
   color: var(--color-accent);
   font-weight: 700;
+}
+
+/* ─── "More" hover dropdown for admin-added items ─── */
+.g-nav .g-nav-more {
+  position: relative;
+}
+.g-nav-more > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: 14px;
+  padding-left: 14px;
+}
+.g-nav-more > a i {
+  font-size: 11px;
+  transition: transform 0.2s ease;
+}
+.g-nav-more:hover > a i {
+  transform: rotate(180deg);
+}
+.g-nav-more-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1200;
+  min-width: 230px;
+  margin: 0;
+  padding: 8px 0;
+  list-style: none;
+  background: var(--color-header-bg);
+  border: 1px solid var(--color-border);
+  border-top: 2px solid var(--color-accent);
+  box-shadow: var(--shadow-elevated);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+.g-nav-more:hover .g-nav-more-dropdown,
+.g-nav-more:focus-within .g-nav-more-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.g-nav-more-dropdown li {
+  border-left: 2px solid transparent;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.g-nav-more-dropdown li:hover {
+  border-left-color: var(--color-accent);
+  background: var(--color-surface-alt);
+}
+.g-nav-more-dropdown a {
+  display: block;
+  padding: 10px 16px;
+  color: var(--color-header-text);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+.g-nav-more-dropdown a:hover {
+  color: var(--color-accent);
+}
+/* Sticky (dark) variant */
+.is-sticky .g-nav-more-dropdown {
+  background: #0b1c39;
+  border-color: rgba(255, 255, 255, 0.15);
+  border-top-color: var(--color-accent);
+}
+.is-sticky .g-nav-more-dropdown li:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.is-sticky .g-nav-more-dropdown a {
+  color: #fff;
+}
+.is-sticky .g-nav-more-dropdown a:hover {
+  color: var(--color-accent);
 }
 
 /* Desktop search toggle */
@@ -543,7 +678,7 @@ onUnmounted(() => {
 .is-sticky .g-nav ul {
   justify-content: flex-end;
 }
-.is-sticky .g-nav li + li {
+.is-sticky .g-nav > ul > li + li {
   border-left-color: rgba(255, 255, 255, 0.2);
 }
 .is-sticky .g-nav li a {

@@ -11,6 +11,7 @@ import type {
   HomepageSection,
   Media,
   NavigationItem,
+  NavigationItemConfig,
   NewsletterSubscriber,
   Paginated,
   SiteSettings,
@@ -56,10 +57,10 @@ export const adminService = {
   navigation() {
     return unwrap<NavigationItem[]>(api.get("/admin/navigation"));
   },
-  createNavItem(payload: { label: string; labelEn?: string | null; type: string; value?: string | null; isActive?: boolean }) {
+  createNavItem(payload: { label: string; labelEn?: string | null; type: string; value?: string | null; isActive?: boolean; config?: NavigationItemConfig | null }) {
     return unwrap<NavigationItem>(api.post("/admin/navigation", payload));
   },
-  updateNavItem(id: number, payload: { label?: string; labelEn?: string | null; type?: string; value?: string | null; isActive?: boolean }) {
+  updateNavItem(id: number, payload: { label?: string; labelEn?: string | null; type?: string; value?: string | null; isActive?: boolean; config?: NavigationItemConfig | null }) {
     return unwrap<NavigationItem>(api.patch(`/admin/navigation/${id}`, payload));
   },
   reorderNav(order: { id: number; sortOrder: number }[]) {

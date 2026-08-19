@@ -3,7 +3,23 @@
     <!-- ═══════════ HERO SECTION ═══════════ -->
     <section v-if="showSection('hero')" v-reveal class="g-hero">
       <div class="container">
-        <div class="g-hero-grid" :class="{ 'is-full': !heroSidebar }">
+        <div class="g-hero-grid" :class="{ 'is-left': heroLeft && leftArticles.length, 'is-full': !heroSidebar }">
+          <!-- Left column: featured small news -->
+          <aside v-if="heroLeft && leftArticles.length" class="g-hero-left">
+            <div class="g-sidebar-header">
+              <h3><i class="ti-star g-section-icon" aria-hidden="true"></i> {{ t.home.featured }}</h3>
+            </div>
+            <article v-for="a in leftArticles" :key="a.id" class="g-hero-left-card">
+              <RouterLink :to="`/article/${a.slug}`" class="g-hero-left-img">
+                <ArticleThumb :src="a.featuredImage" :alt="title(a)" :width="320" />
+              </RouterLink>
+              <h4>
+                <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
+              </h4>
+              <span v-if="a.publishedAt" class="g-sidebar-time"><i class="ti-calendar"></i> {{ formatKhmerDate(a.publishedAt) }}</span>
+            </article>
+          </aside>
+
           <!-- Main featured story -->
           <div class="g-hero-main">
             <article v-if="hero" class="g-hero-card">
@@ -142,8 +158,7 @@
           <h2><i class="ti-stats-up g-section-icon" aria-hidden="true"></i> {{ t.home.popular }}</h2>
         </div>
         <div class="g-cards" :style="popularGridStyle">
-          <article v-for="(a, i) in popular" :key="a.id" class="g-popular-card">
-            <span class="g-popular-rank">{{ String(i + 1).padStart(2, '0') }}</span>
+          <article v-for="a in popular" :key="a.id" class="g-popular-card">
             <RouterLink :to="`/article/${a.slug}`" class="g-popular-img">
               <ArticleThumb :src="a.featuredImage" :alt="title(a)" :width="320" />
             </RouterLink>
@@ -296,6 +311,7 @@ function sectionTitle(key: string, fallback: string): string {
 }
 
 const heroSidebar = computed(() => sectionConfig("hero")?.sidebar ?? true);
+const heroLeft = computed(() => sectionConfig("hero")?.left ?? true);
 const breakingBadges = computed(() => showSection("breaking"));
 const popularColumns = computed(() => sectionConfig("whats-new")?.columns ?? 5);
 const videoColumns = computed(() => sectionConfig("video")?.columns ?? 5);
@@ -311,6 +327,7 @@ const recentGridStyle = computed(() => ({ "--grid-cols": recentColumns.value }))
 const hero = computed(() => featured.value[0] ?? null);
 const bottomThree = computed(() => featured.value.slice(1, 4));
 const weeklyArticles = computed(() => featured.value.slice(4, 9));
+const leftArticles = computed(() => latest.value.slice(6, 8));
 const sidebarArticles = computed(() => latest.value.slice(0, 6));
 const recentArticles = computed(() => latest.value.slice(6, 14));
 const videoArticles = computed(() => featured.value.slice(0, 5));
@@ -396,18 +413,80 @@ onMounted(async () => {
 .g-hero {
   padding: 24px 0 0;
 }
+/* 3-column wide grid: left rail | main big image | latest right */
 .g-hero-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: 28px;
 }
+.g-hero-grid.is-left {
+  grid-template-columns: 300px minmax(0, 1fr) 340px;
+}
 .g-hero-grid.is-full {
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
+}
+.g-hero-grid.is-left.is-full {
+  grid-template-columns: 300px minmax(0, 1fr);
+}
+@media (max-width: 1199px) {
+  .g-hero-grid.is-left,
+  .g-hero-grid.is-left.is-full {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
 }
 @media (max-width: 991px) {
-  .g-hero-grid {
+  .g-hero-grid,
+  .g-hero-grid.is-left,
+  .g-hero-grid.is-full,
+  .g-hero-grid.is-left.is-full {
     grid-template-columns: 1fr;
   }
+}
+
+/* Left rail — small news cards with images */
+.g-hero-left-card {
+  padding: 0 0 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #000;
+}
+.g-hero-left-card:last-child {
+  border-bottom: none;
+}
+.g-hero-left-img {
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+.g-hero-left-img :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+.g-hero-left-card:hover .g-hero-left-img :deep(img) {
+  transform: scale(1.04);
+}
+.g-hero-left-card h4 {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.g-hero-left-card h4 a {
+  color: var(--color-text);
+  text-decoration: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s ease;
+}
+.g-hero-left-card h4 a:hover {
+  color: var(--color-accent);
+}
+.g-hero-left-card .g-sidebar-time {
+  margin-top: 6px;
 }
 
 /* Hero main card */
@@ -772,18 +851,6 @@ onMounted(async () => {
   overflow: hidden;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-}
-.g-popular-rank {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 2;
-  font-family: var(--font-latin, "Inter", sans-serif);
-  font-size: 28px;
-  font-weight: 800;
-  color: #fff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  line-height: 1;
 }
 .g-popular-img {
   display: block;

@@ -4,6 +4,7 @@ export const en = {
     latest: "Latest News",
     news: "News List",
     categories: "Categories",
+    more: "More",
   },
   common: {
     search: "Search news",
@@ -37,6 +38,7 @@ export const en = {
     video: "Video",
     recent: "Recent Articles",
     trending: "Trending",
+    featured: "Featured",
     popular: "Popular News",
     videoTitle: "Watch the hottest news videos from Navatra 4K TV",
     videoDesc: "Welcome to Navatra 4K TV, Cambodia's digital news hub delivering breaking news, entertainment and the latest technology every day.",

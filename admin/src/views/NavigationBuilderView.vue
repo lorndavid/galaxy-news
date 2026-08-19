@@ -11,21 +11,98 @@
         <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load">ព្យាយាមម្តងទៀត</button>
       </div>
       <div v-else class="divide-y divide-slate-100">
-        <div v-for="(item, i) in items" :key="item.id" class="flex items-center gap-3 px-5 py-3" :class="{ 'opacity-50': !item.isActive }">
-          <span class="cursor-grab text-slate-300" aria-hidden="true"><GripVertical class="h-4 w-4" /></span>
-          <div class="min-w-0 flex-1">
-            <p class="font-medium text-slate-700">{{ item.label }}</p>
-            <p class="text-xs text-slate-400">
-              {{ typeLabel(item.type) }}
-              <span v-if="item.value" class="font-mono">· {{ item.value }}</span>
-            </p>
+        <div v-for="(item, i) in items" :key="item.id" class="px-5 py-3" :class="{ 'opacity-50': !item.isActive }">
+          <div class="flex items-center gap-3">
+            <span class="cursor-grab text-slate-300" aria-hidden="true"><GripVertical class="h-4 w-4" /></span>
+            <div class="min-w-0 flex-1">
+              <p class="font-medium text-slate-700">{{ item.label }}</p>
+              <p class="text-xs text-slate-400">
+                {{ typeLabel(item.type) }}
+                <span v-if="item.value" class="font-mono">· {{ item.value }}</span>
+                <span v-if="item.config" class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">
+                  {{ layoutLabel(item.config) }}
+                </span>
+              </p>
+            </div>
+            <div class="flex items-center gap-1">
+              <button class="btn-ghost !p-1.5" :class="{ 'text-brand-600': editingLayout === item.id }" title="កែប្លង់ / Grid" @click="toggleLayout(item.id)">
+                <LayoutGrid class="h-4 w-4" />
+              </button>
+              <button class="btn-ghost !p-1.5" :disabled="i === 0" title="ឡើងលើ" @click="move(i, -1)"><ChevronUp class="h-4 w-4" /></button>
+              <button class="btn-ghost !p-1.5" :disabled="i === items.length - 1" title="ចុះក្រោម" @click="move(i, 1)"><ChevronDown class="h-4 w-4" /></button>
+              <button class="btn-ghost !p-1.5" title="កែសម្រួល" @click="edit(item)"><Pencil class="h-4 w-4" /></button>
+              <button class="btn-ghost !p-1.5 text-red-600 hover:!bg-red-50" title="លុប" @click="askDelete(item)"><Trash2 class="h-4 w-4" /></button>
+            </div>
           </div>
-          <div class="flex items-center gap-1">
-            <button class="btn-ghost !p-1.5" :disabled="i === 0" title="ឡើងលើ" @click="move(i, -1)"><ChevronUp class="h-4 w-4" /></button>
-            <button class="btn-ghost !p-1.5" :disabled="i === items.length - 1" title="ចុះក្រោម" @click="move(i, 1)"><ChevronDown class="h-4 w-4" /></button>
-            <button class="btn-ghost !p-1.5" title="កែសម្រួល" @click="edit(item)"><Pencil class="h-4 w-4" /></button>
-            <button class="btn-ghost !p-1.5 text-red-600 hover:!bg-red-50" title="លុប" @click="askDelete(item)"><Trash2 class="h-4 w-4" /></button>
-          </div>
+
+          <!-- Layout / grid editor with live preview -->
+          <Transition name="nav-fade">
+            <div v-if="editingLayout === item.id" class="mt-3 rounded border border-slate-200 bg-slate-50 p-4">
+              <div class="flex flex-wrap items-end gap-5">
+                <div>
+                  <label class="label">រចនាប័ទ្មប្លង់</label>
+                  <div class="flex gap-1.5">
+                    <button
+                      v-for="opt in layoutOptions"
+                      :key="opt.key"
+                      type="button"
+                      class="flex h-9 items-center gap-1.5 rounded border px-3 text-xs font-semibold transition-colors"
+                      :class="layoutOf(item) === opt.key ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300 bg-white text-slate-600 hover:border-brand-400'"
+                      @click="setLayout(item, opt.key)"
+                    >
+                      {{ opt.icon }} {{ opt.label }}
+                    </button>
+                  </div>
+                </div>
+                <div v-if="layoutOf(item) === 'grid'">
+                  <label class="label">ចំនួនជួរឈរ</label>
+                  <div class="flex gap-1.5">
+                    <button
+                      v-for="n in [2, 3, 4]"
+                      :key="n"
+                      type="button"
+                      class="h-8 w-8 rounded border text-xs font-semibold transition-colors"
+                      :class="columnsOf(item) === n ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300 bg-white text-slate-600 hover:border-brand-400'"
+                      @click="setColumns(item, n)"
+                    >
+                      {{ n }}
+                    </button>
+                  </div>
+                </div>
+                <div class="ml-auto text-right">
+                  <span class="label mb-1 block">ការមើលជាមុន</span>
+                  <div class="flex h-14 w-44 items-center gap-1.5 border border-slate-200 bg-white p-2">
+                    <template v-if="layoutOf(item) === 'list'">
+                      <div v-for="n in 3" :key="n" class="flex flex-1 flex-col gap-1">
+                        <div class="h-8 w-full bg-slate-300"></div>
+                        <div class="h-1.5 w-3/4 bg-slate-200"></div>
+                        <div class="h-1.5 w-1/2 bg-slate-200"></div>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div
+                        v-for="n in columnsOf(item) || 3"
+                        :key="n"
+                        class="flex flex-1 flex-col gap-1"
+                      >
+                        <div class="h-9 w-full bg-slate-300"></div>
+                        <div class="h-1.5 w-3/4 bg-slate-200"></div>
+                      </div>
+                    </template>
+                  </div>
+                  <p class="mt-1 text-[10px] text-slate-400">Grid = កាត ពីលើចុះក្រោម · List = រូបឆ្វេង អក្សរស្តាំ</p>
+                </div>
+              </div>
+              <div class="mt-3 flex items-center justify-between border-t border-slate-200 pt-3">
+                <button type="button" class="text-xs font-medium text-slate-400 hover:text-slate-600" @click="resetLayout(item)">
+                  កំណត់ស្តង់ដារ
+                </button>
+                <button type="button" class="btn-primary !py-1.5 text-xs" @click="saveLayout(item)">
+                  រក្សាទុកប្លង់
+                </button>
+              </div>
+            </div>
+          </Transition>
         </div>
         <div v-if="!items.length" class="p-8 text-center text-sm text-slate-400">មិនទាន់មានធាតុម៉ឺនុយទេ</div>
       </div>
@@ -85,11 +162,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
-import { ChevronDown, ChevronUp, GripVertical, Pencil, Trash2 } from "lucide-vue-next";
+import { ChevronDown, ChevronUp, GripVertical, LayoutGrid, Pencil, Trash2 } from "lucide-vue-next";
 import { adminService } from "@/services/admin.service";
 import { useToastStore } from "@/stores/toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
-import type { NavigationItem } from "@/types";
+import type { NavigationItem, NavigationItemConfig } from "@/types";
 
 const toast = useToastStore();
 const items = ref<NavigationItem[]>([]);
@@ -99,7 +176,50 @@ const saving = ref(false);
 const dirty = ref(false);
 const confirmOpen = ref(false);
 const editing = ref<NavigationItem | null>(null);
+const editingLayout = ref<number | null>(null);
 let deleteTarget: NavigationItem | null = null;
+
+const layoutOptions = [
+  { key: "grid", label: "Grid", icon: "▦" },
+  { key: "list", label: "List", icon: "≡" },
+] as const;
+
+function layoutOf(item: NavigationItem): "grid" | "list" {
+  return item.config?.layout ?? "list";
+}
+function columnsOf(item: NavigationItem): number {
+  return item.config?.columns ?? 3;
+}
+function layoutLabel(item: NavigationItem["config"] | null): string {
+  if (!item?.layout) return "";
+  return item.layout === "grid" ? `Grid · ${item.columns ?? 3} ជួរ` : "List · រូបឆ្វេង";
+}
+
+function toggleLayout(id: number) {
+  editingLayout.value = editingLayout.value === id ? null : id;
+}
+
+function setLayout(item: NavigationItem, layout: "grid" | "list") {
+  item.config = { ...(item.config ?? {}), layout };
+}
+function setColumns(item: NavigationItem, columns: number) {
+  item.config = { ...(item.config ?? {}), columns, layout: "grid" };
+}
+function resetLayout(item: NavigationItem) {
+  item.config = null;
+}
+
+async function saveLayout(item: NavigationItem) {
+  try {
+    const config: NavigationItemConfig | null = item.config ?? null;
+    await adminService.updateNavItem(item.id, { config });
+    toast.success("បានរក្សាទុកប្លង់");
+    editingLayout.value = null;
+    await load();
+  } catch (e) {
+    toast.error(e instanceof Error ? e.message : "រក្សាទុកប្លង់បរាជ័យ");
+  }
+}
 
 const form = reactive({
   label: "",
@@ -222,3 +342,15 @@ async function save() {
 
 onMounted(load);
 </script>
+
+<style scoped>
+.nav-fade-enter-active,
+.nav-fade-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.nav-fade-enter-from,
+.nav-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+</style>

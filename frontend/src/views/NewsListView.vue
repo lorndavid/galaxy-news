@@ -11,7 +11,14 @@
           <div v-else-if="error" class="mt-3"><ErrorState :message="error" @retry="load" /></div>
 
           <template v-else-if="items.length">
-            <NewsRowCard v-for="a in items" :key="a.id" :article="a" />
+            <!-- Grid layout (from admin nav item config) -->
+            <div v-if="pageLayout === 'grid'" class="g-page-grid" :style="{ '--cols': pageColumns }">
+              <ArticleCard v-for="a in items" :key="a.id" :article="a" />
+            </div>
+            <!-- List layout: image left, text right -->
+            <template v-else>
+              <NewsRowCard v-for="a in items" :key="a.id" :article="a" />
+            </template>
             <!-- Load more + pagination fallback -->
             <div v-if="!loadingMore && hasMore" class="text-center mt-4">
               <button class="btn boxed-btn" @click="loadMore">{{ t.common.readMore }}</button>
@@ -44,9 +51,11 @@ import SkeletonCard from "@/components/common/SkeletonCard.vue";
 import ErrorState from "@/components/common/ErrorState.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
 import Pagination from "@/components/common/Pagination.vue";
+import ArticleCard from "@/components/article/ArticleCard.vue";
 import NewsRowCard from "@/components/article/NewsRowCard.vue";
 import SidebarPopular from "@/components/article/SidebarPopular.vue";
 import NavatraPoster from "@/components/article/NavatraPoster.vue";
+import { contentService } from "@/services/content.service";
 import { useLocalized } from "@/composables/useLocalized";
 
 const route = useRoute();
@@ -57,12 +66,29 @@ const totalPages = ref(1);
 const loading = ref(true);
 const loadingMore = ref(false);
 const error = ref("");
+const pageLayout = ref<"grid" | "list">("list");
+const pageColumns = ref(3);
 
 const hasMore = computed(() => page.value < totalPages.value);
 
 const { t } = useLocalized();
 const isLatest = computed(() => route.name === "latest");
 const title = computed(() => (isLatest.value ? t.home.latest : t.nav.news));
+
+/** Pull the layout/grid config the admin set for this page's nav item. */
+async function loadPageLayout() {
+  try {
+    const nav = await contentService.navigation();
+    const wanted = isLatest.value ? "latest" : "news";
+    const navItem = nav.find((n) => n.type === "page" && n.value === wanted);
+    if (navItem?.config) {
+      pageLayout.value = navItem.config.layout ?? "list";
+      pageColumns.value = navItem.config.columns ?? 3;
+    }
+  } catch {
+    /* keep defaults */
+  }
+}
 
 useSeo(
   computed(() => ({
@@ -114,6 +140,7 @@ async function loadMore() {
 
 onMounted(async () => {
   popular.value = await articleService.popular(5).catch(() => []);
+  await loadPageLayout();
   load();
 });
 </script>
@@ -121,5 +148,21 @@ onMounted(async () => {
 <style scoped>
 .news-list-area {
   padding-top: 30px;
+}
+/* Admin-driven grid layout (columns from the nav item config) */
+.g-page-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 20px;
+}
+@media (max-width: 767px) {
+  .g-page-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .g-page-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

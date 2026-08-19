@@ -92,15 +92,29 @@
                     </button>
                   </div>
 
+                  <div v-if="supports(s.key, 'left')">
+                    <label class="label">ជួរឈរខាងឆ្វេង</label>
+                    <button
+                      type="button"
+                      class="flex items-center gap-2 rounded border px-3 py-1.5 text-xs font-medium transition-colors"
+                      :class="leftOf(s.config) ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300 bg-white text-slate-600'"
+                      @click="s.config = { ...s.config, left: !leftOf(s.config) }"
+                    >
+                      <CheckSquare v-if="leftOf(s.config)" class="h-3.5 w-3.5" />
+                      <Square v-else class="h-3.5 w-3.5" />
+                      {{ leftOf(s.config) ? "បង្ហាញ" : "លាក់" }}
+                    </button>
+                  </div>
+
                   <div class="ml-auto text-right">
                     <span class="label mb-1 block">ការមើលជាមុន</span>
                     <div class="flex h-12 items-center gap-1">
                       <template v-if="supports(s.key, 'sidebar')">
-                        <div v-if="sidebarOf(s.config)" class="flex h-full flex-1 gap-1">
-                          <div class="flex-[2] bg-slate-300"></div>
-                          <div class="flex-1 bg-slate-200"></div>
+                        <div class="flex h-full flex-1 gap-1">
+                          <div v-if="leftOf(s.config)" class="w-8 bg-slate-200"></div>
+                          <div class="flex-1 bg-slate-300"></div>
+                          <div v-if="sidebarOf(s.config)" class="w-8 bg-slate-200"></div>
                         </div>
-                        <div v-else class="h-full w-full bg-slate-300"></div>
                       </template>
                       <div v-else class="flex h-full flex-1 gap-1">
                         <div
@@ -192,10 +206,13 @@ const editing = ref<string | null>(null);
 const COLUMN_KEYS = new Set(["weekly", "whats-new", "video", "recent"]);
 /** Sections that accept a `sidebar` toggle. */
 const SIDEBAR_KEYS = new Set(["hero"]);
+/** Sections that accept a `left` rail toggle. */
+const LEFT_KEYS = new Set(["hero"]);
 
-function supports(key: string, option: "columns" | "sidebar"): boolean {
+function supports(key: string, option: "columns" | "sidebar" | "left"): boolean {
   if (option === "columns") return COLUMN_KEYS.has(key);
-  return SIDEBAR_KEYS.has(key);
+  if (option === "sidebar") return SIDEBAR_KEYS.has(key);
+  return LEFT_KEYS.has(key);
 }
 
 function columnsOf(c: HomepageSectionConfig | null | undefined): number | undefined {
@@ -206,11 +223,16 @@ function sidebarOf(c: HomepageSectionConfig | null | undefined): boolean {
   return c?.sidebar ?? true;
 }
 
+function leftOf(c: HomepageSectionConfig | null | undefined): boolean {
+  return c?.left ?? true;
+}
+
 function configSummary(c: HomepageSectionConfig | null): string {
   if (!c) return "";
   const parts: string[] = [];
   if (c.columns) parts.push(`${c.columns} ជួរ`);
   if (c.sidebar !== undefined) parts.push(c.sidebar ? "sidebar" : "full");
+  if (c.left !== undefined) parts.push(c.left ? "left" : "no-left");
   return parts.join(" · ");
 }
 

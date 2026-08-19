@@ -25,7 +25,14 @@
           <div class="col-lg-8">
             <SectionTitle :title="sectionTitle" />
             <div v-if="items.length">
-              <NewsRowCard v-for="a in items" :key="a.id" :article="a" />
+              <!-- Grid layout (from admin nav item config) -->
+              <div v-if="pageLayout === 'grid'" class="g-page-grid" :style="{ '--cols': pageColumns }">
+                <ArticleCard v-for="a in items" :key="a.id" :article="a" />
+              </div>
+              <!-- List layout: image left, text right -->
+              <template v-else>
+                <NewsRowCard v-for="a in items" :key="a.id" :article="a" />
+              </template>
             </div>
             <EmptyState v-else :message="t.common.noResults" />
             <div v-if="totalPages > 1" class="mb-2">
@@ -54,6 +61,7 @@ import SkeletonCard from "@/components/common/SkeletonCard.vue";
 import ErrorState from "@/components/common/ErrorState.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
 import Pagination from "@/components/common/Pagination.vue";
+import ArticleCard from "@/components/article/ArticleCard.vue";
 import NewsRowCard from "@/components/article/NewsRowCard.vue";
 import TrendingTopCard from "@/components/article/TrendingTopCard.vue";
 import SidebarPopular from "@/components/article/SidebarPopular.vue";
@@ -69,6 +77,22 @@ const page = ref(1);
 const totalPages = ref(1);
 const loading = ref(true);
 const error = ref("");
+const pageLayout = ref<"grid" | "list">("list");
+const pageColumns = ref(3);
+
+/** Pull the layout/grid config the admin set for this category's nav item. */
+async function loadPageLayout(slug: string) {
+  try {
+    const nav = await contentService.navigation();
+    const navItem = nav.find((n) => n.type === "category" && n.value === slug);
+    if (navItem?.config) {
+      pageLayout.value = navItem.config.layout ?? "list";
+      pageColumns.value = navItem.config.columns ?? 3;
+    }
+  } catch {
+    /* keep defaults */
+  }
+}
 
 const catNameOf = (c: Category | null) => (c ? locale.pick(c.name, c.nameEn) : "");
 const sectionTitle = computed(() => {
@@ -116,6 +140,7 @@ async function load() {
       category.value = cats.find((c) => c.slug === slug) ?? null;
     }
     popular.value = await articleService.popular(5).catch(() => []);
+    await loadPageLayout(slug);
   } catch (e) {
     error.value = e instanceof Error ? e.message : t.error.message;
   } finally {
@@ -143,5 +168,21 @@ watch(() => route.params.slug, () => { category.value = null; load(); });
 <style scoped>
 .category-area {
   padding-top: 26px;
+}
+/* Admin-driven grid layout (columns from the nav item config) */
+.g-page-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 20px;
+}
+@media (max-width: 767px) {
+  .g-page-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .g-page-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

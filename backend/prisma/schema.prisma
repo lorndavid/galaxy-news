@@ -352,6 +352,7 @@ model NavigationItem {
   labelEn   String?  // English label (falls back to label)
   type      String   @default("link") // home | category | page | link
   value     String?  // slug/URL depending on type
+  config    String?  // JSON: {"layout":"grid|list","columns":2-4}
   sortOrder Int      @default(0)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())

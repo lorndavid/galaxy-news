@@ -11,11 +11,13 @@ export const sectionKeys = [
 ] as const;
 
 // Per-section layout/grid options (stored as JSON in HomepageSection.config).
-// `columns` drives the card grid width, `sidebar` toggles a side rail.
+// `columns` drives the card grid width, `sidebar` toggles the right rail,
+// `left` toggles the left rail on the hero.
 export const sectionConfigSchema = z
   .object({
     columns: z.number().int().min(2).max(6).optional(),
     sidebar: z.boolean().optional(),
+    left: z.boolean().optional(),
   })
   .strict()
   .optional();
@@ -48,6 +50,16 @@ export const homepageReorderSchema = z.object({
   }),
 });
 
+// Per-nav-item layout config (JSON on NavigationItem.config).
+// `layout` picks the listing style, `columns` the card grid width.
+export const navConfigSchema = z
+  .object({
+    layout: z.enum(["grid", "list"]).optional(),
+    columns: z.number().int().min(2).max(4).optional(),
+  })
+  .strict()
+  .optional();
+
 export const navCreateSchema = z.object({
   body: z.object({
     label: z.string().trim().min(1).max(80),
@@ -55,6 +67,7 @@ export const navCreateSchema = z.object({
     type: z.enum(["home", "category", "page", "link"]),
     value: z.string().trim().max(200).nullable().optional(),
     isActive: z.boolean().optional(),
+    config: navConfigSchema.nullable(),
   }),
 });
 
