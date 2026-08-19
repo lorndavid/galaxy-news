@@ -1,11 +1,11 @@
 <template>
-  <div class="rounded-lg border border-slate-300 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100">
-    <div class="flex flex-wrap items-center gap-0.5 border-b border-slate-200 bg-slate-50 px-2 py-1.5">
+  <div class="rounded-lg border border-slate-300 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100 dark:border-slate-700 dark:focus-within:ring-brand-900/40">
+    <div class="flex flex-wrap items-center gap-0.5 border-b border-slate-200 bg-slate-50 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-800">
       <template v-for="btn in toolbar" :key="btn.action">
         <button
           type="button"
-          class="rounded p-1.5 hover:bg-slate-200"
-          :class="{ 'bg-brand-100 text-brand-700': btn.active?.(editor) }"
+          class="rounded p-1.5 text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700"
+          :class="{ 'bg-brand-100 text-brand-700 dark:bg-brand-900/60 dark:text-brand-200': btn.active?.(editor) }"
           :title="btn.title"
           @mousedown.prevent
           @click="btn.run(editor)"
@@ -15,7 +15,7 @@
       </template>
       <button
         type="button"
-        class="rounded p-1.5 hover:bg-slate-200"
+        class="rounded p-1.5 text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700"
         title="បន្ថែមរូបភាព"
         @mousedown.prevent
         @click="openMedia"

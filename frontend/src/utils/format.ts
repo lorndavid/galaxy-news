@@ -12,12 +12,25 @@ const MONTHS_KM = [
   "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ",
 ];
 
+const MONTHS_EN = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
 /** "១២ សីហា ២០២៦" */
 export function formatKhmerDate(value: string | Date | null): string {
   if (!value) return "";
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return "";
   return `${toKhmerDigits(d.getDate())} ${MONTHS_KM[d.getMonth()]} ${toKhmerDigits(d.getFullYear())}`;
+}
+
+/** "12 Aug 2026" */
+export function formatEnglishDate(value: string | Date | null): string {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  return `${d.getDate()} ${MONTHS_EN[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 /** "ថ្ងៃទី១២ ខែសីហា ឆ្នាំ២០២៦" (full form used in article meta) */

@@ -19,13 +19,13 @@ test.describe("public frontend", () => {
   });
 
   test("article page loads", async ({ page }) => {
-    await page.goto(`${PUBLIC_URL}/article/article-msyf14cm`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${PUBLIC_URL}/article/aot-inspects-preah-vihear-homes`, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2000);
     await expect(page.locator("h1").first()).toBeVisible({ timeout: 10000 });
   });
 
   test("article page has no horizontal overflow", async ({ page }) => {
-    await page.goto(`${PUBLIC_URL}/article/article-msyf14cm`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${PUBLIC_URL}/article/aot-inspects-preah-vihear-homes`, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2000);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     expect(overflow).toBe(false);
@@ -49,13 +49,13 @@ test.describe("public frontend", () => {
   });
 
   test("Khmer article URL renders with km lang", async ({ page }) => {
-    await page.goto(`${PUBLIC_URL}/kh/news/article-msyf14cm`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${PUBLIC_URL}/kh/news/aot-inspects-preah-vihear-homes`, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(1000);
     await expect(page.locator("html")).toHaveAttribute("lang", "km");
   });
 
   test("English article URL renders with en lang", async ({ page }) => {
-    await page.goto(`${PUBLIC_URL}/en/news/article-msyf14cm`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${PUBLIC_URL}/en/news/aot-inspects-preah-vihear-homes`, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(1000);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
   });

@@ -311,8 +311,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
 import { CheckCircle, Save, Image as ImageIcon, Send, Loader2, RefreshCw, XCircle, ExternalLink, ChevronUp, ChevronDown, Check } from "lucide-vue-next";
 import { adminService } from "@/services/admin.service";
 import { useToastStore } from "@/stores/toast";
@@ -339,6 +339,7 @@ const galleryAdding = ref(false);
 const galleryImages = ref<{ id: number; mediaId: number; url: string; altText: string | null; caption: string | null; sortOrder: number }[]>([]);
 const saving = ref(false);
 const sending = ref(false);
+const dirty = ref(false);
 const confirmOpen = ref(false);
 const resend = ref(false);
 const pubs = ref<TelegramPublication[]>([]);
@@ -390,6 +391,8 @@ const form = reactive({
   status: "DRAFT",
 });
 
+function markDirty() { dirty.value = true; }
+
 async function save(status: string) {
   saving.value = true;
   try {
@@ -412,11 +415,13 @@ async function save(status: string) {
     if (isEdit.value) {
       await adminService.updateArticle(Number(route.params.id), payload);
       toast.success("បានរក្សាទុកអត្ថបទ");
+      dirty.value = false;
       // Refresh the Telegram status — a publish may have enqueued a job.
       await refreshPublication();
     } else {
       const created = await adminService.createArticle(payload);
       toast.success("បានបង្កើតអត្ថបទ");
+      dirty.value = false;
       router.replace(`/articles/${created.id}/edit`);
       await refreshPublication();
     }
@@ -575,6 +580,33 @@ function telegramMessageUrl(chatId: string | null, messageId: number): string {
   return `https://t.me/c/${String(chatId ?? "").replace("-100", "")}/${messageId}`;
 }
 
+// Warn before leaving with unsaved changes
+function onBeforeUnload(e: BeforeUnloadEvent) {
+  if (dirty.value) {
+    e.preventDefault();
+  }
+}
+
+// Warn on in-app navigation via Vue Router's component guard
+onBeforeRouteLeave((_to, _from, next) => {
+  if (dirty.value) {
+    if (confirm("អ្នកមានការកែសម្រួលមិនទាន់រក្សាទុក។ តើអ្នកប្រាកដថាចង់ចាកចេញទេ?")) {
+      next();
+    } else {
+      next(false);
+    }
+  } else {
+    next();
+  }
+});
+
+// Track changes to form fields
+watch(
+  () => [form.title, form.titleEn, form.excerpt, form.excerptEn, form.content, form.contentEn, form.status, form.categoryId, form.isFeatured, form.isBreaking],
+  () => { if (!dirty.value && isEdit.value) markDirty(); },
+  { deep: true }
+);
+
 onMounted(async () => {
   categories.value = await adminService.categories().catch(() => []);
   tags.value = await adminService.tags().catch(() => []);
@@ -599,7 +631,12 @@ onMounted(async () => {
   }
 });
 
+onMounted(() => {
+  window.addEventListener("beforeunload", onBeforeUnload);
+});
+
 onUnmounted(() => {
+  window.removeEventListener("beforeunload", onBeforeUnload);
   if (pollTimer) clearInterval(pollTimer);
 });
 </script>

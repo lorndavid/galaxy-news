@@ -4,8 +4,21 @@
       <input v-model="search" type="text" placeholder="ស្វែងរកអ្នកប្រើប្រាស់..." class="input max-w-xs" @input="onSearch" />
       <button class="btn-primary ml-auto !py-1.5 text-xs" @click="openCreate"><Plus class="h-3.5 w-3.5" /> បន្ថែមអ្នកប្រើប្រាស់</button>
     </div>
-    <div class="overflow-x-auto">
-      <table class="w-full text-left text-sm">
+    <div v-if="loading" class="p-6 space-y-3">
+      <div v-for="i in 4" :key="i" class="flex animate-pulse items-center gap-3">
+        <div class="h-9 w-9 rounded-full bg-slate-200"></div>
+        <div class="flex-1 space-y-1.5">
+          <div class="h-3 w-32 rounded bg-slate-200"></div>
+          <div class="h-2.5 w-24 rounded bg-slate-200"></div>
+        </div>
+      </div>
+    </div>
+    <div v-else-if="error" class="p-8 text-center">
+      <p class="text-sm text-red-600">{{ error }}</p>
+      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load(1)">ព្យាយាមម្តងទៀត</button>
+    </div>
+    <div v-else class="overflow-x-auto">
+      <table class="data-table">
         <thead class="bg-slate-50 text-xs uppercase text-slate-500">
           <tr>
             <th class="px-4 py-3">អ្នកប្រើប្រាស់</th>
@@ -45,7 +58,13 @@
         </tbody>
       </table>
     </div>
-    <div class="px-4 pb-4">
+    <EmptyState
+      v-if="!loading && !error && !items.length"
+      title="មិនមានអ្នកប្រើប្រាស់ទេ"
+      message="បង្កើតអ្នកប្រើប្រាស់ដើម្បីចូលប្រើប្រាស់ប្រព័ន្ធ"
+    />
+
+    <div v-if="!loading && !error && items.length" class="px-4 pb-4">
       <AdminPagination :page="page" :total-pages="totalPages" :total="total" @change="load" />
     </div>
 
@@ -92,6 +111,7 @@ import { useToastStore } from "@/stores/toast";
 import Modal from "@/components/ui/Modal.vue";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import AdminPagination from "@/components/ui/AdminPagination.vue";
+import EmptyState from "@/components/ui/EmptyState.vue";
 import type { User, UserRole } from "@/types";
 
 const toast = useToastStore();
@@ -100,6 +120,8 @@ const search = ref("");
 const page = ref(1);
 const totalPages = ref(1);
 const total = ref(0);
+const loading = ref(false);
+const error = ref("");
 const modalOpen = ref(false);
 const confirmOpen = ref(false);
 const editing = ref(false);
@@ -127,15 +149,23 @@ function roleBadge(r: UserRole) {
 }
 
 async function load(p = 1) {
-  const data = await adminService.users({
-    page: p,
-    pageSize: 10,
-    q: search.value.trim() || undefined,
-  });
-  items.value = data.items;
-  page.value = data.page;
-  totalPages.value = data.totalPages;
-  total.value = data.total;
+  loading.value = true;
+  error.value = "";
+  try {
+    const data = await adminService.users({
+      page: p,
+      pageSize: 10,
+      q: search.value.trim() || undefined,
+    });
+    items.value = data.items;
+    page.value = data.page;
+    totalPages.value = data.totalPages;
+    total.value = data.total;
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : "ផ្ទុកទិន្នន័យបរាជ័យ";
+  } finally {
+    loading.value = false;
+  }
 }
 
 function onSearch() {

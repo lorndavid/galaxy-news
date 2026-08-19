@@ -9,7 +9,20 @@
         @click="setFilter(f.value)"
       >{{ f.label }}</button>
     </div>
-    <div class="divide-y divide-slate-100">
+    <div v-if="loading" class="space-y-3 p-5">
+      <div v-for="i in 4" :key="i" class="flex animate-pulse gap-3">
+        <div class="h-4 w-4 rounded-full bg-slate-200"></div>
+        <div class="flex-1 space-y-2">
+          <div class="h-3 w-32 rounded bg-slate-200"></div>
+          <div class="h-3 w-full rounded bg-slate-200"></div>
+        </div>
+      </div>
+    </div>
+    <div v-else-if="error" class="p-8 text-center">
+      <p class="text-sm text-red-600">{{ error }}</p>
+      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load(1)">ព្យាយាមម្តងទៀត</button>
+    </div>
+    <div v-else class="divide-y divide-slate-100">
       <div v-for="c in items" :key="c.id" class="px-5 py-4">
         <div class="flex items-start justify-between gap-4">
           <div class="min-w-0">
@@ -37,7 +50,12 @@
         </div>
       </div>
     </div>
-    <div v-if="!items.length" class="p-10 text-center text-sm text-slate-400">មិនមានមតិយោបល់ទេ</div>
+
+    <div v-if="!loading && !error && !items.length" class="empty-state">
+      <div class="empty-icon"><MessageSquare class="h-6 w-6" /></div>
+      <h3>មិនមានមតិយោបល់ទេ</h3>
+      <p>មតិយោបល់នឹងបង្ហាញនៅទីនេះនៅពេលអ្នកទស្សនិកជនផ្ញើមតិ</p>
+    </div>
     <div class="px-4 pb-4">
       <AdminPagination :page="page" :total-pages="totalPages" :total="total" @change="load" />
     </div>
@@ -48,7 +66,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { Check, X, Trash2 } from "lucide-vue-next";
+import { Check, X, Trash2, MessageSquare } from "lucide-vue-next";
 import { adminService } from "@/services/admin.service";
 import { useToastStore } from "@/stores/toast";
 import StatusBadge from "@/components/ui/StatusBadge.vue";
@@ -62,6 +80,8 @@ const filter = ref("");
 const page = ref(1);
 const totalPages = ref(1);
 const total = ref(0);
+const loading = ref(false);
+const error = ref("");
 const confirmOpen = ref(false);
 let target: Comment | null = null;
 
@@ -73,11 +93,19 @@ const filters = [
 ];
 
 async function load(p = 1) {
-  const data = await adminService.comments({ page: p, pageSize: 10, status: filter.value || undefined });
-  items.value = data.items;
-  page.value = data.page;
-  totalPages.value = data.totalPages;
-  total.value = data.total;
+  loading.value = true;
+  error.value = "";
+  try {
+    const data = await adminService.comments({ page: p, pageSize: 10, status: filter.value || undefined });
+    items.value = data.items;
+    page.value = data.page;
+    totalPages.value = data.totalPages;
+    total.value = data.total;
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : "ផ្ទុកទិន្នន័យបរាជ័យ";
+  } finally {
+    loading.value = false;
+  }
 }
 
 function setFilter(f: string) {

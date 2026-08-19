@@ -9,7 +9,7 @@
          main content scrolls (drawer on mobile, collapsible rail on desktop) -->
     <aside
       class="fixed inset-y-0 left-0 z-50 flex transform flex-col bg-brand-900 text-white transition-[width,transform] duration-200 ease-out md:translate-x-0"
-      :class="[
+      :class="[ 
         sidebarOpen ? 'translate-x-0' : '-translate-x-full',
         collapsed ? 'w-[68px]' : 'w-64',
       ]"
@@ -103,13 +103,13 @@
     <!-- Main — left padding makes room for the fixed sidebar on tablet+ -->
     <div class="flex min-w-0 flex-1 flex-col" :class="collapsed ? 'md:pl-[68px]' : 'md:pl-64'">
       <!-- Topbar -->
-      <header class="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur lg:px-6">
-        <button class="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 md:hidden" aria-label="បើកម៉ឺនុយ" @click="sidebarOpen = true">
+      <header class="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur lg:px-6 dark:border-slate-800 dark:bg-slate-900/95">
+        <button class="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 md:hidden dark:text-slate-300 dark:hover:bg-slate-800" aria-label="បើកម៉ឺនុយ" @click="sidebarOpen = true">
           <Menu class="h-5 w-5" />
         </button>
         <!-- Collapse/expand toggle (tablet+) -->
         <button
-          class="hidden rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 md:inline-flex"
+          class="hidden rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 md:inline-flex dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
           :aria-label="collapsed ? 'ពង្រីកម៉ឺនុយ' : 'បត់ម៉ឺនុយ'"
           :title="collapsed ? 'ពង្រីកម៉ឺនុយ' : 'បត់ម៉ឺនុយ'"
           @click="toggleCollapsed"
@@ -118,18 +118,49 @@
           <PanelLeftOpen v-else class="h-5 w-5" />
         </button>
 
+        <!-- Breadcrumb + page title -->
         <div class="min-w-0">
-          <h1 class="truncate text-[15px] font-semibold text-slate-800">{{ route.meta.title }}</h1>
-          <p class="hidden text-[11px] text-slate-400 sm:block">{{ route.name }}</p>
+          <nav class="flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500" aria-label="Breadcrumb">
+            <span class="hidden sm:inline">Admin</span>
+            <ChevronRight class="hidden h-3 w-3 sm:block" />
+            <span class="truncate font-medium text-slate-500 dark:text-slate-400">{{ route.meta.title }}</span>
+          </nav>
+          <h1 class="truncate text-[15px] font-semibold text-slate-800 dark:text-slate-100">{{ route.meta.title }}</h1>
         </div>
 
         <div class="ml-auto flex items-center gap-2">
+          <button
+            class="hidden items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-50 md:inline-flex dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            :title="prefs.t('top.command')"
+            :aria-label="prefs.t('top.command')"
+            @click="paletteOpen = true"
+          >
+            <Search class="h-3.5 w-3.5" />
+            <span class="hidden xl:inline">{{ prefs.t("top.command") }}</span>
+          </button>
+          <button
+            class="rounded-lg border border-slate-300 bg-white p-2 text-slate-500 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            :title="prefs.t('top.theme.tooltip')"
+            :aria-label="prefs.t('top.theme.tooltip')"
+            @click="prefs.toggleTheme()"
+          >
+            <Sun v-if="prefs.resolvedTheme === 'light'" class="h-4 w-4" />
+            <Moon v-else class="h-4 w-4" />
+          </button>
+          <button
+            class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            :title="prefs.t('top.lang.tooltip')"
+            :aria-label="prefs.t('top.lang.tooltip')"
+            @click="prefs.setAdminLang(prefs.adminLang === 'km' ? 'en' : 'km')"
+          >
+            {{ prefs.adminLang === "km" ? "EN" : "ខ្មែរ" }}
+          </button>
           <RouterLink
             to="/preview"
             target="_blank"
-            class="hidden items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 sm:inline-flex"
+            class="hidden items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 sm:inline-flex dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
           >
-            <ExternalLink class="h-3.5 w-3.5" /> មើលគេហទំព័រ
+            <ExternalLink class="h-3.5 w-3.5" /> {{ prefs.t("top.viewSite") }}
           </RouterLink>
           <a
             :href="previewUrl"
@@ -137,15 +168,27 @@
             rel="noopener"
             class="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-700"
           >
-            <Eye class="h-3.5 w-3.5" /> មើលជាសាធារណៈ
+            <Eye class="h-3.5 w-3.5" /> {{ prefs.t("top.previewSite") }}
           </a>
         </div>
       </header>
 
-      <main class="flex-1 p-4 lg:p-6">
-        <RouterView />
+      <a
+        href="#admin-main"
+        class="sr-only focus:not-sr-only focus:absolute focus:z-[80] focus:rounded focus:bg-brand-600 focus:px-3 focus:py-2 focus:text-white"
+      >
+        {{ prefs.t("top.skip") }}
+      </a>
+      <main id="admin-main" tabindex="-1" class="flex-1 p-4 lg:p-6">
+        <RouterView v-slot="{ Component }">
+          <Transition name="page" mode="out-in">
+            <component :is="Component" />
+          </Transition>
+        </RouterView>
       </main>
     </div>
+
+    <CommandPalette :open="paletteOpen" @close="paletteOpen = false" />
   </div>
 </template>
 
@@ -174,17 +217,25 @@ import {
   Menu,
   Eye,
   ExternalLink,
+  Search,
+  Sun,
+  Moon,
+  ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
   type LucideIcon,
 } from "lucide-vue-next";
 import { useAuthStore } from "@/stores/auth";
+import { usePreferencesStore } from "@/stores/preferences";
+import CommandPalette from "@/components/ui/CommandPalette.vue";
 
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
+const prefs = usePreferencesStore();
 const sidebarOpen = ref(false);
 const flyout = ref<{ label: string; left: number; top: number } | null>(null);
+const paletteOpen = ref(false);
 
 // Tablet range (md → lg, 768–1023px): the rail is always visible but
 // auto-collapses to icons-only. On desktop the user's toggle preference
@@ -260,48 +311,48 @@ const navGroups = computed(() => {
   const can = (adminOnly?: boolean) => !adminOnly || auth.isAdmin;
   const groups: { label: string; items: NavItem[] }[] = [
     {
-      label: "គ្រប់គ្រង",
-      items: [{ to: "/", label: "ផ្ទាំងគ្រប់គ្រង", icon: LayoutDashboard }],
+      label: prefs.t("nav.manage"),
+      items: [{ to: "/", label: prefs.t("nav.dashboard"), icon: LayoutDashboard }],
     },
     {
-      label: "មាតិកា",
+      label: prefs.t("nav.content"),
       items: [
-        { to: "/articles", label: "អត្ថបទ", icon: FileText },
-        { to: "/categories", label: "ប្រភេទ", icon: Folder },
-        { to: "/tags", label: "ស្លាក", icon: Tags },
-        { to: "/media", label: "បណ្ណាល័យមេឌា", icon: Image },
+        { to: "/articles", label: prefs.t("nav.articles"), icon: FileText },
+        { to: "/categories", label: prefs.t("nav.categories"), icon: Folder },
+        { to: "/tags", label: prefs.t("nav.tags"), icon: Tags },
+        { to: "/media", label: prefs.t("nav.media"), icon: Image },
       ],
     },
     {
-      label: "ការផ្សាយ",
+      label: prefs.t("nav.publishing"),
       items: [
-        { to: "/homepage-builder", label: "ផ្ទាំងដើម", icon: LayoutTemplate, adminOnly: true },
-        { to: "/live-news", label: "បន្ទាត់ព័ត៌មានផ្ទាល់", icon: Radio, adminOnly: true },
-        { to: "/navigation-builder", label: "ម៉ឺនុយ", icon: MenuSquare, adminOnly: true },
-        { to: "/ads", label: "ផ្សាយពាណិជ្ជកម្ម", icon: Megaphone },
+        { to: "/homepage-builder", label: prefs.t("nav.homepage"), icon: LayoutTemplate, adminOnly: true },
+        { to: "/live-news", label: prefs.t("nav.liveNews"), icon: Radio, adminOnly: true },
+        { to: "/navigation-builder", label: prefs.t("nav.navigation"), icon: MenuSquare, adminOnly: true },
+        { to: "/ads", label: prefs.t("nav.ads"), icon: Megaphone },
       ],
     },
     {
-      label: "អន្តរកម្ម",
+      label: prefs.t("nav.interaction"),
       items: [
-        { to: "/comments", label: "មតិយោបល់", icon: MessageSquare },
-        { to: "/newsletter", label: "ព្រឹត្តិបត្រ", icon: Send, adminOnly: true },
-        { to: "/messages", label: "សារទំនាក់ទំនង", icon: Mail, adminOnly: true },
+        { to: "/comments", label: prefs.t("nav.comments"), icon: MessageSquare },
+        { to: "/newsletter", label: prefs.t("nav.newsletter"), icon: Send, adminOnly: true },
+        { to: "/messages", label: prefs.t("nav.messages"), icon: Mail, adminOnly: true },
       ],
     },
     {
-      label: "ប្រព័ន្ធ",
+      label: prefs.t("nav.system"),
       items: [
-        { to: "/users", label: "អ្នកប្រើប្រាស់", icon: Users, adminOnly: true },
-        { to: "/settings", label: "ការកំណត់", icon: Settings, adminOnly: true },
-        { to: "/settings/telegram", label: "Telegram", icon: Send, adminOnly: true },
-        { to: "/activity", label: "ប្រវត្តិសកម្មភាព", icon: Activity, adminOnly: true },
-        { to: "/system/health", label: "សុខភាពប្រព័ន្ធ", icon: HeartPulse, adminOnly: true },
+        { to: "/users", label: prefs.t("nav.users"), icon: Users, adminOnly: true },
+        { to: "/settings", label: prefs.t("nav.settings"), icon: Settings, adminOnly: true },
+        { to: "/settings/telegram", label: prefs.t("nav.telegram"), icon: Send, adminOnly: true },
+        { to: "/activity", label: prefs.t("nav.activity"), icon: Activity, adminOnly: true },
+        { to: "/system/health", label: prefs.t("nav.systemHealth"), icon: HeartPulse, adminOnly: true },
       ],
     },
     {
-      label: "គណនី",
-      items: [{ to: "/profile", label: "ប្រវត្តិរូប", icon: UserCircle }],
+      label: prefs.t("nav.account"),
+      items: [{ to: "/profile", label: prefs.t("nav.profile"), icon: UserCircle }],
     },
   ];
   return groups
@@ -316,10 +367,10 @@ function isActive(to: string) {
 
 function roleLabel(role?: string) {
   const map: Record<string, string> = {
-    SUPER_ADMIN: "Super Admin",
-    ADMIN: "Admin",
-    EDITOR: "អ្នកនិពន្ធ",
-    AUTHOR: "អ្នកសរសេរ",
+    SUPER_ADMIN: prefs.t("top.roleLabel.super"),
+    ADMIN: prefs.t("top.roleLabel.admin"),
+    EDITOR: prefs.t("top.roleLabel.editor"),
+    AUTHOR: prefs.t("top.roleLabel.author"),
   };
   return role ? map[role] ?? role : "";
 }
@@ -330,7 +381,17 @@ async function doLogout() {
 }
 
 function onKeydown(e: KeyboardEvent) {
-  if (e.key === "Escape") sidebarOpen.value = false;
+  // Ctrl/Cmd + K opens the command palette from anywhere in the admin.
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+    e.preventDefault();
+    paletteOpen.value = !paletteOpen.value;
+    return;
+  }
+  // Escape closes the mobile drawer.
+  if (e.key === "Escape") {
+    if (paletteOpen.value) paletteOpen.value = false;
+    else sidebarOpen.value = false;
+  }
 }
 
 onMounted(() => {
@@ -356,5 +417,30 @@ onUnmounted(() => {
 .drawer-fade-enter-from,
 .drawer-fade-leave-to {
   opacity: 0;
+}
+
+/* Page transition */
+.page-enter-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.page-leave-active {
+  transition: opacity 0.15s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.page-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter-active,
+  .page-leave-active {
+    transition: none;
+  }
+  .page-enter-from {
+    transform: none;
+  }
 }
 </style>

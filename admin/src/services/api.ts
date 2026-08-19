@@ -26,7 +26,12 @@ api.interceptors.response.use(
     if (status === 401 && !error.config?.url?.includes("/auth/login")) {
       localStorage.removeItem(TOKEN_KEY);
       if (window.location.pathname !== "/login") {
-        window.location.href = "/login";
+        // Show session expiry notice before redirect
+        const msg = document.createElement("div");
+        msg.className = "fixed inset-0 z-[100] flex items-center justify-center bg-black/60";
+        msg.innerHTML = '<div class="rounded-xl bg-white p-6 text-center shadow-xl max-w-sm mx-4"><p class="text-sm font-medium text-slate-800">សម័យអ្នកប្រើប្រាស់បានផុតកំណត់</p><p class="mt-1 text-xs text-slate-500">សូមចូលប្រព័ន្ធឡើងវិញ</p></div>';
+        document.body.appendChild(msg);
+        setTimeout(() => { window.location.href = "/login"; }, 1200);
       }
     }
     const message =

@@ -67,11 +67,10 @@
                 <ArticleThumb :src="a.featuredImage" :alt="title(a)" :width="160" />
               </RouterLink>
               <div class="g-sidebar-body">
-                <span class="g-cat-chip g-cat-chip--xs" :style="catStyle(a)">{{ catName(a) }}</span>
                 <h4>
                   <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
                 </h4>
-                <span v-if="a.publishedAt" class="g-sidebar-time"><i class="ti-calendar"></i> {{ formatKhmerDate(a.publishedAt) }}</span>
+                <span v-if="a.publishedAt" class="g-sidebar-time"><i class="ti-calendar"></i> {{ localeDate(a.publishedAt) }}</span>
               </div>
             </article>
           </aside>
@@ -257,11 +256,15 @@ import { useLocalized } from "@/composables/useLocalized";
 import type { Article, Category, HomepageSectionConfig } from "@/types";
 import ArticleThumb from "@/components/common/ArticleThumb.vue";
 import AdSlot from "@/components/ads/AdSlot.vue";
-import { formatKhmerDate, formatViews } from "@/utils/format";
+import { formatKhmerDate, formatEnglishDate, formatViews } from "@/utils/format";
 
 const categoryStore = useCategoryStore();
 const settingsStore = useSettingsStore();
-const { locale, title, excerpt, catName, t } = useLocalized();
+const { locale, isEn, title, excerpt, catName, t } = useLocalized();
+
+function localeDate(date: string | Date | null): string {
+  return isEn ? formatEnglishDate(date) : formatKhmerDate(date);
+}
 
 const catNameOf = (c: Category) => locale.pick(c.name, c.nameEn);
 
@@ -612,6 +615,7 @@ onMounted(async () => {
 .g-hero-sidebar {
   border-left: 1px solid var(--color-border);
   padding-left: 28px;
+  position: relative;
 }
 @media (max-width: 991px) {
   .g-hero-sidebar {
@@ -622,9 +626,11 @@ onMounted(async () => {
   }
 }
 .g-sidebar-header {
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--color-text);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--color-primary);
+  display: flex;
+  align-items: center;
 }
 .g-sidebar-header h3 {
   font-family: var(--font-heading);
@@ -641,18 +647,25 @@ onMounted(async () => {
 }
 .g-sidebar-card {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   align-items: flex-start;
-  padding: 12px 0;
-  border-bottom: 1px solid #000;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.2s ease;
+}
+.g-sidebar-card:hover {
+  background: var(--color-surface-alt);
+  margin-inline: -8px;
+  padding-inline: 8px;
+  border-radius: 2px;
 }
 .g-sidebar-card:last-child {
   border-bottom: none;
 }
 .g-sidebar-thumb {
   flex-shrink: 0;
-  width: 78px;
-  aspect-ratio: 16 / 11;
+  width: 110px;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   display: block;
   background: var(--color-surface);
@@ -662,27 +675,28 @@ onMounted(async () => {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .g-sidebar-card:hover .g-sidebar-thumb :deep(img) {
-  transform: scale(1.05);
+  transform: scale(1.06);
 }
 .g-sidebar-body {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 .g-sidebar-body h4 {
   margin: 0;
-  font-size: 13.5px;
-  line-height: 1.45;
+  font-size: 14.5px;
+  line-height: 1.5;
+  font-weight: 600;
 }
 .g-sidebar-body h4 a {
   color: var(--color-text);
   text-decoration: none;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  display: block;
   transition: color 0.2s ease;
 }
 .g-sidebar-body h4 a:hover {
@@ -691,10 +705,31 @@ onMounted(async () => {
 .g-sidebar-time {
   font-size: 12px;
   color: var(--color-muted);
-  margin-top: 6px;
+  margin-top: 2px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
+}
+@media (max-width: 991px) {
+  .g-sidebar-card {
+    gap: 12px;
+    padding: 12px 0;
+  }
+  .g-sidebar-thumb {
+    width: 90px;
+  }
+  .g-sidebar-body h4 {
+    font-size: 13.5px;
+  }
+}
+@media (max-width: 575px) {
+  .g-sidebar-thumb {
+    width: 100px;
+    aspect-ratio: 16 / 10;
+  }
+  .g-sidebar-body h4 {
+    font-size: 14px;
+  }
 }
 
 /* ─── Category Chips ─── */
@@ -793,6 +828,11 @@ onMounted(async () => {
   overflow: hidden;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+.g-news-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
 }
 .g-news-card-img {
   display: block;
@@ -804,10 +844,10 @@ onMounted(async () => {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .g-news-card:hover .g-news-card-img :deep(img) {
-  transform: scale(1.04);
+  transform: scale(1.05);
 }
 .g-news-card-body {
   padding: 14px 16px 16px;
@@ -815,7 +855,8 @@ onMounted(async () => {
 .g-news-card-title {
   margin: 6px 0 0;
   font-size: 15px;
-  line-height: 1.45;
+  line-height: 1.5;
+  font-weight: 600;
 }
 .g-news-card-title a {
   color: var(--color-text);
@@ -851,28 +892,45 @@ onMounted(async () => {
   overflow: hidden;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+.g-popular-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
 }
 .g-popular-img {
   display: block;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
+  position: relative;
+}
+.g-popular-img::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(11,28,57,0.06) 0%, transparent 100%);
+  pointer-events: none;
 }
 .g-popular-img :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .g-popular-card:hover .g-popular-img :deep(img) {
-  transform: scale(1.04);
+  transform: scale(1.05);
 }
 .g-popular-body {
-  padding: 12px 14px 14px;
+  padding: 14px 16px 16px;
 }
 .g-popular-body h4 {
-  margin: 4px 0 0;
-  font-size: 14px;
-  line-height: 1.45;
+  margin: 6px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 600;
 }
 .g-popular-body h4 a {
   color: var(--color-text);
@@ -889,8 +947,39 @@ onMounted(async () => {
 .g-popular-time {
   font-size: 12px;
   color: var(--color-muted);
-  margin-top: 4px;
-  display: block;
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+@media (max-width: 640px) {
+  .g-popular-card {
+    display: flex;
+    flex-direction: row;
+  }
+  .g-popular-img {
+    width: 130px;
+    flex-shrink: 0;
+    aspect-ratio: 4 / 3;
+  }
+  .g-popular-img::after {
+    display: none;
+  }
+  .g-popular-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 12px 14px;
+  }
+  .g-popular-body h4 {
+    font-size: 14px;
+    -webkit-line-clamp: 3;
+  }
+}
+@media (max-width: 420px) {
+  .g-popular-img {
+    width: 110px;
+  }
 }
 
 /* ─── Video Section ─── */

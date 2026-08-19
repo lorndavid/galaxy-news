@@ -59,7 +59,7 @@ const { title, t } = useLocalized();
 .g-popular-thumb {
   position: relative;
   flex-shrink: 0;
-  width: 78px;
+  width: 116px;
   aspect-ratio: 16 / 11;
   overflow: hidden;
   display: block;
@@ -82,8 +82,8 @@ const { title, t } = useLocalized();
   min-width: 0;
 }
 .g-popular-body h5 {
-  margin: 0 0 4px;
-  font-size: 13.5px;
+  margin: 0 0 5px;
+  font-size: 14.5px;
   font-weight: 600;
   line-height: 1.45;
 }
@@ -100,10 +100,23 @@ const { title, t } = useLocalized();
   color: var(--color-accent, #4f46e5);
 }
 .g-popular-date {
-  font-size: 12px;
+  margin-top: 6px;
+  font-size: 12.5px;
   color: var(--color-muted, #6b7280);
   display: inline-flex;
   align-items: center;
   gap: 4px;
+}
+
+/* Stays one row on mobile with a slightly smaller thumbnail */
+@media (max-width: 640px) {
+  .g-popular-thumb {
+    width: 100px;
+  }
+}
+@media (max-width: 380px) {
+  .g-popular-thumb {
+    width: 92px;
+  }
 }
 </style>

@@ -3,17 +3,32 @@
     <!-- Page header -->
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h2 class="text-lg font-semibold text-slate-800">ផ្ទាំងគ្រប់គ្រង</h2>
-        <p class="mt-0.5 text-[13px] text-slate-500">ទិដ្ឋភាពទូទៅនៃការផ្សាយ មាតិកា និងសកម្មភាពថ្មីៗ</p>
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100">ផ្ទាំងគ្រប់គ្រង</h2>
+        <p class="mt-0.5 text-[13px] text-slate-500 dark:text-slate-400">ទិដ្ឋភាពទូទៅនៃការផ្សាយ មាតិកា និងសកម្មភាពថ្មីៗ</p>
       </div>
-      <button
-        class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
-        :disabled="loading"
-        @click="load"
-      >
-        <RefreshCw class="h-3.5 w-3.5" :class="{ 'animate-spin': loading }" />
-        ធ្វើឱ្យថ្មី
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+          :disabled="loading"
+          @click="load"
+        >
+          <RefreshCw class="h-3.5 w-3.5" :class="{ 'animate-spin': loading }" />
+          ធ្វើឱ្យថ្មី
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="flex flex-wrap gap-2">
+      <RouterLink to="/articles/new" class="btn btn-primary !py-1.5 text-xs">
+        <PlusCircle class="h-3.5 w-3.5" /> អត្ថបទថ្មី
+      </RouterLink>
+      <RouterLink to="/media" class="btn btn-secondary !py-1.5 text-xs">
+        <UploadCloud class="h-3.5 w-3.5" /> បង្ហោះមេឌា
+      </RouterLink>
+      <RouterLink to="/system/health" class="btn btn-secondary !py-1.5 text-xs">
+        <HeartPulse class="h-3.5 w-3.5" /> សុខភាពប្រព័ន្ធ
+      </RouterLink>
     </div>
 
     <!-- Loading skeleton -->
@@ -189,7 +204,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { FileText, CheckCircle2, FileEdit, Eye, MessageSquare, Mail, RefreshCw } from "lucide-vue-next";
+import { FileText, CheckCircle2, FileEdit, Eye, MessageSquare, Mail, RefreshCw, PlusCircle, UploadCloud, HeartPulse } from "lucide-vue-next";
 import { adminService } from "@/services/admin.service";
 import StatusBadge from "@/components/ui/StatusBadge.vue";
 import EmptyState from "@/components/ui/EmptyState.vue";

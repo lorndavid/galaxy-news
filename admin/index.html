@@ -12,6 +12,24 @@
       rel="stylesheet"
     />
     <title>Navatra 4K TV — Admin</title>
+    <script>
+      // Apply the persisted theme + admin language before hydration to avoid
+      // a flash of the wrong theme ("light" is the default).
+      (function () {
+        try {
+          var prefs = JSON.parse(localStorage.getItem("navatra_admin_prefs") || "{}");
+          var theme = prefs.theme || "light";
+          var dark =
+            theme === "dark" ||
+            (theme === "system" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.classList.add("dark");
+          document.documentElement.lang = prefs.adminLang || "km";
+        } catch (e) {
+          /* corrupted prefs — keep defaults */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

@@ -4,7 +4,20 @@
       <h3 class="text-sm font-semibold text-slate-700">ការផ្សាយពាណិជ្ជកម្ម / Banner Ads</h3>
       <button class="btn-primary !py-1.5 text-xs" @click="openCreate"><Plus class="h-3.5 w-3.5" /> បន្ថែម</button>
     </div>
-    <div class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
+    <div v-if="loading" class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div v-for="i in 3" :key="i" class="card animate-pulse overflow-hidden">
+        <div class="h-28 w-full bg-slate-200"></div>
+        <div class="space-y-2 p-4">
+          <div class="h-4 w-32 rounded bg-slate-200"></div>
+          <div class="h-3 w-48 rounded bg-slate-200"></div>
+        </div>
+      </div>
+    </div>
+    <div v-else-if="error" class="p-8 text-center">
+      <p class="text-sm text-red-600">{{ error }}</p>
+      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load()">ព្យាយាមម្តងទៀត</button>
+    </div>
+    <div v-else class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
       <div v-for="a in items" :key="a.id" class="card overflow-hidden">
         <img :src="a.image" :alt="a.name" class="h-28 w-full object-cover" />
         <div class="p-4">
@@ -26,7 +39,12 @@
         </div>
       </div>
     </div>
-    <div v-if="!items.length" class="p-10 text-center text-sm text-slate-400">មិនមានការផ្សាយពាណិជ្ជកម្មទេ</div>
+
+    <div v-if="!loading && !error && !items.length" class="empty-state">
+      <div class="empty-icon"><Megaphone class="h-6 w-6" /></div>
+      <h3>មិនមានការផ្សាយពាណិជ្ជកម្មទេ</h3>
+      <p>បន្ថែម banner ads ដើម្បីចាប់ផ្តើមផ្សាយពាណិជ្ជកម្ម</p>
+    </div>
 
     <Modal v-model="modalOpen" :title="editing ? 'កែសម្រួលផ្សាយពាណិជ្ជកម្ម' : 'បន្ថែមផ្សាយពាណិជ្ជកម្ម'">
       <form class="space-y-3" @submit.prevent="save">
@@ -113,7 +131,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "vue";
-import { Plus, Pencil, Trash2 } from "lucide-vue-next";
+import { Plus, Pencil, Trash2, Megaphone } from "lucide-vue-next";
 import { adminService } from "@/services/admin.service";
 import { useToastStore } from "@/stores/toast";
 import Modal from "@/components/ui/Modal.vue";
@@ -122,6 +140,8 @@ import type { Advertisement } from "@/types";
 
 const toast = useToastStore();
 const items = ref<Advertisement[]>([]);
+const loading = ref(false);
+const error = ref("");
 const modalOpen = ref(false);
 const confirmOpen = ref(false);
 const editing = ref(false);
@@ -187,7 +207,15 @@ function effectiveStatus(a: Advertisement) {
 }
 
 async function load() {
-  items.value = await adminService.ads();
+  loading.value = true;
+  error.value = "";
+  try {
+    items.value = await adminService.ads();
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : "ផ្ទុកទិន្នន័យបរាជ័យ";
+  } finally {
+    loading.value = false;
+  }
 }
 
 function openCreate() {
