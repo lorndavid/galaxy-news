@@ -742,14 +742,14 @@ p {
 }
 
 /* ------------------------------------------------------------------
-   14. STICKY NAVIGATION补偿
+   14. STICKY NAV
 ------------------------------------------------------------------- */
-body.has-editorial-sticky {
-  padding-top: 72px;
+body.has-sticky-nav {
+  padding-top: 60px;
 }
 @media (max-width: 991px) {
-  body.has-editorial-sticky {
-    padding-top: 68px;
+  body.has-sticky-nav {
+    padding-top: 66px;
   }
 }
 

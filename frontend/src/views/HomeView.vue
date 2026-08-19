@@ -46,14 +46,16 @@
             <div class="g-sidebar-header">
               <h3><i class="ti-bolt" aria-hidden="true"></i> {{ t.home.latest }}</h3>
             </div>
-            <article v-for="(a, i) in sidebarArticles" :key="a.id" class="g-sidebar-card">
-              <span class="g-sidebar-num">{{ String(i + 1).padStart(2, '0') }}</span>
+            <article v-for="a in sidebarArticles" :key="a.id" class="g-sidebar-card">
+              <RouterLink :to="`/article/${a.slug}`" class="g-sidebar-thumb">
+                <ArticleThumb :src="a.featuredImage" :alt="title(a)" :width="160" />
+              </RouterLink>
               <div class="g-sidebar-body">
                 <span class="g-cat-chip g-cat-chip--xs" :style="catStyle(a)">{{ catName(a) }}</span>
                 <h4>
                   <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
                 </h4>
-                <span v-if="a.publishedAt" class="g-sidebar-time">{{ formatKhmerDate(a.publishedAt) }}</span>
+                <span v-if="a.publishedAt" class="g-sidebar-time"><i class="ti-calendar"></i> {{ formatKhmerDate(a.publishedAt) }}</span>
               </div>
             </article>
           </aside>
@@ -560,26 +562,39 @@ onMounted(async () => {
 }
 .g-sidebar-card {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   align-items: flex-start;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--color-border);
+  padding: 12px 0;
+  border-bottom: 1px solid #000;
 }
 .g-sidebar-card:last-child {
   border-bottom: none;
 }
-.g-sidebar-num {
+.g-sidebar-thumb {
   flex-shrink: 0;
-  font-family: var(--font-latin, "Inter", sans-serif);
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--color-border);
-  line-height: 1;
-  min-width: 32px;
+  width: 78px;
+  aspect-ratio: 16 / 11;
+  overflow: hidden;
+  display: block;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+.g-sidebar-thumb :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.g-sidebar-card:hover .g-sidebar-thumb :deep(img) {
+  transform: scale(1.05);
+}
+.g-sidebar-body {
+  flex: 1;
+  min-width: 0;
 }
 .g-sidebar-body h4 {
-  margin: 4px 0 0;
-  font-size: 14px;
+  margin: 0;
+  font-size: 13.5px;
   line-height: 1.45;
 }
 .g-sidebar-body h4 a {
@@ -597,8 +612,10 @@ onMounted(async () => {
 .g-sidebar-time {
   font-size: 12px;
   color: var(--color-muted);
-  margin-top: 4px;
-  display: block;
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* ─── Category Chips ─── */

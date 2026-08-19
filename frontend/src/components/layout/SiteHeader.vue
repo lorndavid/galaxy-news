@@ -20,12 +20,17 @@
       </div>
     </div>
 
-    <!-- ─── Row 2: Brand bar (primary, centered masthead logo) ─── -->
+    <!-- ─── Row 2: Brand bar — logo left, ad banner right ─── -->
     <div class="g-brand">
       <div class="container g-brand-inner">
         <RouterLink to="/" class="g-brand-logo" :aria-label="`${siteName} — ទំព័រដើម`">
           <img :src="logoUrl" :alt="siteName" />
         </RouterLink>
+
+        <!-- Admin-managed banner ad (position: header) — right side -->
+        <div class="g-brand-ad">
+          <AdSlot position="header" />
+        </div>
 
         <!-- Mobile burger — right side -->
         <button
@@ -141,7 +146,6 @@
                 :to="`/category/${item.value ?? ''}`"
                 @click="mobileOpen = false"
               >
-                <i class="ti-angle-right" aria-hidden="true"></i>
                 {{ locale.pick(item.label, item.labelEn) }}
               </RouterLink>
               <a
@@ -151,7 +155,6 @@
                 rel="noopener"
                 @click="mobileOpen = false"
               >
-                <i class="ti-angle-right" aria-hidden="true"></i>
                 {{ locale.pick(item.label, item.labelEn) }}
               </a>
               <RouterLink
@@ -159,7 +162,6 @@
                 :to="navPath(item)"
                 @click="mobileOpen = false"
               >
-                <i class="ti-angle-right" aria-hidden="true"></i>
                 {{ locale.pick(item.label, item.labelEn) }}
               </RouterLink>
             </li>
@@ -176,6 +178,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useSettingsStore } from "@/stores/settings";
 import { useLocaleStore } from "@/stores/locale";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher.vue";
+import AdSlot from "@/components/ads/AdSlot.vue";
 import type { NavigationItem } from "@/types";
 import { contentService } from "@/services/content.service";
 import { toKhmerDigits } from "@/utils/format";
@@ -234,17 +237,6 @@ function navPath(item: NavigationItem) {
   return item.value ?? "/";
 }
 
-function onScroll() {
-  if (scrollTimer) window.clearTimeout(scrollTimer);
-  scrollTimer = window.setTimeout(() => {
-    const sticky = window.scrollY > 90;
-    if (sticky !== isSticky.value) {
-      isSticky.value = sticky;
-      document.body.classList.toggle("has-editorial-sticky", sticky);
-    }
-  }, 50);
-}
-
 function submitSearch() {
   const q = searchInput.value.trim();
   if (!q) return;
@@ -252,6 +244,17 @@ function submitSearch() {
   desktopSearchOpen.value = false;
   searchInput.value = "";
   router.push({ name: "search", query: { q } });
+}
+
+function onScroll() {
+  if (scrollTimer) window.clearTimeout(scrollTimer);
+  scrollTimer = window.setTimeout(() => {
+    const sticky = window.scrollY > 130;
+    if (sticky !== isSticky.value) {
+      isSticky.value = sticky;
+      document.body.classList.toggle("has-sticky-nav", sticky);
+    }
+  }, 50);
 }
 
 onMounted(() => {
@@ -271,7 +274,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener("scroll", onScroll);
-  document.body.classList.remove("has-editorial-sticky");
+  document.body.classList.remove("has-sticky-nav");
   if (scrollTimer) window.clearTimeout(scrollTimer);
 });
 </script>
@@ -345,16 +348,14 @@ onUnmounted(() => {
   .g-utility { display: none; }
 }
 
-/* ─── Row 2: Brand bar — clean centered masthead ─── */
+/* ─── Row 2: Brand bar — logo left, ad banner right ─── */
 .g-brand {
   background: var(--color-primary);
   border-bottom: 2px solid var(--color-header-bg);
 }
 .g-brand-inner {
-  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
   min-height: 88px;
 }
 .g-brand-logo {
@@ -369,17 +370,25 @@ onUnmounted(() => {
   max-width: 340px;
   object-fit: contain;
 }
-@media (max-width: 640px) {
-  .g-brand-logo img {
-    height: 48px;
-    max-width: 200px;
-  }
-  .g-brand-inner {
-    min-height: 64px;
-  }
+
+/* Ad banner (admin-managed, position: header) — right side */
+.g-brand-ad {
+  margin-left: auto;
+  flex-shrink: 0;
+  min-width: 0;
+  display: flex;
+  justify-content: flex-end;
+}
+.g-brand-ad :deep(.ad-slot) {
+  margin: 0;
+  align-items: flex-end;
+}
+.g-brand-ad :deep(.ad-img) {
+  max-height: 64px;
+  width: auto;
 }
 
-/* Burger (mobile) — anchored right of the masthead */
+/* Burger (mobile) — right side */
 .g-burger {
   display: none;
   flex-direction: column;
@@ -391,11 +400,23 @@ onUnmounted(() => {
   border: none;
   background: transparent;
   cursor: pointer;
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  margin-left: auto;
+  flex-shrink: 0;
   transition: background 0.2s ease;
+}
+@media (max-width: 640px) {
+  .g-brand-logo img {
+    height: 48px;
+    max-width: 200px;
+  }
+  .g-brand-inner {
+    min-height: 64px;
+  }
+}
+@media (max-width: 991px) {
+  .g-brand-ad {
+    display: none;
+  }
 }
 .g-burger:hover {
   background: color-mix(in srgb, var(--color-header-text) 10%, transparent);
@@ -411,11 +432,10 @@ onUnmounted(() => {
 .g-burger.open span:nth-child(2) { opacity: 0; }
 .g-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* ─── Row 3: Nav bar — single clean line under the menu ─── */
+/* ─── Row 3: Nav bar ─── */
 .g-navbar {
   background: var(--color-header-bg);
-  border-bottom: 2px solid var(--color-text);
-  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background 0.3s ease;
 }
 .g-navbar-inner {
   display: flex;
@@ -463,33 +483,15 @@ onUnmounted(() => {
   font-weight: 500;
   letter-spacing: 0.01em;
   text-decoration: none;
-  position: relative;
   transition: color 0.2s ease;
-}
-.g-nav li a::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 16px;
-  right: 16px;
-  height: 2px;
-  background: var(--color-accent);
-  transform: scaleX(0);
-  transition: transform 0.25s ease;
 }
 .g-nav li a:hover {
   color: var(--color-accent);
 }
-.g-nav li a:hover::after {
-  transform: scaleX(1);
-}
-/* Active = bold + accent underline visible */
+/* Active = bold + accent color */
 .g-nav li a.is-active {
   color: var(--color-accent);
   font-weight: 700;
-}
-.g-nav li a.is-active::after {
-  transform: scaleX(1);
 }
 
 /* Desktop search toggle */
@@ -514,57 +516,63 @@ onUnmounted(() => {
   background: var(--color-primary);
 }
 
-/* ─── Sticky state ─── */
-.is-sticky .g-brand,
+/* ─── Sticky state — pins a compact bar: logo left, nav items right ─── */
 .is-sticky .g-navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 9999;
-}
-.is-sticky .g-brand {
-  box-shadow: var(--shadow-header);
-}
-.is-sticky .g-navbar {
-  background: var(--color-header-bg);
-  border-bottom-color: var(--color-text);
+  background: #0b1c39;
   box-shadow: var(--shadow-header);
 }
 .is-sticky .g-navbar-inner {
   justify-content: space-between;
-  min-height: 64px;
+  min-height: 60px;
 }
 .is-sticky .g-navbar-logo {
   display: flex;
 }
 .is-sticky .g-navbar-logo img {
-  height: 52px;
-  max-width: 240px;
-}
-.is-sticky .g-nav li a {
-  padding: 14px 18px;
-  color: var(--color-header-text);
-}
-.is-sticky .g-nav li a::after {
-  background: var(--color-accent);
-}
-.is-sticky .g-nav li a:hover {
-  color: var(--color-accent);
-}
-.is-sticky .g-nav li a.is-active {
-  color: var(--color-accent);
-  font-weight: 700;
+  height: 44px;
+  max-width: 220px;
 }
 .is-sticky .g-nav {
   margin-left: auto;
 }
+.is-sticky .g-nav ul {
+  justify-content: flex-end;
+}
+.is-sticky .g-nav li + li {
+  border-left-color: rgba(255, 255, 255, 0.2);
+}
+.is-sticky .g-nav li a {
+  padding: 18px 16px;
+  color: #fff;
+}
+.is-sticky .g-nav li a:hover,
+.is-sticky .g-nav li a.is-active {
+  color: var(--color-accent);
+}
+.is-sticky .g-search-toggle {
+  color: #fff;
+  border-left-color: rgba(255, 255, 255, 0.2);
+}
+.is-sticky .g-search-toggle:hover,
+.is-sticky .g-search-toggle.is-open {
+  color: #fff;
+  background: var(--color-accent);
+}
 
-@media (min-width: 992px) {
-  /* On desktop the utility + brand bars scroll away; only the nav pins */
+/* Mobile: pin the brand bar (logo + burger) for quick access on scroll */
+@media (max-width: 991px) {
   .is-sticky .g-brand {
-    position: static;
-    box-shadow: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    box-shadow: var(--shadow-header);
   }
 }
 
@@ -705,10 +713,6 @@ onUnmounted(() => {
   font-weight: 500;
   text-decoration: none;
   transition: color 0.2s ease;
-}
-.g-mobile-list a i {
-  font-size: 12px;
-  color: var(--color-muted);
 }
 .g-mobile-list a.router-link-active {
   color: var(--color-accent);

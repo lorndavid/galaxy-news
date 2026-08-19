@@ -80,21 +80,6 @@
               </div>
             </div>
 
-            <!-- Share -->
-            <div class="news-social">
-              <h4>{{ t.article.share }}</h4>
-              <div class="social-row">
-                <a
-                  v-for="l in shareLinks"
-                  :key="l.key"
-                  :href="l.href"
-                  :class="shareClass(l.key)"
-                  target="_blank"
-                  rel="noopener"
-                ><i :class="l.icon"></i> {{ l.label }}</a>
-              </div>
-            </div>
-
             <!-- Comments -->
             <div class="news-comments">
               <h3 class="side-title">{{ t.article.comments }} ({{ comments.length }})</h3>
@@ -233,16 +218,6 @@ const catStyle = computed(() => {
   const color = article.value?.category?.color;
   return color ? { background: color, borderColor: color } : {};
 });
-
-function shareClass(key: string): string {
-  const map: Record<string, string> = {
-    facebook: "fb",
-    tiktok: "tt",
-    telegram: "yt",
-    whatsapp: "ig",
-  };
-  return map[key] ?? "fb";
-}
 
 const sanitizedContent = computed(() => {
   const raw = localizedContent.value;

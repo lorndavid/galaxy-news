@@ -1,12 +1,6 @@
 <template>
   <div class="category-area">
     <div class="container">
-      <!-- Page header — clean text, no banner box -->
-      <div class="category-hero">
-        <h1 class="category-hero-title">{{ catNameOf(category) }}</h1>
-        <p v-if="catDescriptionOf(category)" class="category-hero-desc">{{ catDescriptionOf(category) }}</p>
-      </div>
-
       <div v-if="loading" class="row mt-4">
         <div v-for="i in 6" :key="i" class="col-lg-6 col-md-6 mb-4">
           <SkeletonCard />
@@ -77,7 +71,6 @@ const loading = ref(true);
 const error = ref("");
 
 const catNameOf = (c: Category | null) => (c ? locale.pick(c.name, c.nameEn) : "");
-const catDescriptionOf = (c: Category | null) => (c ? locale.pick(c.description, c.descriptionEn) : "");
 const sectionTitle = computed(() => {
   const name = catNameOf(category.value);
   return name ? `${t.home.whatsNew} — ${name}` : t.home.whatsNew;
@@ -150,37 +143,5 @@ watch(() => route.params.slug, () => { category.value = null; load(); });
 <style scoped>
 .category-area {
   padding-top: 26px;
-}
-/* Clean editorial page header — plain text, subtle accent underline,
-   no colored banner box */
-.category-hero {
-  padding: 8px 0 20px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
-}
-.category-hero-title {
-  margin: 0;
-  font-family: var(--font-heading, "Noto Sans Khmer", sans-serif);
-  font-size: clamp(22px, 1.2vw + 0.9rem, 30px);
-  font-weight: 700;
-  line-height: 1.35;
-  color: var(--color-text, #0b1c39);
-  overflow-wrap: anywhere;
-}
-.category-hero-title::after {
-  content: "";
-  display: block;
-  width: 34px;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--color-primary, #0d3fa9);
-  margin-top: 10px;
-}
-.category-hero-desc {
-  margin: 12px 0 0;
-  font-size: 15px;
-  line-height: 1.7;
-  color: var(--color-muted, #667085);
-  max-width: 720px;
 }
 </style>

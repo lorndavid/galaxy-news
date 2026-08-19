@@ -2,7 +2,10 @@
   <div class="g-popular-sidebar">
     <h3 class="g-popular-title">{{ t.home.popular }}</h3>
     <article v-for="(article, i) in articles" :key="article.id" class="g-popular-row">
-      <span class="g-popular-num">{{ String(i + 1).padStart(2, '0') }}</span>
+      <RouterLink :to="`/article/${article.slug}`" class="g-popular-thumb">
+        <span class="g-popular-num" aria-hidden="true">{{ String(i + 1).padStart(2, "0") }}</span>
+        <ArticleThumb :src="article.featuredImage" :alt="title(article)" :width="160" />
+      </RouterLink>
       <div class="g-popular-body">
         <h5>
           <RouterLink :to="`/article/${article.slug}`">{{ title(article) }}</RouterLink>
@@ -17,6 +20,7 @@
 
 <script setup lang="ts">
 import type { Article } from "@/types";
+import ArticleThumb from "@/components/common/ArticleThumb.vue";
 import { formatKhmerDate } from "@/utils/format";
 import { useLocalized } from "@/composables/useLocalized";
 
@@ -28,35 +32,72 @@ const { title, t } = useLocalized();
 .g-popular-sidebar {
   margin-bottom: 32px;
 }
+
+/* Title — single line under it */
 .g-popular-title {
-  font-family: var(--font-heading, "Kantumruy Pro", "Noto Sans Khmer", sans-serif);
+  font-family: var(--font-heading, "Noto Sans Khmer", sans-serif);
   font-size: 18px;
   font-weight: 700;
   color: var(--color-text, #111827);
-  margin: 0 0 16px;
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-text, #111827);
 }
+
+/* Row — small image left, text right, one black line under each */
 .g-popular-row {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   align-items: flex-start;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  padding: 12px 0;
+  border-bottom: 1px solid #000;
 }
 .g-popular-row:last-child {
   border-bottom: none;
 }
-.g-popular-num {
+
+/* Thumbnail (left) */
+.g-popular-thumb {
+  position: relative;
   flex-shrink: 0;
+  width: 78px;
+  aspect-ratio: 16 / 11;
+  overflow: hidden;
+  display: block;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+.g-popular-thumb :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.g-popular-row:hover .g-popular-thumb :deep(img) {
+  transform: scale(1.05);
+}
+.g-popular-num {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 2;
+  background: var(--color-primary, #0b1c39);
+  color: #fff;
   font-family: "Inter", sans-serif;
-  font-size: 22px;
+  font-size: 10px;
   font-weight: 800;
-  color: var(--color-border, #e5e7eb);
   line-height: 1;
-  min-width: 30px;
+  padding: 3px 5px;
+}
+
+/* Text (right) */
+.g-popular-body {
+  flex: 1;
+  min-width: 0;
 }
 .g-popular-body h5 {
   margin: 0 0 4px;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   line-height: 1.45;
 }

@@ -44,7 +44,7 @@ const catColor = computed(() => CAT_COLORS[props.article.categoryId % CAT_COLORS
   display: flex;
   gap: 20px;
   padding: 20px 0;
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  border-bottom: 1px solid #000;
 }
 
 /* Thumbnail (left) */
