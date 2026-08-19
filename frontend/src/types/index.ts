@@ -229,6 +229,7 @@ export interface TickerData {
   backgroundColor: string;
   textColor: string;
   accentColor: string;
+  layout: "boxed" | "wide" | "fluid";
   items: Article[];
 }
 

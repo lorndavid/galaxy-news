@@ -51,6 +51,7 @@ const DEFAULTS: SiteSettings = {
   tickerBgColor: "#0b1c39",
   tickerTextColor: "#ffffff",
   tickerAccentColor: "#fc3f00",
+  tickerLayout: "fluid",
   primaryColor: "#0d3fa9",
   secondaryColor: "#0b1c39",
   accentColor: "#fc3f00",

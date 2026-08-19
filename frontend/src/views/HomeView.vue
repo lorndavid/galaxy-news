@@ -78,6 +78,9 @@
       </div>
     </section>
 
+    <!-- ═══════════ MORE NEWS — secondary editorial grid ═══════════ -->
+    <MoreNewsSection :exclude-ids="primaryArticleIds" />
+
     <!-- ═══════════ WEEKLY SECTION ═══════════ -->
     <section v-if="showSection('weekly') && weeklyArticles.length" v-reveal class="g-category-section">
       <div class="container">
@@ -256,6 +259,7 @@ import { useLocalized } from "@/composables/useLocalized";
 import type { Article, Category, HomepageSectionConfig } from "@/types";
 import ArticleThumb from "@/components/common/ArticleThumb.vue";
 import AdSlot from "@/components/ads/AdSlot.vue";
+import MoreNewsSection from "@/components/sections/MoreNewsSection.vue";
 import { formatKhmerDate, formatEnglishDate, formatViews } from "@/utils/format";
 
 const categoryStore = useCategoryStore();
@@ -335,6 +339,16 @@ const sidebarArticles = computed(() => latest.value.slice(0, 6));
 const recentArticles = computed(() => latest.value.slice(6, 14));
 const videoArticles = computed(() => featured.value.slice(0, 5));
 const youtubeChannel = computed(() => settingsStore.settings?.youtube ?? "https://www.youtube.com/@GalaxyTV4K");
+
+// IDs already shown in the primary grid — used for deduplication in secondary grid
+const primaryArticleIds = computed(() => {
+  const ids = new Set<number>();
+  // Hero + bottom 3 + weekly + sidebar + left rail
+  for (const a of featured.value) ids.add(a.id);
+  for (const a of sidebarArticles.value) ids.add(a.id);
+  for (const a of leftArticles.value) ids.add(a.id);
+  return [...ids];
+});
 
 // Show top 4 categories with articles
 const displayCategories = computed(() => {

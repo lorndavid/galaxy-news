@@ -1,32 +1,37 @@
 <template>
   <div
     v-if="data && data.enabled && data.items.length"
-    class="g-ticker"
-    :class="`g-ticker--${data.speed}`"
-    :style="tickerStyle"
-    role="marquee"
-    aria-label="Live news ticker"
+    class="g-ticker-wrap"
+    :class="`g-ticker-wrap--${data.layout ?? 'fluid'}`"
   >
-    <!-- Diagonal-cut LIVE badge -->
-    <div class="g-ticker-badge">
-      <span class="g-ticker-pulse" aria-hidden="true"></span>
-      <span class="g-ticker-badge-text">{{ data.title }}</span>
-    </div>
+    <div
+      class="g-ticker"
+      :class="`g-ticker--${data.speed}`"
+      :style="tickerStyle"
+      role="marquee"
+      aria-label="Live news ticker"
+    >
+      <!-- Diagonal-cut LIVE badge -->
+      <div class="g-ticker-badge">
+        <span class="g-ticker-pulse" aria-hidden="true"></span>
+        <span class="g-ticker-badge-text">{{ data.title }}</span>
+      </div>
 
-    <!-- Auto-scrolling headlines -->
-    <div class="g-ticker-viewport">
-      <div
-        class="g-ticker-track"
-        :class="data.direction === 'right' ? 'is-right' : 'is-left'"
-      >
-        <a
-          v-for="(item, i) in loopItems"
-          :key="`${item.slug}-${i}`"
-          class="g-ticker-item"
-          :href="`/article/${item.slug}`"
+      <!-- Auto-scrolling headlines -->
+      <div class="g-ticker-viewport">
+        <div
+          class="g-ticker-track"
+          :class="data.direction === 'right' ? 'is-right' : 'is-left'"
         >
-          {{ displayTitle(item) }}
-        </a>
+          <a
+            v-for="(item, i) in loopItems"
+            :key="`${item.slug}-${i}`"
+            class="g-ticker-item"
+            :href="`/article/${item.slug}`"
+          >
+            {{ displayTitle(item) }}
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -80,7 +85,34 @@ onUnmounted(() => {
 /* ==================================================================
    Galaxy TV Live Ticker — signature diagonal-cut LIVE badge
    High contrast, sticky-capable, auto-scrolling headlines
+   Supports 3 layout modes: boxed, wide, fluid
 =================================================================== */
+
+/* ─── Layout wrappers ─── */
+.g-ticker-wrap {
+  width: 100%;
+  z-index: 990;
+}
+.g-ticker-wrap--fluid .g-ticker {
+  max-width: none;
+  margin: 0;
+}
+.g-ticker-wrap--wide .g-ticker {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+.g-ticker-wrap--boxed .g-ticker {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+/* When boxed/wide, the ticker does not touch the viewport edges —
+   add a subtle background bleed so it still feels like a full bar. */
+.g-ticker-wrap--boxed,
+.g-ticker-wrap--wide {
+  background: inherit;
+}
+
 .g-ticker {
   display: flex;
   align-items: stretch;

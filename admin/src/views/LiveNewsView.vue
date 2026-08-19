@@ -36,6 +36,15 @@
           </select>
         </div>
         <div>
+          <label class="label">រចនាប័ទ្មប្លង់</label>
+          <select v-model="form.tickerLayout" class="input">
+            <option value="boxed">Boxed (1240px)</option>
+            <option value="wide">Wide (1440px)</option>
+            <option value="fluid">Fluid (100%)</option>
+          </select>
+          <p class="mt-1 text-xs text-slate-400">ទទឹងបន្ទាត់ព័ត៌មានផ្ទាល់</p>
+        </div>
+        <div>
           <label class="label">ចំនួនអត្ថបទ (1–30)</label>
           <input v-model.number="form.tickerCount" type="number" class="input" min="1" max="30" />
         </div>
@@ -58,8 +67,9 @@
 
       <!-- Live preview -->
       <div class="overflow-hidden rounded-lg border border-slate-200">
-        <div class="border-b border-slate-200 px-4 py-2.5">
+        <div class="flex items-center justify-between border-b border-slate-200 px-4 py-2.5">
           <h3 class="text-xs font-semibold text-slate-700">ការមើលជាមុន</h3>
+          <span class="text-[11px] font-medium text-slate-400">{{ form.tickerLayout === 'boxed' ? 'Boxed (1240px)' : form.tickerLayout === 'wide' ? 'Wide (1440px)' : 'Fluid (100%)' }}</span>
         </div>
         <div class="flex items-center gap-3 overflow-hidden px-4 py-3" :style="{ background: String(form.tickerBgColor), color: String(form.tickerTextColor) }">
           <span class="shrink-0 rounded px-2 py-0.5 text-[11px] font-bold text-white" :style="{ background: String(form.tickerAccentColor) }">
@@ -100,6 +110,7 @@ const form = reactive({
   tickerBgColor: "#000000",
   tickerTextColor: "#ffffff",
   tickerAccentColor: "#fc3f00",
+  tickerLayout: "fluid",
 } as Record<string, string | number | boolean>);
 
 async function load() {

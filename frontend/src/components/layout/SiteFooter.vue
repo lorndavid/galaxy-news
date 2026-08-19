@@ -247,18 +247,14 @@ onMounted(async () => {
   margin-bottom: 10px;
 }
 .g-footer-links a {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
   color: var(--color-footer-muted, rgba(255, 255, 255, 0.65));
   font-size: 13.5px;
   line-height: 1.6;
   text-decoration: none;
   transition: color 0.2s ease;
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
 }
 .g-footer-links a i {
   font-size: 10px;

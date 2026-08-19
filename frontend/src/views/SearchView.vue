@@ -3,6 +3,11 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-8">
+          <nav class="g-breadcrumb" aria-label="Breadcrumb">
+            <RouterLink to="/">{{ t.nav.home }}</RouterLink>
+            <span aria-hidden="true">/</span>
+            <span>{{ t.common.search }}</span>
+          </nav>
           <SectionTitle :title="t.search.resultsFor" />
 
           <form class="search-form mb-4" @submit.prevent="runSearch">
@@ -10,7 +15,7 @@
             <button type="submit" :aria-label="t.common.search"><i class="fas fa-search"></i></button>
           </form>
 
-          <p v-if="searched && !loading" class="search-count">
+          <p v-if="searched && !loading && !error" class="search-count">
             {{ t.search.resultsFor }} "{{ originalQuery }}" — {{ total }}
           </p>
 
@@ -26,9 +31,9 @@
               <button class="btn boxed-btn" @click="loadMore">{{ t.common.readMore }}</button>
             </div>
             <div v-if="loadingMore" class="text-center mt-4">
-              <span class="spinner-border text-primary" role="status" :aria-label="t.common.loading"></span>
+              <span class="g-loading-spinner" role="status" :aria-label="t.common.loading"></span>
             </div>
-            <p v-if="!hasMore && items.length" class="text-center text-muted mt-3">{{ t.common.noResults }}</p>
+            <p v-if="!hasMore && items.length" class="text-center mt-3" style="color: var(--color-muted)">{{ t.common.noResults }}</p>
             <Pagination v-if="totalPages > 3" :page="page" :total-pages="totalPages" @change="goToPage" />
           </template>
 
@@ -145,32 +150,70 @@ onMounted(async () => {
 .search-area {
   padding-top: 30px;
 }
+/* Breadcrumb */
+.g-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0 0;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.g-breadcrumb a {
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.g-breadcrumb a:hover {
+  color: var(--color-accent);
+}
+.g-breadcrumb span:last-child {
+  color: var(--color-text);
+  font-weight: 600;
+}
+.g-loading-spinner {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border: 2.5px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 .search-form {
   display: flex;
   gap: 10px;
 }
 .search-form input {
   flex: 1;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-button);
   padding: 12px 16px;
   font-size: 15px;
-  font-family: "Noto Sans Khmer", "Kantumruy", sans-serif;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-surface);
   outline: none;
+  transition: border-color 0.2s ease;
 }
 .search-form input:focus {
-  border-color: #0d3fa9;
+  border-color: var(--color-accent);
 }
 .search-form button {
   border: none;
-  background: #0d3fa9;
+  background: var(--color-accent);
   color: #fff;
-  border-radius: 8px;
+  border-radius: var(--radius-button);
   padding: 0 22px;
   cursor: pointer;
+  transition: filter 0.2s ease;
+}
+.search-form button:hover {
+  filter: brightness(1.1);
 }
 .search-count {
-  color: #6b7280;
+  color: var(--color-muted);
   font-size: 14px;
   margin-bottom: 16px;
 }

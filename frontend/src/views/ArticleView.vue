@@ -35,6 +35,13 @@
 
       <div v-else-if="article" class="row">
         <div class="col-lg-8">
+          <nav class="g-breadcrumb" aria-label="Breadcrumb">
+            <RouterLink to="/">{{ t.nav.home }}</RouterLink>
+            <span aria-hidden="true">/</span>
+            <RouterLink v-if="article.category" :to="`/category/${article.category.slug}`">{{ catName(article) }}</RouterLink>
+            <span v-if="article.category" aria-hidden="true">/</span>
+            <span>{{ title(article) }}</span>
+          </nav>
           <div class="news-detail-wrap">
             <span class="news-cat" :style="catStyle">{{ catName(article) }}</span>
             <h1 class="news-title">{{ title(article) }}</h1>
@@ -401,6 +408,32 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* Breadcrumb */
+.g-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0 0;
+  font-size: 13px;
+  color: var(--color-muted);
+  flex-wrap: wrap;
+}
+.g-breadcrumb a {
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.g-breadcrumb a:hover {
+  color: var(--color-accent);
+}
+.g-breadcrumb span:last-child {
+  color: var(--color-text);
+  font-weight: 600;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 /* ─── Floating share rail (left side) ─── */
 .g-share-rail {
   position: fixed;
@@ -593,7 +626,7 @@ onUnmounted(() => {
   margin-bottom: 10px;
 }
 .single-comment {
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
   padding: 14px 0;
 }
 .comment-head {
@@ -603,16 +636,16 @@ onUnmounted(() => {
   margin-bottom: 4px;
 }
 .comment-head strong {
-  color: #0b1c39;
+  color: var(--color-text);
   font-size: 15px;
 }
 .comment-date {
   font-size: 12.5px;
-  color: #999;
+  color: var(--color-muted);
 }
 .single-comment p {
   font-size: 14.5px;
-  color: #444;
+  color: var(--color-text-secondary);
   line-height: 1.7;
   margin: 0;
 }
@@ -621,7 +654,7 @@ onUnmounted(() => {
   font-family: "Noto Sans Khmer", "Kantumruy", sans-serif;
 }
 .comment-msg {
-  color: #0d3fa9;
+  color: var(--color-accent);
   font-size: 14px;
   margin-top: 8px;
 }
@@ -632,14 +665,15 @@ onUnmounted(() => {
   margin-top: 20px;
 }
 .tag-chip {
-  background: #f1f5f9;
-  color: #0d3fa9;
+  background: var(--color-surface-alt);
+  color: var(--color-accent);
   font-size: 13px;
   padding: 5px 12px;
   border-radius: 20px;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 .tag-chip:hover {
-  background: #0d3fa9;
+  background: var(--color-accent);
   color: #fff;
 }
 .news-content img {
@@ -667,14 +701,14 @@ onUnmounted(() => {
   margin-right: auto;
 }
 .news-content blockquote {
-  border-left: 4px solid #0d3fa9;
-  background: #f7f9ff;
+  border-left: 4px solid var(--color-accent);
+  background: var(--color-surface-alt);
   padding: 16px 20px;
   margin: 18px 0;
-  color: #444;
+  color: var(--color-text-secondary);
 }
 .news-content a {
-  color: #0d3fa9;
+  color: var(--color-accent);
   text-decoration: underline;
 }
 </style>

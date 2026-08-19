@@ -10,6 +10,13 @@
       <div v-else-if="error" class="row mt-4"><div class="col-12"><ErrorState :message="error" @retry="load" /></div></div>
 
       <template v-else>
+        <!-- Breadcrumb -->
+        <nav class="g-breadcrumb" aria-label="Breadcrumb">
+          <RouterLink to="/">{{ t.nav.home }}</RouterLink>
+          <span aria-hidden="true">/</span>
+          <span>{{ catNameOf(category) }}</span>
+        </nav>
+
         <!-- Featured article -->
         <div v-if="featured" class="row mt-4">
           <div class="col-lg-8">
@@ -168,6 +175,27 @@ watch(() => route.params.slug, () => { category.value = null; load(); });
 <style scoped>
 .category-area {
   padding-top: 26px;
+}
+/* Breadcrumb */
+.g-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0 0;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.g-breadcrumb a {
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.g-breadcrumb a:hover {
+  color: var(--color-accent);
+}
+.g-breadcrumb span:last-child {
+  color: var(--color-text);
+  font-weight: 600;
 }
 /* Admin-driven grid layout (columns from the nav item config) */
 .g-page-grid {

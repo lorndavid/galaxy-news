@@ -27,6 +27,7 @@ export async function getTickerData() {
     backgroundColor: settings?.tickerBgColor ?? "#0b1c39",
     textColor: settings?.tickerTextColor ?? "#ffffff",
     accentColor: settings?.tickerAccentColor ?? "#fc3f00",
+    layout: settings?.tickerLayout ?? "fluid",
     items: items.map(serializeArticle),
   };
 }

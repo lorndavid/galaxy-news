@@ -278,6 +278,7 @@ model SiteSettings {
   tickerBgColor    String  @default("#0b1c39")
   tickerTextColor  String  @default("#ffffff")
   tickerAccentColor String @default("#fc3f00")
+  tickerLayout      String @default("fluid") // boxed | wide | fluid
 
   // --- Theme tokens (admin-configurable, validated server-side) ---
   primaryColor    String  @default("#0d3fa9") // brand / primary

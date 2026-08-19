@@ -3,6 +3,11 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-8">
+          <nav class="g-breadcrumb" aria-label="Breadcrumb">
+            <RouterLink to="/">{{ t.nav.home }}</RouterLink>
+            <span aria-hidden="true">/</span>
+            <span>{{ title }}</span>
+          </nav>
           <SectionTitle :title="title" />
 
           <div v-if="loading" class="mt-3">
@@ -24,9 +29,9 @@
               <button class="btn boxed-btn" @click="loadMore">{{ t.common.readMore }}</button>
             </div>
             <div v-if="loadingMore" class="text-center mt-4">
-              <span class="spinner-border text-primary" role="status" :aria-label="t.common.loading"></span>
+              <span class="g-loading-spinner" role="status" :aria-label="t.common.loading"></span>
             </div>
-            <p v-if="!hasMore && items.length" class="text-center text-muted mt-3">{{ t.common.noResults }}</p>
+            <p v-if="!hasMore && items.length" class="text-center mt-3" style="color: var(--color-muted)">{{ t.common.noResults }}</p>
             <Pagination v-if="totalPages > 3" :page="page" :total-pages="totalPages" @change="goToPage" />
           </template>
           <EmptyState v-else :message="t.common.noResults" />
@@ -149,6 +154,27 @@ onMounted(async () => {
 .news-list-area {
   padding-top: 30px;
 }
+/* Breadcrumb */
+.g-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0 0;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.g-breadcrumb a {
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.g-breadcrumb a:hover {
+  color: var(--color-accent);
+}
+.g-breadcrumb span:last-child {
+  color: var(--color-text);
+  font-weight: 600;
+}
 /* Admin-driven grid layout (columns from the nav item config) */
 .g-page-grid {
   display: grid;
@@ -165,4 +191,14 @@ onMounted(async () => {
     grid-template-columns: 1fr;
   }
 }
+.g-loading-spinner {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border: 2.5px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>

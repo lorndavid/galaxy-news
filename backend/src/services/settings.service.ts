@@ -29,6 +29,7 @@ const PUBLIC_FIELDS = [
   "tickerBgColor",
   "tickerTextColor",
   "tickerAccentColor",
+  "tickerLayout",
 ] as const;
 
 // Theme tokens are safe, validated values — exposing them publicly lets the

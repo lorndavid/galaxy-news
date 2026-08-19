@@ -88,6 +88,7 @@ export const settingsUpdateSchema = z.object({
     tickerBgColor: hexColor.optional(),
     tickerTextColor: hexColor.optional(),
     tickerAccentColor: hexColor.optional(),
+    tickerLayout: z.enum(["boxed", "wide", "fluid"]).optional(),
 
     // --- Theme tokens (validated ranges; no arbitrary CSS) ---
     primaryColor: hexColor.optional(),
