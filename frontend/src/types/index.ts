@@ -164,10 +164,27 @@ export interface SiteSettings {
   shadowPreset: "none" | "subtle" | "medium" | "strong";
 }
 
+export type EditorialLayoutType =
+  | "editorial-hero"
+  | "editorial-split"
+  | "editorial-mosaic"
+  | "editorial-three-col"
+  | "editorial-compact"
+  | "editorial-horizontal"
+  | "editorial-list"
+  | "editorial-feature-compact"
+  | "editorial-magazine"
+  | "editorial-minimal";
+
 export interface HomepageSectionConfig {
   columns?: number;
   sidebar?: boolean;
   left?: boolean;
+  layoutType?: EditorialLayoutType;
+  articleLimit?: number;
+  featuredArticleId?: number;
+  categoryId?: number;
+  accentColor?: string;
 }
 
 export interface HomepageSectionPublic {

@@ -39,7 +39,6 @@
                 </div>
               </div>
             </article>
-
             <!-- Bottom 3 cards -->
             <div v-if="bottomThree.length" class="g-hero-bottom">
               <article v-for="a in bottomThree" :key="a.id" class="g-hero-bottom-card">
@@ -80,115 +79,48 @@
     <!-- ═══════════ MORE NEWS — secondary editorial grid ═══════════ -->
     <MoreNewsSection :exclude-ids="primaryArticleIds" />
 
-    <!-- ═══════════ WEEKLY SECTION ═══════════ -->
-    <section v-if="showSection('weekly') && weeklyArticles.length" v-reveal class="g-category-section">
-      <div class="container">
-        <div class="g-section-header">
-          <div class="g-section-accent" style="background: var(--color-accent)"></div>
-          <h2><i class="ti-calendar g-section-icon" aria-hidden="true"></i> {{ sectionTitle("weekly", t.home.weekly) }}</h2>
-          <RouterLink :to="'/news'" class="g-section-link">
-            {{ t.common.viewAll }} <i class="ti-angle-right"></i>
-          </RouterLink>
-        </div>
-        <div class="g-cards" :style="weeklyGridStyle">
-          <article v-for="a in weeklyArticles" :key="a.id" class="g-news-card">
-            <RouterLink :to="`/article/${a.slug}`" class="g-news-card-img">
-              <ArticleThumb :src="a.featuredImage" :alt="title(a)" :width="480" />
-              <span v-if="breakingBadges && a.isBreaking" class="g-breaking g-breaking--sm">{{ t.common.breaking }}</span>
-            </RouterLink>
-            <div class="g-news-card-body">
-              <span class="g-cat-chip g-cat-chip--xs" :style="catStyle(a)">{{ catName(a) }}</span>
-              <h4 class="g-news-card-title">
-                <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
-              </h4>
-              <div class="g-news-card-meta">
-                <span v-if="a.publishedAt"><i class="ti-calendar"></i> {{ formatDate(a.publishedAt) }}</span>
-              </div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
+    <!-- ═══════════ EDITORIAL CATEGORY SECTIONS — different layouts for visual rhythm ═══════════ -->
+    <EditorialSection
+      v-for="sec in editorialSections"
+      :key="sec.key"
+      :title="sec.title"
+      :articles="sec.articles"
+      :layout-type="sec.layoutType"
+      :accent-color="sec.accentColor"
+      :view-all-to="sec.viewAllTo"
+      :visible="sec.articles.length > 0"
+    />
 
-    <!-- ═══════════ CATEGORY SECTIONS ═══════════ -->
-    <section
-      v-for="cat in displayCategories"
-      :key="cat.id"
-      v-reveal
-      class="g-category-section"
-    >
+    <!-- ═══════════ AD SLOT ═══════════ -->
+    <section v-if="showSection('latest')" v-reveal class="g-ad-section">
       <div class="container">
-        <div class="g-section-header">
-          <div class="g-section-accent" :style="{ background: cat.color || 'var(--color-accent)' }"></div>
-          <h2><i class="ti-layout-grid2 g-section-icon" aria-hidden="true"></i> {{ catNameOf(cat) }}</h2>
-          <RouterLink :to="`/category/${cat.slug}`" class="g-section-link">
-            {{ t.common.viewAll }} <i class="ti-angle-right"></i>
-          </RouterLink>
-        </div>
-        <div class="g-cards" :style="categoryGridStyle">
-          <article
-            v-for="a in getCategoryArticles(cat.slug)"
-            :key="a.id"
-            class="g-news-card"
-          >
-            <RouterLink :to="`/article/${a.slug}`" class="g-news-card-img">
-              <ArticleThumb :src="a.featuredImage" :alt="title(a)" :width="480" />
-              <span v-if="breakingBadges && a.isBreaking" class="g-breaking g-breaking--sm">{{ t.common.breaking }}</span>
-            </RouterLink>
-            <div class="g-news-card-body">
-              <span class="g-cat-chip g-cat-chip--xs" :style="catStyle(a)">{{ catName(a) }}</span>
-              <h4 class="g-news-card-title">
-                <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
-              </h4>
-              <div class="g-news-card-meta">
-                <span v-if="a.publishedAt"><i class="ti-calendar"></i> {{ formatDate(a.publishedAt) }}</span>
-              </div>
-            </div>
-          </article>
-        </div>
+        <AdSlot position="homepage-middle" />
       </div>
     </section>
 
     <!-- ═══════════ POPULAR / TRENDING ═══════════ -->
     <section v-if="showSection('whats-new') && popular.length" v-reveal class="g-popular-section">
       <div class="container">
-        <div class="g-section-header">
-          <div class="g-section-accent" style="background: var(--color-live)"></div>
-          <h2><i class="ti-stats-up g-section-icon" aria-hidden="true"></i> {{ t.home.popular }}</h2>
-        </div>
-        <div class="g-cards" :style="popularGridStyle">
-          <article v-for="a in popular" :key="a.id" class="g-popular-card">
-            <RouterLink :to="`/article/${a.slug}`" class="g-popular-img">
-              <ArticleThumb :src="a.featuredImage" :alt="title(a)" :width="320" />
-            </RouterLink>
-            <div class="g-popular-body">
-              <span class="g-cat-chip g-cat-chip--xs" :style="catStyle(a)">{{ catName(a) }}</span>
-              <h4>
-                <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
-              </h4>
-              <span v-if="a.publishedAt" class="g-popular-time">{{ formatDate(a.publishedAt) }}</span>
-            </div>
-          </article>
-        </div>
+        <SectionHeaderComp
+          :title="t.home.popular"
+          accent-color="var(--color-live)"
+          :view-all-to="'/news'"
+          :link-text="t.common.viewAll"
+        />
+        <EditorialCompactLayout :articles="popular" />
       </div>
     </section>
 
     <!-- ═══════════ VIDEO SECTION ═══════════ -->
     <section v-if="showSection('video') && videoArticles.length" v-reveal class="g-video-section">
       <div class="container">
-        <div class="g-section-header">
-          <div class="g-section-accent" style="background: #dc2626"></div>
-          <h2><i class="ti-video-camera g-section-icon" aria-hidden="true"></i> {{ t.home.video }}</h2>
-          <a
-            class="g-section-link"
-            :href="youtubeChannel"
-            target="_blank"
-            rel="noopener"
-          >
-            <i class="fab fa-youtube"></i> {{ t.home.followChannel }}
-          </a>
-        </div>
-        <div class="g-cards" :style="videoGridStyle">
+        <SectionHeaderComp
+          :title="t.home.video"
+          accent-color="#dc2626"
+          :view-all-to="youtubeChannel"
+          link-text="YouTube"
+        />
+        <div class="g-video-grid">
           <a
             v-for="a in videoArticles"
             :key="a.id"
@@ -207,38 +139,15 @@
     </section>
 
     <!-- ═══════════ RECENT SECTION ═══════════ -->
-    <section v-if="showSection('recent') && recentArticles.length" v-reveal class="g-category-section">
+    <section v-if="showSection('recent') && recentArticles.length" v-reveal class="g-recent-section">
       <div class="container">
-        <div class="g-section-header">
-          <div class="g-section-accent" style="background: var(--color-secondary)"></div>
-          <h2><i class="ti-write g-section-icon" aria-hidden="true"></i> {{ sectionTitle("recent", t.home.recent) }}</h2>
-          <RouterLink :to="'/news'" class="g-section-link">
-            {{ t.common.viewAll }} <i class="ti-angle-right"></i>
-          </RouterLink>
-        </div>
-        <div class="g-cards" :style="recentGridStyle">
-          <article v-for="a in recentArticles" :key="a.id" class="g-news-card">
-            <RouterLink :to="`/article/${a.slug}`" class="g-news-card-img">
-              <ArticleThumb :src="a.featuredImage" :alt="title(a)" :width="480" />
-            </RouterLink>
-            <div class="g-news-card-body">
-              <span class="g-cat-chip g-cat-chip--xs" :style="catStyle(a)">{{ catName(a) }}</span>
-              <h4 class="g-news-card-title">
-                <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
-              </h4>
-              <div class="g-news-card-meta">
-                <span v-if="a.publishedAt"><i class="ti-calendar"></i> {{ formatDate(a.publishedAt) }}</span>
-              </div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══════════ AD SLOT ═══════════ -->
-    <section v-if="showSection('latest')" v-reveal class="g-ad-section">
-      <div class="container">
-        <AdSlot position="homepage-middle" />
+        <SectionHeaderComp
+          :title="sectionTitle('recent', t.home.recent)"
+          accent-color="var(--color-secondary)"
+          :view-all-to="'/news'"
+          :link-text="t.common.viewAll"
+        />
+        <EditorialListLayout :articles="recentArticles" />
       </div>
     </section>
   </div>
@@ -252,15 +161,18 @@ import { contentService } from "@/services/content.service";
 import { useCategoryStore } from "@/stores/categories";
 import { useSettingsStore } from "@/stores/settings";
 import { useLocalized } from "@/composables/useLocalized";
-import type { Article, Category, HomepageSectionConfig } from "@/types";
+import type { Article, Category, EditorialLayoutType, HomepageSectionConfig } from "@/types";
 import ArticleThumb from "@/components/common/ArticleThumb.vue";
 import AdSlot from "@/components/ads/AdSlot.vue";
 import MoreNewsSection from "@/components/sections/MoreNewsSection.vue";
+import EditorialSection from "@/components/editorial/EditorialSection.vue";
+import SectionHeaderComp from "@/components/editorial/SectionHeader.vue";
+import EditorialCompactLayout from "@/components/editorial/layouts/EditorialCompactLayout.vue";
+import EditorialListLayout from "@/components/editorial/layouts/EditorialListLayout.vue";
+
 const categoryStore = useCategoryStore();
 const settingsStore = useSettingsStore();
 const { locale, title, excerpt, catName, t, formatDate } = useLocalized();
-
-const catNameOf = (c: Category) => locale.pick(c.name, c.nameEn);
 
 useSeo(
   computed(() => ({
@@ -277,11 +189,6 @@ useSeo(
         "@type": "WebSite",
         name: settingsStore.settings?.siteName ?? "Galaxy TV V4K",
         url: window.location.origin,
-        potentialAction: {
-          "@type": "SearchAction",
-          target: `${window.location.origin}/search?q={search_term_string}`,
-          "query-input": "required name=search_term_string",
-        },
       },
     ],
   }))
@@ -298,11 +205,9 @@ const sectionLabels = ref<Record<string, string>>({});
 function showSection(key: string) {
   return sectionConfigs.value[key] !== undefined;
 }
-
 function sectionConfig(key: string): HomepageSectionConfig | null {
   return sectionConfigs.value[key] ?? null;
 }
-
 function sectionTitle(key: string, fallback: string): string {
   return sectionLabels.value[key] ?? fallback;
 }
@@ -310,61 +215,59 @@ function sectionTitle(key: string, fallback: string): string {
 const heroSidebar = computed(() => sectionConfig("hero")?.sidebar ?? true);
 const heroLeft = computed(() => sectionConfig("hero")?.left ?? true);
 const breakingBadges = computed(() => showSection("breaking"));
-const popularColumns = computed(() => sectionConfig("whats-new")?.columns ?? 5);
-const videoColumns = computed(() => sectionConfig("video")?.columns ?? 5);
-const weeklyColumns = computed(() => sectionConfig("weekly")?.columns ?? 4);
-const recentColumns = computed(() => sectionConfig("recent")?.columns ?? 4);
-
-const categoryGridStyle = { "--grid-cols": 4 } as Record<string, string | number>;
-const popularGridStyle = computed(() => ({ "--grid-cols": popularColumns.value }));
-const videoGridStyle = computed(() => ({ "--grid-cols": videoColumns.value }));
-const weeklyGridStyle = computed(() => ({ "--grid-cols": weeklyColumns.value }));
-const recentGridStyle = computed(() => ({ "--grid-cols": recentColumns.value }));
 
 const hero = computed(() => featured.value[0] ?? null);
 const bottomThree = computed(() => featured.value.slice(1, 4));
-const weeklyArticles = computed(() => featured.value.slice(4, 9));
 const leftArticles = computed(() => latest.value.slice(6, 8));
 const sidebarArticles = computed(() => latest.value.slice(0, 6));
 const recentArticles = computed(() => latest.value.slice(6, 14));
 const videoArticles = computed(() => featured.value.slice(0, 5));
 const youtubeChannel = computed(() => settingsStore.settings?.youtube ?? "https://www.youtube.com/@GalaxyTV4K");
 
-// IDs already shown in the primary grid — used for deduplication in secondary grid
 const primaryArticleIds = computed(() => {
   const ids = new Set<number>();
-  // Hero + bottom 3 + weekly + sidebar + left rail
   for (const a of featured.value) ids.add(a.id);
   for (const a of sidebarArticles.value) ids.add(a.id);
   for (const a of leftArticles.value) ids.add(a.id);
   return [...ids];
 });
 
-// Show top 4 categories with articles
-const displayCategories = computed(() => {
-  return categories.value
-    .filter((c) => c.isActive && categoryArticles.value[c.slug]?.length)
-    .slice(0, 4);
-});
+/** Layout rhythm — each category gets a different editorial layout */
+const LAYOUT_RHYTHM: EditorialLayoutType[] = [
+  "editorial-three-col",
+  "editorial-split",
+  "editorial-mosaic",
+  "editorial-horizontal",
+  "editorial-feature-compact",
+  "editorial-magazine",
+  "editorial-compact",
+  "editorial-list",
+];
 
-function getCategoryArticles(slug: string): Article[] {
-  return (categoryArticles.value[slug] ?? []).slice(0, 4);
-}
-
-// Map category ID to a consistent color
-const CAT_COLORS: Record<number, string> = {};
+const CAT_COLORS = ["var(--cat-national)", "var(--cat-political)", "var(--cat-international)", "var(--cat-business)", "var(--cat-technology)", "var(--cat-sports)", "var(--cat-entertainment)"];
 function catStyle(a: Article) {
-  const id = a.categoryId;
-  if (!CAT_COLORS[id]) {
-    const palette = [
-      "var(--cat-national)", "var(--cat-political)", "var(--cat-international)",
-      "var(--cat-business)", "var(--cat-technology)", "var(--cat-sports)",
-      "var(--cat-entertainment)",
-    ];
-    CAT_COLORS[id] = palette[id % palette.length];
-  }
-  return { background: CAT_COLORS[id] };
+  return { background: CAT_COLORS[a.categoryId % CAT_COLORS.length] };
 }
+
+const editorialSections = computed(() => {
+  const cats = categories.value
+    .filter((c) => c.isActive && categoryArticles.value[c.slug]?.length)
+    .slice(0, 8);
+
+  return cats.map((cat, i) => {
+    const articles = categoryArticles.value[cat.slug] ?? [];
+    const adminConfig = sectionConfig(`cat-${cat.slug}`);
+    const layoutType = adminConfig?.layoutType ?? LAYOUT_RHYTHM[i % LAYOUT_RHYTHM.length];
+    return {
+      key: `cat-${cat.slug}`,
+      title: locale.pick(cat.name, cat.nameEn),
+      articles,
+      layoutType,
+      accentColor: cat.color || CAT_COLORS[i % CAT_COLORS.length],
+      viewAllTo: `/category/${cat.slug}`,
+    };
+  });
+});
 
 onMounted(async () => {
   categoryStore.load();
@@ -398,12 +301,12 @@ onMounted(async () => {
   latest.value = lat;
   popular.value = pop;
 
-  // Load articles for each displayed category
-  for (const cat of categories.value.filter((c) => c.isActive).slice(0, 4)) {
+  // Load articles for each category
+  for (const cat of categories.value.filter((c) => c.isActive).slice(0, 8)) {
     try {
       const data = await articleService.byCategory(cat.slug, 1);
       const items = Array.isArray(data) ? data : data.items;
-      categoryArticles.value[cat.slug] = items.slice(0, 4);
+      categoryArticles.value[cat.slug] = items.slice(0, 6);
     } catch {
       categoryArticles.value[cat.slug] = [];
     }
@@ -413,14 +316,11 @@ onMounted(async () => {
 
 <style scoped>
 /* ==================================================================
-   Galaxy TV Homepage — clean editorial layout
+   Galaxy TV Homepage — editorial layout
 =================================================================== */
 
 /* ─── Hero Section ─── */
-.g-hero {
-  padding: 24px 0 0;
-}
-/* 3-column wide grid: left rail | main big image | latest right */
+.g-hero { padding: 24px 0 0; }
 .g-hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
@@ -436,29 +336,23 @@ onMounted(async () => {
   grid-template-columns: 300px minmax(0, 1fr);
 }
 @media (max-width: 1199px) {
-  .g-hero-grid.is-left,
-  .g-hero-grid.is-left.is-full {
+  .g-hero-grid.is-left, .g-hero-grid.is-left.is-full {
     grid-template-columns: minmax(0, 1fr) 340px;
   }
 }
 @media (max-width: 991px) {
-  .g-hero-grid,
-  .g-hero-grid.is-left,
-  .g-hero-grid.is-full,
-  .g-hero-grid.is-left.is-full {
+  .g-hero-grid, .g-hero-grid.is-left, .g-hero-grid.is-full, .g-hero-grid.is-left.is-full {
     grid-template-columns: 1fr;
   }
 }
 
-/* Left rail — small news cards with images */
+/* Left rail */
 .g-hero-left-card {
   padding: 0 0 14px;
   margin-bottom: 14px;
   border-bottom: 1px solid #000;
 }
-.g-hero-left-card:last-child {
-  border-bottom: none;
-}
+.g-hero-left-card:last-child { border-bottom: none; }
 .g-hero-left-img {
   display: block;
   aspect-ratio: 16 / 10;
@@ -466,589 +360,84 @@ onMounted(async () => {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
 }
-.g-hero-left-img :deep(img) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.35s ease;
-}
-.g-hero-left-card:hover .g-hero-left-img :deep(img) {
-  transform: scale(1.04);
-}
-.g-hero-left-card h4 {
-  margin: 10px 0 0;
-  font-size: 14px;
-  line-height: 1.45;
-}
-.g-hero-left-card h4 a {
-  color: var(--color-text);
-  text-decoration: none;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  transition: color 0.2s ease;
-}
-.g-hero-left-card h4 a:hover {
-  color: var(--color-accent);
-}
-.g-hero-left-card .g-sidebar-time {
-  margin-top: 6px;
-}
+.g-hero-left-img :deep(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s ease; }
+.g-hero-left-card:hover .g-hero-left-img :deep(img) { transform: scale(1.04); }
+.g-hero-left-card h4 { margin: 10px 0 0; font-size: 14px; line-height: 1.45; }
+.g-hero-left-card h4 a { color: var(--color-text); text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.2s ease; }
+.g-hero-left-card h4 a:hover { color: var(--color-accent); }
+.g-hero-left-card .g-sidebar-time { margin-top: 6px; }
 
 /* Hero main card */
-.g-hero-card {
-  border-radius: var(--radius-card);
-  overflow: hidden;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-}
-.g-hero-img {
-  position: relative;
-  display: block;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  border-radius: var(--radius-card);
-}
-.g-hero-img :deep(img) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-.g-hero-img:hover :deep(img) {
-  transform: scale(1.03);
-}
-.g-hero-body {
-  padding: 18px 20px 20px;
-}
-.g-hero-title {
-  margin: 8px 0 0;
-  font-family: var(--font-display);
-  font-size: clamp(22px, 1.5vw + 0.9rem, 30px);
-  line-height: 1.35;
-}
-.g-hero-title a {
-  color: var(--color-text);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-.g-hero-title a:hover {
-  color: var(--color-accent);
-}
-.g-hero-excerpt {
-  margin: 10px 0 0;
-  font-size: 14px;
-  line-height: 1.7;
-  color: var(--color-muted);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.g-hero-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 12px;
-  font-size: 12.5px;
-  color: var(--color-muted);
-}
-.g-hero-meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
+.g-hero-card { border-radius: var(--radius-card); overflow: hidden; background: var(--color-surface); border: 1px solid var(--color-border); }
+.g-hero-img { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-card); }
+.g-hero-img :deep(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1); }
+.g-hero-img:hover :deep(img) { transform: scale(1.03); }
+.g-hero-body { padding: 18px 20px 20px; }
+.g-hero-title { margin: 8px 0 0; font-family: var(--font-display); font-size: clamp(22px, 1.5vw + 0.9rem, 30px); line-height: 1.35; }
+.g-hero-title a { color: var(--color-text); text-decoration: none; transition: color 0.2s ease; }
+.g-hero-title a:hover { color: var(--color-accent); }
+.g-hero-excerpt { margin: 10px 0 0; font-size: 14px; line-height: 1.7; color: var(--color-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.g-hero-meta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; font-size: 12.5px; color: var(--color-muted); }
+.g-hero-meta span { display: inline-flex; align-items: center; gap: 5px; }
 
 /* Hero bottom 3 */
-.g-hero-bottom {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-top: 20px;
-}
-@media (max-width: 767px) {
-  .g-hero-bottom {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-}
-.g-hero-bottom-card {
-  border-radius: var(--radius-card);
-  overflow: hidden;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-}
-.g-hero-bottom-img {
-  display: block;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  border-radius: var(--radius-card);
-}
-.g-hero-bottom-img :deep(img) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
-}
-.g-hero-bottom-card:hover .g-hero-bottom-img :deep(img) {
-  transform: scale(1.04);
-}
-.g-hero-bottom-body {
-  padding: 12px 14px 14px;
-}
-.g-hero-bottom-title {
-  margin: 6px 0 0;
-  font-size: 15px;
-  line-height: 1.45;
-}
-.g-hero-bottom-title a {
-  color: var(--color-text);
-  text-decoration: none;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  transition: color 0.2s ease;
-}
-.g-hero-bottom-title a:hover {
-  color: var(--color-accent);
-}
+.g-hero-bottom { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }
+@media (max-width: 767px) { .g-hero-bottom { grid-template-columns: 1fr; gap: 16px; } }
+.g-hero-bottom-card { border-radius: var(--radius-card); overflow: hidden; background: var(--color-surface); border: 1px solid var(--color-border); }
+.g-hero-bottom-img { display: block; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-card); }
+.g-hero-bottom-img :deep(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.g-hero-bottom-card:hover .g-hero-bottom-img :deep(img) { transform: scale(1.04); }
+.g-hero-bottom-body { padding: 12px 14px 14px; }
+.g-hero-bottom-title { margin: 6px 0 0; font-size: 15px; line-height: 1.45; }
+.g-hero-bottom-title a { color: var(--color-text); text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.2s ease; }
+.g-hero-bottom-title a:hover { color: var(--color-accent); }
 
 /* ─── Sidebar ─── */
-.g-hero-sidebar {
-  border-left: 1px solid var(--color-border);
-  padding-left: 28px;
-  position: relative;
-}
+.g-hero-sidebar { border-left: 1px solid var(--color-border); padding-left: 28px; position: relative; }
 @media (max-width: 991px) {
-  .g-hero-sidebar {
-    border-left: none;
-    padding-left: 0;
-    border-top: 1px solid var(--color-border);
-    padding-top: 24px;
-  }
+  .g-hero-sidebar { border-left: none; padding-left: 0; border-top: 1px solid var(--color-border); padding-top: 24px; }
 }
-.g-sidebar-header {
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--color-primary);
-  display: flex;
-  align-items: center;
-}
-.g-sidebar-header h3 {
-  font-family: var(--font-heading);
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--color-text);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.g-sidebar-header h3 i {
-  color: var(--color-accent);
-  font-size: 15px;
-}
-.g-sidebar-card {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--color-border);
-  transition: background 0.2s ease;
-}
-.g-sidebar-card:hover {
-  background: var(--color-surface-alt);
-  margin-inline: -8px;
-  padding-inline: 8px;
-  border-radius: 2px;
-}
-.g-sidebar-card:last-child {
-  border-bottom: none;
-}
-.g-sidebar-thumb {
-  flex-shrink: 0;
-  width: 110px;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  display: block;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-}
-.g-sidebar-thumb :deep(img) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-.g-sidebar-card:hover .g-sidebar-thumb :deep(img) {
-  transform: scale(1.06);
-}
-.g-sidebar-body {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.g-sidebar-body h4 {
-  margin: 0;
-  font-size: 14.5px;
-  line-height: 1.5;
-  font-weight: 600;
-}
-.g-sidebar-body h4 a {
-  color: var(--color-text);
-  text-decoration: none;
-  display: block;
-  transition: color 0.2s ease;
-}
-.g-sidebar-body h4 a:hover {
-  color: var(--color-accent);
-}
-.g-sidebar-time {
-  font-size: 12px;
-  color: var(--color-muted);
-  margin-top: 2px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-@media (max-width: 991px) {
-  .g-sidebar-card {
-    gap: 12px;
-    padding: 12px 0;
-  }
-  .g-sidebar-thumb {
-    width: 90px;
-  }
-  .g-sidebar-body h4 {
-    font-size: 13.5px;
-  }
-}
-@media (max-width: 575px) {
-  .g-sidebar-thumb {
-    width: 100px;
-    aspect-ratio: 16 / 10;
-  }
-  .g-sidebar-body h4 {
-    font-size: 14px;
-  }
-}
+.g-sidebar-header { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--color-primary); display: flex; align-items: center; }
+.g-sidebar-header h3 { font-family: var(--font-heading); font-size: 18px; font-weight: 700; color: var(--color-text); display: flex; align-items: center; gap: 8px; }
+.g-sidebar-header h3 i { color: var(--color-accent); font-size: 15px; }
+.g-sidebar-card { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--color-border); transition: background 0.2s ease; }
+.g-sidebar-card:hover { background: var(--color-surface-alt); margin-inline: -8px; padding-inline: 8px; border-radius: 2px; }
+.g-sidebar-card:last-child { border-bottom: none; }
+.g-sidebar-thumb { flex-shrink: 0; width: 110px; aspect-ratio: 4 / 3; overflow: hidden; display: block; background: var(--color-surface); border: 1px solid var(--color-border); }
+.g-sidebar-thumb :deep(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1); }
+.g-sidebar-card:hover .g-sidebar-thumb :deep(img) { transform: scale(1.06); }
+.g-sidebar-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.g-sidebar-body h4 { margin: 0; font-size: 14.5px; line-height: 1.5; font-weight: 600; }
+.g-sidebar-body h4 a { color: var(--color-text); text-decoration: none; display: block; transition: color 0.2s ease; }
+.g-sidebar-body h4 a:hover { color: var(--color-accent); }
+.g-sidebar-time { font-size: 12px; color: var(--color-muted); margin-top: 2px; display: inline-flex; align-items: center; gap: 4px; }
 
 /* ─── Category Chips ─── */
-.g-cat-chip {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  padding: 3px 10px;
-  border-radius: var(--radius-badge);
-  color: #fff;
-  text-transform: uppercase;
-  line-height: 1.4;
-}
-.g-cat-chip--sm {
-  font-size: 10px;
-  padding: 2px 8px;
-}
-.g-cat-chip--xs {
-  font-size: 10px;
-  padding: 2px 8px;
-  margin-bottom: 6px;
-}
+.g-cat-chip { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.03em; padding: 3px 10px; border-radius: var(--radius-badge); color: #fff; text-transform: uppercase; line-height: 1.4; }
+.g-cat-chip--sm { font-size: 10px; padding: 2px 8px; }
 
 /* Breaking badge */
-.g-breaking {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: var(--color-live);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 10px;
-  border-radius: var(--radius-badge);
-  z-index: 2;
-}
-.g-breaking--sm {
-  font-size: 10px;
-  padding: 2px 8px;
-  top: 8px;
-  left: 8px;
-}
-
-/* ─── Section Headers — single clean line ─── */
-.g-section-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--color-text);
-}
-.g-section-accent {
-  width: 4px;
-  height: 24px;
-  flex-shrink: 0;
-}
-.g-section-header h2 {
-  font-family: var(--font-heading);
-  font-size: clamp(18px, 0.8vw + 0.85rem, 22px);
-  font-weight: 700;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.g-section-icon {
-  font-size: 16px;
-  color: var(--color-accent);
-}
-.g-section-link {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-muted);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color 0.2s ease, transform 0.2s ease;
-}
-.g-section-link:hover {
-  color: var(--color-accent);
-  transform: translateX(2px);
-}
-
-/* ─── Category Section ─── */
-.g-category-section {
-  padding: 40px 0 0;
-}
-
-/* News card */
-.g-news-card {
-  overflow: hidden;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  transition: border-color 0.25s ease, transform 0.25s ease;
-}
-.g-news-card:hover {
-  border-color: var(--color-accent);
-  transform: translateY(-2px);
-}
-.g-news-card-img {
-  display: block;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  border-radius: var(--radius-card);
-}
-.g-news-card-img :deep(img) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-.g-news-card:hover .g-news-card-img :deep(img) {
-  transform: scale(1.05);
-}
-.g-news-card-body {
-  padding: 14px 16px 16px;
-}
-.g-news-card-title {
-  margin: 6px 0 0;
-  font-size: 15px;
-  line-height: 1.5;
-  font-weight: 600;
-}
-.g-news-card-title a {
-  color: var(--color-text);
-  text-decoration: none;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  transition: color 0.2s ease;
-}
-.g-news-card-title a:hover {
-  color: var(--color-accent);
-}
-.g-news-card-meta {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--color-muted);
-}
-.g-news-card-meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
+.g-breaking { position: absolute; top: 12px; left: 12px; background: var(--color-live); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: var(--radius-badge); z-index: 2; }
 
 /* ─── Popular Section ─── */
-.g-popular-section {
-  padding: 48px 0 0;
-}
-.g-popular-card {
-  position: relative;
-  overflow: hidden;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  transition: border-color 0.25s ease, transform 0.25s ease;
-}
-.g-popular-card:hover {
-  border-color: var(--color-accent);
-  transform: translateY(-2px);
-}
-.g-popular-img {
-  display: block;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  position: relative;
-}
-.g-popular-img::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40%;
-  background: linear-gradient(to top, rgba(11,28,57,0.06) 0%, transparent 100%);
-  pointer-events: none;
-}
-.g-popular-img :deep(img) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-.g-popular-card:hover .g-popular-img :deep(img) {
-  transform: scale(1.05);
-}
-.g-popular-body {
-  padding: 14px 16px 16px;
-}
-.g-popular-body h4 {
-  margin: 6px 0 0;
-  font-size: 15px;
-  line-height: 1.5;
-  font-weight: 600;
-}
-.g-popular-body h4 a {
-  color: var(--color-text);
-  text-decoration: none;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  transition: color 0.2s ease;
-}
-.g-popular-body h4 a:hover {
-  color: var(--color-accent);
-}
-.g-popular-time {
-  font-size: 12px;
-  color: var(--color-muted);
-  margin-top: 6px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-@media (max-width: 640px) {
-  .g-popular-card {
-    display: flex;
-    flex-direction: row;
-  }
-  .g-popular-img {
-    width: 130px;
-    flex-shrink: 0;
-    aspect-ratio: 4 / 3;
-  }
-  .g-popular-img::after {
-    display: none;
-  }
-  .g-popular-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 12px 14px;
-  }
-  .g-popular-body h4 {
-    font-size: 14px;
-    -webkit-line-clamp: 3;
-  }
-}
-@media (max-width: 420px) {
-  .g-popular-img {
-    width: 110px;
-  }
-}
+.g-popular-section { padding: 48px 0 0; }
 
 /* ─── Video Section ─── */
-.g-video-section {
-  padding: 48px 0 0;
-}
-.g-video-card {
-  position: relative;
-  display: block;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-}
-.g-video-card :deep(img) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
-}
-.g-video-card:hover :deep(img) {
-  transform: scale(1.04);
-}
-.g-video-play {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--color-live);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  transition: transform 0.25s ease;
-  z-index: 2;
-}
-.g-video-card:hover .g-video-play {
-  transform: translate(-50%, -50%) scale(1.1);
-}
-.g-video-overlay {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 28px 12px 10px;
-  background: linear-gradient(to bottom, rgba(11, 28, 57, 0) 0%, rgba(11, 28, 57, 0.8) 100%);
-  z-index: 1;
-}
-.g-video-overlay h4 {
-  color: #fff;
-  font-size: 13px;
-  line-height: 1.4;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+.g-video-section { padding: 48px 0 0; }
+.g-video-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+@media (max-width: 991px) { .g-video-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 575px) { .g-video-grid { grid-template-columns: repeat(2, 1fr); } }
+.g-video-card { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; background: var(--color-surface); border: 1px solid var(--color-border); }
+.g-video-card :deep(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.g-video-card:hover :deep(img) { transform: scale(1.04); }
+.g-video-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.9); color: var(--color-live); display: flex; align-items: center; justify-content: center; font-size: 16px; transition: transform 0.25s ease; z-index: 2; }
+.g-video-card:hover .g-video-play { transform: translate(-50%, -50%) scale(1.1); }
+.g-video-overlay { position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 12px 10px; background: linear-gradient(to bottom, rgba(11,28,57,0) 0%, rgba(11,28,57,0.8) 100%); z-index: 1; }
+.g-video-overlay h4 { color: #fff; font-size: 13px; line-height: 1.4; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ─── Recent Section ─── */
+.g-recent-section { padding: 48px 0 0; }
 
 /* ─── Ad Section ─── */
-.g-ad-section {
-  padding: 32px 0;
-}
+.g-ad-section { padding: 32px 0; }
 </style>
