@@ -42,7 +42,7 @@ const text = (max: number) =>
 
 const nullableText = (max: number) => text(max).nullable().optional();
 
-// Accept absolute http(s) URLs or safe relative paths (/assets, /minio,
+// Accept absolute http(s) URLs or safe relative paths (/assets,
 // /uploads) — the DB legitimately stores the seeded logo as a relative path.
 const cleanUrl = (max: number) =>
   z
@@ -52,9 +52,8 @@ const cleanUrl = (max: number) =>
       (v) =>
         /^https?:\/\//i.test(v) ||
         v.startsWith("/assets/") ||
-        v.startsWith("/minio/") ||
         v.startsWith("/uploads/"),
-      "Must be a valid URL or /assets, /minio, /uploads path"
+      "Must be a valid URL or /assets, /uploads path"
     )
     .refine((v) => !/^javascript:/i.test(v), "Unsafe URL scheme")
     .nullable()

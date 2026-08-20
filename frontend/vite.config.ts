@@ -20,10 +20,7 @@ export default defineConfig({
         target: "http://localhost:4000",
         changeOrigin: true,
       },
-      "/minio": {
-        target: "http://localhost:4000",
-        changeOrigin: true,
-      },
+
     },
   },
 });

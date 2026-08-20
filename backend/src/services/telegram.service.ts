@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 import { randomUUID } from "crypto";
 import { env } from "../config/env";
 import { ArticleStatus } from "../constants";
-import { getMinioClient, MINIO_BUCKET } from "../lib/minio";
+import { getR2Client, R2_BUCKET } from "../lib/r2";
 import { prisma } from "../lib/prisma";
 import {
   maskSecret,
@@ -604,26 +604,31 @@ async function loadArticleImage(
   if (!url) return null;
 
   let objectKey: string | null = null;
-  // Stored URLs come in two shapes depending on the public URL config:
-  //   /minio/articles/xxx.jpg   (MINIO_PUBLIC_URL=/minio → key after /minio/)
-  //   http://host:9000/news-media/articles/xxx.jpg  (key after the bucket)
-  const marker = "/news-media/";
-  const idx = url.indexOf(marker);
-  if (idx !== -1) {
-    objectKey = decodeURIComponent(url.slice(idx + marker.length).split("?")[0]);
-  } else if (url.startsWith("/minio/")) {
-    objectKey = decodeURIComponent(url.slice("/minio/".length).split("?")[0]);
+  // R2 URLs: extract the object key from the public URL or R2.dev URL.
+  //   https://media.galaxytv4k.online/articles/xxx.jpg  (custom domain)
+  //   https://news-media.xxx.r2.dev/articles/xxx.jpg   (R2.dev default)
+  const r2PublicUrl = env.r2.publicUrl;
+  if (r2PublicUrl && url.startsWith(r2PublicUrl)) {
+    objectKey = decodeURIComponent(url.slice(r2PublicUrl.length + 1).split("?")[0]);
+  } else {
+    const marker = "/news-media/";
+    const idx = url.indexOf(marker);
+    if (idx !== -1) {
+      objectKey = decodeURIComponent(url.slice(idx + marker.length).split("?")[0]);
+    }
   }
 
   if (objectKey) {
-    const client = getMinioClient();
+    const { GetObjectCommand } = await import("@aws-sdk/client-s3");
+    const client = getR2Client();
     if (!client) return null;
     try {
-      const stream = await client.getObject(MINIO_BUCKET, objectKey);
+      const response = await client.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: objectKey }));
+      const stream = response.Body as NodeJS.ReadableStream;
       const buffer = await collectStream(stream);
       return { buffer, filename: objectKey.split("/").pop() ?? "image", mimeType: mimeFor(objectKey) };
     } catch (error) {
-      logger.warn({ error, objectKey }, "Failed to load article image from MinIO");
+      logger.warn({ error, objectKey }, "Failed to load article image from R2");
       return null;
     }
   }

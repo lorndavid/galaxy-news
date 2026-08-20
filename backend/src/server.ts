@@ -3,11 +3,11 @@ import { createApp, logStartup } from "./app";
 import { env } from "./config/env";
 import { logger } from "./lib/logger";
 import { prisma } from "./lib/prisma";
-import { ensureBucket } from "./lib/minio";
+import { ensureBucket } from "./lib/r2";
 import { startTelegramWorker, stopTelegramWorker } from "./jobs/telegram.worker";
 
 async function bootstrap() {
-  // Create the MinIO bucket if missing (safe when MinIO is down).
+  // Verify R2 bucket exists (safe when R2 is down).
   await ensureBucket();
 
   // Telegram auto-publish worker (Redis-backed queue; safe when Redis is down).

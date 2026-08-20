@@ -1,5 +1,5 @@
 // ============================================================
-// Navatra 4K TV — database schema (SQLite + Prisma)
+// Navatra 4K TV — database schema (PostgreSQL + Prisma)
 // ============================================================
 
 generator client {
@@ -10,16 +10,13 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// Note: role/status columns use Strings validated at the application layer
-// (see src/constants.ts) so the same schema works on any database.
-
 // ---------- Users & auth ----------
-// Note: SQLite does not support native enums, so role/status columns are
-// Strings validated at the application layer (see src/constants.ts).
+// Note: role/status columns use Strings validated at the application layer
+// (see src/constants.ts) for cross-database portability.
 
 // Roles: SUPER_ADMIN | ADMIN | EDITOR | AUTHOR
 

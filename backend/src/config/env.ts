@@ -30,16 +30,16 @@ export const env = {
     // that cache invalidation misses are acceptable.
     ttlSeconds: Number(process.env.REDIS_TTL_SECONDS ?? 30),
   },
-  minio: {
-    endpoint: process.env.MINIO_ENDPOINT ?? "localhost",
-    port: Number(process.env.MINIO_PORT ?? 9000),
-    useSSL: (process.env.MINIO_USE_SSL ?? "false") === "true",
-    accessKey: process.env.MINIO_ACCESS_KEY ?? "",
-    secretKey: process.env.MINIO_SECRET_KEY ?? "",
-    bucket: process.env.MINIO_BUCKET ?? "news-media",
-    // Public URL prefix used when generating object URLs. When serving
-    // through the backend proxy this can be relative (e.g. /minio/news-media).
-    publicUrl: process.env.MINIO_PUBLIC_URL ?? "",
+  r2: {
+    accountId: process.env.R2_ACCOUNT_ID ?? "",
+    accessKey: process.env.R2_ACCESS_KEY_ID ?? "",
+    secretKey: process.env.R2_SECRET_ACCESS_KEY ?? "",
+    bucket: process.env.R2_BUCKET_NAME ?? "news-media",
+    // Public URL for serving images. Options:
+    //   1. Custom domain: https://media.galaxytv4k.online
+    //   2. R2.dev public: https://<bucket>.<accountId>.r2.dev
+    //   3. Backend proxy: /media (leave empty to auto-generate R2.dev URL)
+    publicUrl: process.env.R2_PUBLIC_URL ?? "",
   },
   cors: {
     frontendUrl: process.env.FRONTEND_URL ?? "http://localhost:5173",
@@ -59,6 +59,6 @@ export function redisConfigured(): boolean {
   return Boolean(env.redis.url);
 }
 
-export function minioConfigured(): boolean {
-  return Boolean(env.minio.accessKey && env.minio.secretKey && env.minio.endpoint);
+export function r2Configured(): boolean {
+  return Boolean(env.r2.accountId && env.r2.accessKey && env.r2.secretKey);
 }

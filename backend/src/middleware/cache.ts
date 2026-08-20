@@ -176,7 +176,7 @@ export async function invalidateAdminMutation(req: Request): Promise<void> {
       prefixes.add(FEED.articles);
     }
     // /media, /messages, /newsletter: no public cached feed is affected
-    // (media images stream through the /minio proxy with browser caching).
+    // (media images served directly from R2 public URL with browser caching).
   } catch (error) {
     // Lookup failed — clear everything rather than risk stale content.
     logger.error({ error }, "Targeted invalidation failed — clearing all public cache");

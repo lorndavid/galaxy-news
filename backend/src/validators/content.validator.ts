@@ -13,12 +13,12 @@ export const slugParamsSchema = z.object({
 });
 
 // ---------- Shared image field ----------
-// Image fields may be absolute URLs or relative object paths served
-// through the API proxy (/minio/..., /uploads/...).
+// Image fields may be absolute URLs (R2 public/custom domain, legacy)
+// or relative object paths (/uploads/...).
 const imageField = z
   .string()
-  .refine((v) => /^https?:\/\//.test(v) || v.startsWith("/minio/") || v.startsWith("/uploads/"), {
-    message: "Image must be a valid URL or /minio or /uploads path",
+  .refine((v) => /^https?:\/\//.test(v) || v.startsWith("/uploads/"), {
+    message: "Image must be a valid URL or /uploads path",
   })
   .nullable()
   .optional();
@@ -120,8 +120,8 @@ export const adCreateSchema = z.object({
     title: z.string().trim().max(200).nullable().optional(),
     image: z
       .string()
-      .refine((v) => /^https?:\/\//.test(v) || v.startsWith("/minio/") || v.startsWith("/uploads/"), {
-        message: "Image must be a valid URL or /minio or /uploads path",
+      .refine((v) => /^https?:\/\//.test(v) || v.startsWith("/uploads/"), {
+        message: "Image must be a valid URL or /uploads path",
       }),
     link: z
       .string()

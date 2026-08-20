@@ -2,12 +2,12 @@ import { z } from "zod";
 
 export const articleStatusEnum = z.enum(["DRAFT", "PUBLISHED", "SCHEDULED", "ARCHIVED"]);
 
-// Image fields may be absolute URLs (legacy/local) or relative object
-// paths served through the API proxy (/minio/..., /uploads/...).
+// Image fields may be absolute URLs (R2 public/custom domain, legacy)
+// or relative object paths (/uploads/...).
 const imageField = z
   .string()
-  .refine((v) => /^https?:\/\//.test(v) || v.startsWith("/minio/") || v.startsWith("/uploads/"), {
-    message: "Image must be a valid URL or /minio or /uploads path",
+  .refine((v) => /^https?:\/\//.test(v) || v.startsWith("/uploads/"), {
+    message: "Image must be a valid URL or /uploads path",
   })
   .nullable()
   .optional();

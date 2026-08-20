@@ -7,7 +7,7 @@ import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { apiLimiter } from "./middleware/rateLimit";
 import { logger } from "./lib/logger";
 import { prisma } from "./lib/prisma";
-import { checkMinio, getMinioClient, MINIO_BUCKET } from "./lib/minio";
+import { checkR2 } from "./lib/r2";
 import { checkRedis } from "./lib/redis";
 import { apiRouter } from "./routes";
 
@@ -54,41 +54,23 @@ export function createApp() {
   // Local uploads (fallback storage when MinIO is not configured)
   app.use("/uploads", express.static(env.uploadsDir, { maxAge: "7d" }));
 
-  // MinIO objects — proxied through the API so the public site and admin
-  // can always load images via /minio/... regardless of MinIO's host/port.
-  // (Only applies when MinIO is configured; otherwise 404.)
-  app.use("/minio", async (req, res, next) => {
-    const client = getMinioClient();
-    if (!client) return next();
-    try {
-      const key = decodeURIComponent(req.path.replace(/^\//, ""));
-      const meta = await client.statObject(MINIO_BUCKET, key);
-      const object = await client.getObject(MINIO_BUCKET, key);
-      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-      res.setHeader("Content-Type", meta.metaData?.["content-type"] ?? "application/octet-stream");
-      object.pipe(res);
-    } catch (error) {
-      // Object not found (or MinIO hiccup) — fall through to 404.
-      const code = (error as { code?: string } | undefined)?.code;
-      if (code === "NoSuchKey" || code === "NotFound") return next();
-      next(error);
-    }
-  });
+  // R2 images are served directly from the public R2 URL or a custom
+  // domain (e.g. media.galaxytv4k.online). No backend proxy needed.
 
   // Health — reports the API plus each dependency independently so a
   // degraded stack is obvious (Redis/MinIO down ≠ backend down).
   app.get("/health", async (_req, res) => {
-    const [db, redis, minio] = await Promise.allSettled([
+    const [db, redis, r2] = await Promise.allSettled([
       prisma.$queryRaw`SELECT 1`,
       checkRedis(),
-      checkMinio(),
+      checkR2(),
     ]);
     const healthy = {
       status: "ok",
       dependencies: {
         database: db.status === "fulfilled" ? "ok" : "down",
         redis: redis.status === "fulfilled" && redis.value ? "ok" : "down",
-        minio: minio.status === "fulfilled" && minio.value ? "ok" : "down",
+        r2: r2.status === "fulfilled" && r2.value ? "ok" : "down",
       },
     };
     const degraded = healthy.dependencies.database !== "ok";
@@ -105,7 +87,7 @@ export function createApp() {
 
 export function logStartup(port: number) {
   logger.info(
-    { port, env: env.nodeEnv, uploads: env.uploadsDir, minio: env.minio.bucket, redis: env.redis.url },
+    { port, env: env.nodeEnv, uploads: env.uploadsDir, r2: env.r2.bucket, redis: env.redis.url },
     "Galaxy TV V4K API listening"
   );
 }

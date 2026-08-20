@@ -41,4 +41,4 @@ EXPOSE 4000
 # Apply migrations and seed demo data (all upserts, so re-running is
 # safe on every boot), then start the API. DATABASE_URL points at the
 # persistent sqlite volume, so data survives container restarts.
-CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed && node dist/server.js"]
+CMD ["sh", "-c", "npx prisma generate && npx prisma migrate deploy && npx prisma db seed && node dist/server.js"]

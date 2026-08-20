@@ -55,19 +55,42 @@
               <ArticleThumb :src="article.featuredImage" :alt="title(article)" />
             </div>
 
-            <!-- Gallery images — grid layout set from the admin editor -->
-            <div v-if="article.images?.length" class="news-gallery" :style="{ '--gallery-cols': article.galleryColumns || 3 }">
-              <button
-                v-for="(img, i) in article.images"
-                :key="img.id"
-                type="button"
-                class="news-gallery-item"
-                :aria-label="img.altText || title(article)"
-                @click="openLightbox(i)"
-              >
-                <img :src="img.url" :alt="img.altText || title(article)" loading="lazy" decoding="async" />
-                <span v-if="img.caption" class="news-gallery-caption">{{ img.caption }}</span>
-              </button>
+            <!-- Gallery images — switchable 2/3/4 column layout -->
+            <div v-if="article.images?.length" class="news-gallery-block">
+              <div class="news-gallery-toolbar">
+                <span class="news-gallery-label"><i class="fas fa-images" aria-hidden="true"></i> {{ article.images.length }}</span>
+                <div class="news-gallery-cols" role="radiogroup" aria-label="Gallery columns">
+                  <button
+                    v-for="c in [2, 3, 4]"
+                    :key="c"
+                    type="button"
+                    class="news-gallery-col-btn"
+                    :class="{ active: galleryCols === c }"
+                    :aria-label="`${c} columns`"
+                    :aria-pressed="galleryCols === c"
+                    @click="galleryCols = c"
+                  >
+                    <template v-for="n in c" :key="n"><span class="col-dot" /><template v-if="n < c"> </template></template>
+                  </button>
+                </div>
+              </div>
+              <div class="news-gallery" :style="{ '--gallery-cols': galleryCols }">
+                <button
+                  v-for="(img, i) in article.images"
+                  :key="img.id"
+                  type="button"
+                  class="news-gallery-item"
+                  :aria-label="img.altText || title(article)"
+                  @click="openLightbox(i)"
+                >
+                  <img :src="img.url" :alt="img.altText || title(article)" loading="lazy" decoding="async" />
+                  <div v-if="img.title || img.description || img.caption" class="news-gallery-meta">
+                    <strong v-if="img.title" class="news-gallery-title">{{ img.title }}</strong>
+                    <p v-if="img.description" class="news-gallery-desc">{{ img.description }}</p>
+                    <span v-else-if="img.caption" class="news-gallery-caption">{{ img.caption }}</span>
+                  </div>
+                </button>
+              </div>
             </div>
 
             <div class="news-body">
@@ -219,6 +242,10 @@ async function copyLink() {
     // clipboard unavailable — do nothing
   }
 }
+
+// ---- Gallery column switcher ----
+const galleryCols = ref(3);
+watch(article, (a) => { if (a) galleryCols.value = a.galleryColumns ?? 3; });
 
 // ---- Gallery lightbox ----
 const lightboxIndex = ref<number | null>(null);
@@ -426,51 +453,144 @@ onUnmounted(() => {
   transform: translateY(-50%) translateX(-10px);
 }
 
-/* ─── Gallery grid (columns from the admin editor) ─── */
+/* ─── Gallery block (toolbar + grid) ─── */
+.news-gallery-block {
+  margin: 24px 0;
+}
+.news-gallery-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0 12px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  margin-bottom: 16px;
+}
+.news-gallery-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-muted, #6b7280);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.news-gallery-label i {
+  font-size: 14px;
+  color: var(--color-accent, #fc3f00);
+}
+.news-gallery-cols {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.news-gallery-col-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 36px;
+  height: 28px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  background: var(--color-surface, #fff);
+  color: var(--color-muted, #9ca3af);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+.news-gallery-col-btn:hover {
+  border-color: var(--color-accent, #fc3f00);
+  color: var(--color-accent, #fc3f00);
+}
+.news-gallery-col-btn.active {
+  background: var(--color-accent, #fc3f00);
+  border-color: var(--color-accent, #fc3f00);
+  color: #fff;
+}
+.col-dot {
+  display: inline-block;
+  width: 4px;
+  height: 12px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+/* ─── Gallery grid ─── */
 .news-gallery {
-  margin: 22px 0;
   display: grid;
   grid-template-columns: repeat(var(--gallery-cols, 3), 1fr);
-  gap: 12px;
+  gap: 14px;
 }
 .news-gallery-item {
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
   padding: 0;
   border: none;
   background: var(--color-surface, #fff);
   border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
   overflow: hidden;
   text-align: left;
   cursor: zoom-in;
-  transition: filter 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .news-gallery-item:hover {
-  filter: brightness(0.96);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
 }
 .news-gallery-item img {
   width: 100%;
-  height: auto;
+  aspect-ratio: 16 / 10;
   display: block;
   object-fit: cover;
+}
+.news-gallery-meta {
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--color-border, #f0f0f0);
+}
+.news-gallery-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text, #0b1c39);
+  line-height: 1.4;
+  margin-bottom: 2px;
+}
+.news-gallery-desc {
+  font-size: 12px;
+  color: var(--color-muted, #6b7280);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .news-gallery-caption {
   display: block;
   margin: 0;
-  padding: 8px 10px 10px;
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--color-muted, #6b7280);
   font-style: italic;
   line-height: 1.5;
 }
+
+/* ─── Gallery responsive ─── */
 @media (max-width: 767px) {
+  .news-gallery-toolbar {
+    padding: 8px 0 10px;
+  }
   .news-gallery {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px;
   }
 }
 @media (max-width: 460px) {
   .news-gallery {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
+  }
+  .news-gallery-item img {
+    aspect-ratio: 16 / 9;
   }
 }
 
@@ -626,12 +746,19 @@ onUnmounted(() => {
   .news-content-read {
     max-width: 100%;
   }
-  .news-gallery {
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
+  .news-gallery-toolbar {
+    flex-wrap: wrap;
+    gap: 6px;
   }
-  .news-gallery-item {
-    border-radius: 8px;
+  .news-gallery-meta {
+    padding: 8px 10px 10px;
+  }
+  .news-gallery-title {
+    font-size: 12.5px;
+  }
+  .news-gallery-desc {
+    font-size: 11.5px;
+    -webkit-line-clamp: 2;
   }
   .news-tags {
     gap: 6px;
