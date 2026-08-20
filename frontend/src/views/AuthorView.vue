@@ -64,7 +64,7 @@ const authorAvatar = computed(() => items.value[0]?.author?.avatar ?? "/assets/i
 
 useSeo(
   computed(() => ({
-    title: `${authorName.value} | Navatra 4K TV`,
+    title: `${authorName.value} | Galaxy TV V4K`,
     description: `អត្ថបទទាំងអស់របស់ ${authorName.value}`,
   }))
 );

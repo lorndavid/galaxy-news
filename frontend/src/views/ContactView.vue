@@ -75,8 +75,8 @@ import { contentService } from "@/services/content.service";
 import { useSettingsStore } from "@/stores/settings";
 
 useSeo({
-  title: "ទំនាក់ទំនង | Navatra 4K TV",
-  description: "ទំនាក់ទំនងមកកាន់ Navatra 4K TV",
+  title: "ទំនាក់ទំនង | Galaxy TV V4K",
+  description: "ទំនាក់ទំនងមកកាន់ Galaxy TV V4K",
 });
 
 const settingsStore = useSettingsStore();

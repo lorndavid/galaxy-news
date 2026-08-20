@@ -65,7 +65,7 @@ import NavatraPoster from "@/components/article/NavatraPoster.vue";
 import { useLocalized } from "@/composables/useLocalized";
 
 const { t } = useLocalized();
-useSeo({ title: `${t.search.resultsFor} | Navatra 4K TV` });
+useSeo({ title: `${t.search.resultsFor} | Galaxy TV V4K` });
 
 const route = useRoute();
 const router = useRouter();

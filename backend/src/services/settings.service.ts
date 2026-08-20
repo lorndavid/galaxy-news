@@ -69,7 +69,7 @@ const SHARE_FIELDS = [
   "shareWhatsapp",
 ] as const;
 
-const DEFAULT_SETTINGS = { siteName: "Navatra 4K TV" };
+const DEFAULT_SETTINGS = { siteName: "Galaxy TV V4K" };
 
 export async function getPublic() {
   const settings = await prisma.siteSettings.findFirst();

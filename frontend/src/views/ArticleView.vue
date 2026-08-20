@@ -47,7 +47,7 @@
             <h1 class="news-title">{{ title(article) }}</h1>
 
             <div class="news-meta">
-              <span v-if="article.publishedAt"><i class="ti-calendar"></i> {{ formatKhmerDateFull(article.publishedAt) }}</span>
+              <span v-if="article.publishedAt"><i class="ti-calendar"></i> {{ formatDateFull(article.publishedAt) }}</span>
               <span><i class="ti-user"></i> {{ article.author?.name }}</span>
               <span><i class="ti-timer"></i> {{ toKhmerDigits(readingTime(localizedContent)) }} {{ t.common.minuteRead }}</span>
               <span><i class="ti-eye"></i> {{ formatViews(article.views) }} {{ t.common.times }}</span>
@@ -94,7 +94,7 @@
                 <div v-for="c in comments" :key="c.id" class="single-comment">
                   <div class="comment-head">
                     <strong>{{ c.name }}</strong>
-                    <span class="comment-date">{{ formatKhmerDate(c.createdAt) }}</span>
+                    <span class="comment-date">{{ formatDate(c.createdAt) }}</span>
                   </div>
                   <p>{{ c.content }}</p>
                 </div>
@@ -191,7 +191,7 @@ import AdSlot from "@/components/ads/AdSlot.vue";
 import NavatraPoster from "@/components/article/NavatraPoster.vue";
 import { useLocalized } from "@/composables/useLocalized";
 import { useShareLinks } from "@/composables/useShareLinks";
-import { formatKhmerDate, formatKhmerDateFull, formatViews, readingTime, toKhmerDigits } from "@/utils/format";
+import { formatViews, readingTime, toKhmerDigits } from "@/utils/format";
 
 const route = useRoute();
 const localeStore = useLocaleStore();
@@ -216,7 +216,7 @@ const commentForm = reactive({ name: "", email: "", content: "" });
 const commentSending = ref(false);
 const commentMsg = ref("");
 
-const { title, excerpt, content, catName, t } = useLocalized();
+const { title, excerpt, content, catName, t, formatDate, formatDateFull } = useLocalized();
 
 const localizedExcerpt = computed(() => (article.value ? excerpt(article.value) : ""));
 const localizedContent = computed(() => (article.value ? content(article.value) : ""));
@@ -303,7 +303,7 @@ useSeo(
     const a = article.value;
     const base = window.location.origin;
     return {
-      title: `${a ? title(a) : "Navatra 4K TV"} | Navatra 4K TV`,
+      title: `${a ? title(a) : "Galaxy TV V4K"} | Galaxy TV V4K`,
       description: a ? excerpt(a) || title(a) : "",
       image: a?.featuredImage,
       url: pageUrl.value,
@@ -319,10 +319,10 @@ useSeo(
               datePublished: a.publishedAt ?? a.createdAt,
               dateModified: a.updatedAt,
               url: pageUrl.value,
-              author: { "@type": "Person", name: a.author?.name ?? "Navatra 4K TV" },
+              author: { "@type": "Person", name: a.author?.name ?? "Galaxy TV V4K" },
               publisher: {
                 "@type": "Organization",
-                name: settingsStore.settings?.siteName ?? "Navatra 4K TV",
+                name: settingsStore.settings?.siteName ?? "Galaxy TV V4K",
                 logo: settingsStore.settings?.logo
                   ? { "@type": "ImageObject", url: settingsStore.settings.logo }
                   : undefined,

@@ -10,7 +10,7 @@
           <RouterLink :to="`/article/${article.slug}`">{{ title(article) }}</RouterLink>
         </h5>
         <span v-if="article.publishedAt" class="g-popular-date">
-          <i class="ti-calendar"></i> {{ formatKhmerDate(article.publishedAt) }}
+          <i class="ti-calendar"></i> {{ formatDate(article.publishedAt) }}
         </span>
       </div>
     </article>
@@ -20,11 +20,10 @@
 <script setup lang="ts">
 import type { Article } from "@/types";
 import ArticleThumb from "@/components/common/ArticleThumb.vue";
-import { formatKhmerDate } from "@/utils/format";
 import { useLocalized } from "@/composables/useLocalized";
 
 defineProps<{ articles: Article[] }>();
-const { title, t } = useLocalized();
+const { title, t, formatDate } = useLocalized();
 </script>
 
 <style scoped>

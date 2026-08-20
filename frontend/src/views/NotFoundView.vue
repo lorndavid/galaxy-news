@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { useSeo } from "@/composables/useSeo";
 
-useSeo({ title: "រកមិនឃើញ | Navatra 4K TV" });
+useSeo({ title: "រកមិនឃើញ | Galaxy TV V4K" });
 </script>
 
 <style scoped>

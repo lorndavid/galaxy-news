@@ -251,7 +251,7 @@ model Advertisement {
 
 model SiteSettings {
   id           Int      @id @default(autoincrement())
-  siteName     String   @default("Navatra 4K TV")
+  siteName     String   @default("Galaxy TV V4K")
   siteNameEn   String?  // English site name (falls back to siteName)
   logo         String?
   favicon      String?

@@ -23,7 +23,7 @@
         </div>
         <div>
           <label class="label">ឈ្មោះគេហទំព័រ (English)</label>
-          <input v-model="form.siteNameEn" type="text" class="input" placeholder="Navatra 4K TV" />
+          <input v-model="form.siteNameEn" type="text" class="input" placeholder="Galaxy TV V4K" />
         </div>
         <div class="sm:col-span-2">
           <label class="label">ភាសាលំនាំដើម</label>

@@ -26,7 +26,7 @@ const SHADOW = {
 } as const;
 
 const DEFAULTS: SiteSettings = {
-  siteName: "Navatra 4K TV",
+  siteName: "Galaxy TV V4K",
   siteNameEn: null,
   logo: null,
   favicon: null,

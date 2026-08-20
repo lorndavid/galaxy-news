@@ -1,4 +1,5 @@
 import { useLocaleStore } from "@/stores/locale";
+import { formatKhmerDate, formatKhmerDateFull, formatEnglishDate } from "@/utils/format";
 
 /**
  * Localized content helpers — every card/view should read titles,
@@ -24,5 +25,13 @@ export function useLocalized() {
     category?: { description: string | null; descriptionEn: string | null } | null;
   }) => locale.pick(a.category?.description, a.category?.descriptionEn);
 
-  return { locale, isEn: locale.isEn, t: locale.t, title, excerpt, content, catName, catDescription };
+  /** Locale-aware short date: "១២ សីហា ២០២៦" / "12 Aug 2026" */
+  const formatDate = (value: string | Date | null): string =>
+    locale.isEn ? formatEnglishDate(value) : formatKhmerDate(value);
+
+  /** Locale-aware full date: "ថ្ងៃទី១២ ខែសីហា ឆ្នាំ២០២៦" / "12 Aug 2026" */
+  const formatDateFull = (value: string | Date | null): string =>
+    locale.isEn ? formatEnglishDate(value) : formatKhmerDateFull(value);
+
+  return { locale, isEn: locale.isEn, t: locale.t, title, excerpt, content, catName, catDescription, formatDate, formatDateFull };
 }

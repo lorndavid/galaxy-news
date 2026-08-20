@@ -14,9 +14,8 @@
       </h2>
       <p v-if="isHero && excerpt(article)" class="g-hero-card-excerpt">{{ excerpt(article) }}</p>
       <div class="g-hero-card-meta">
-        <span v-if="article.publishedAt"><i class="ti-calendar"></i> {{ formatKhmerDate(article.publishedAt) }}</span>
+        <span v-if="article.publishedAt"><i class="ti-calendar"></i> {{ formatDate(article.publishedAt) }}</span>
         <span v-if="article.author?.name"><i class="ti-user"></i> {{ article.author.name }}</span>
-        <span><i class="ti-eye"></i> {{ formatViews(article.views) }}</span>
       </div>
     </div>
   </article>
@@ -26,13 +25,12 @@
 import { computed } from "vue";
 import type { Article } from "@/types";
 import ArticleThumb from "@/components/common/ArticleThumb.vue";
-import { formatKhmerDate, formatViews } from "@/utils/format";
 import { useLocalized } from "@/composables/useLocalized";
 
 const props = withDefaults(defineProps<{ article: Article; isHero?: boolean }>(), {
   isHero: false,
 });
-const { title, excerpt, catName, t } = useLocalized();
+const { title, excerpt, catName, t, formatDate } = useLocalized();
 
 const CAT_COLORS = [
   "var(--cat-national)", "var(--cat-political)", "var(--cat-international)",

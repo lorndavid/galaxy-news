@@ -16,7 +16,7 @@
               <h4>
                 <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
               </h4>
-              <span v-if="a.publishedAt" class="g-sidebar-time"><i class="ti-calendar"></i> {{ formatKhmerDate(a.publishedAt) }}</span>
+              <span v-if="a.publishedAt" class="g-sidebar-time"><i class="ti-calendar"></i> {{ formatDate(a.publishedAt) }}</span>
             </article>
           </aside>
 
@@ -34,9 +34,8 @@
                 </h1>
                 <p v-if="excerpt(hero)" class="g-hero-excerpt">{{ excerpt(hero) }}</p>
                 <div class="g-hero-meta">
-                  <span v-if="hero.publishedAt"><i class="ti-calendar"></i> {{ formatKhmerDate(hero.publishedAt) }}</span>
+                  <span v-if="hero.publishedAt"><i class="ti-calendar"></i> {{ formatDate(hero.publishedAt) }}</span>
                   <span v-if="hero.author?.name"><i class="ti-user"></i> {{ hero.author.name }}</span>
-                  <span><i class="ti-eye"></i> {{ formatViews(hero.views) }}</span>
                 </div>
               </div>
             </article>
@@ -70,7 +69,7 @@
                 <h4>
                   <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
                 </h4>
-                <span v-if="a.publishedAt" class="g-sidebar-time"><i class="ti-calendar"></i> {{ localeDate(a.publishedAt) }}</span>
+                <span v-if="a.publishedAt" class="g-sidebar-time"><i class="ti-calendar"></i> {{ formatDate(a.publishedAt) }}</span>
               </div>
             </article>
           </aside>
@@ -103,8 +102,7 @@
                 <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
               </h4>
               <div class="g-news-card-meta">
-                <span v-if="a.publishedAt"><i class="ti-calendar"></i> {{ formatKhmerDate(a.publishedAt) }}</span>
-                <span><i class="ti-eye"></i> {{ formatViews(a.views) }}</span>
+                <span v-if="a.publishedAt"><i class="ti-calendar"></i> {{ formatDate(a.publishedAt) }}</span>
               </div>
             </div>
           </article>
@@ -143,8 +141,7 @@
                 <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
               </h4>
               <div class="g-news-card-meta">
-                <span v-if="a.publishedAt"><i class="ti-calendar"></i> {{ formatKhmerDate(a.publishedAt) }}</span>
-                <span><i class="ti-eye"></i> {{ formatViews(a.views) }}</span>
+                <span v-if="a.publishedAt"><i class="ti-calendar"></i> {{ formatDate(a.publishedAt) }}</span>
               </div>
             </div>
           </article>
@@ -169,7 +166,7 @@
               <h4>
                 <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
               </h4>
-              <span v-if="a.publishedAt" class="g-popular-time">{{ formatKhmerDate(a.publishedAt) }}</span>
+              <span v-if="a.publishedAt" class="g-popular-time">{{ formatDate(a.publishedAt) }}</span>
             </div>
           </article>
         </div>
@@ -230,8 +227,7 @@
                 <RouterLink :to="`/article/${a.slug}`">{{ title(a) }}</RouterLink>
               </h4>
               <div class="g-news-card-meta">
-                <span v-if="a.publishedAt"><i class="ti-calendar"></i> {{ formatKhmerDate(a.publishedAt) }}</span>
-                <span><i class="ti-eye"></i> {{ formatViews(a.views) }}</span>
+                <span v-if="a.publishedAt"><i class="ti-calendar"></i> {{ formatDate(a.publishedAt) }}</span>
               </div>
             </div>
           </article>
@@ -260,24 +256,18 @@ import type { Article, Category, HomepageSectionConfig } from "@/types";
 import ArticleThumb from "@/components/common/ArticleThumb.vue";
 import AdSlot from "@/components/ads/AdSlot.vue";
 import MoreNewsSection from "@/components/sections/MoreNewsSection.vue";
-import { formatKhmerDate, formatEnglishDate, formatViews } from "@/utils/format";
-
 const categoryStore = useCategoryStore();
 const settingsStore = useSettingsStore();
-const { locale, isEn, title, excerpt, catName, t } = useLocalized();
-
-function localeDate(date: string | Date | null): string {
-  return isEn ? formatEnglishDate(date) : formatKhmerDate(date);
-}
+const { locale, title, excerpt, catName, t, formatDate } = useLocalized();
 
 const catNameOf = (c: Category) => locale.pick(c.name, c.nameEn);
 
 useSeo(
   computed(() => ({
-    title: "Galaxy TV 4K | ព័ត៌មានក្តៅៗប្រចាំថ្ងៃ",
+    title: "Galaxy TV V4K | ព័ត៌មានក្តៅៗប្រចាំថ្ងៃ",
     description:
       settingsStore.settings?.description ??
-      "Galaxy TV 4K — មជ្ឈមណ្ឌលព័ត៌មានឌីជីថលរបស់កម្ពុជា៖ ព័ត៌មានក្តៅៗ កម្សាន្ត បច្ចេកវិទ្យា និងការផ្សាយបន្តផ្ទាល់",
+      "Galaxy TV V4K — មជ្ឈមណ្ឌលព័ត៌មានឌីជីថលរបស់កម្ពុជា៖ ព័ត៌មានក្តៅៗ កម្សាន្ត បច្ចេកវិទ្យា និងការផ្សាយបន្តផ្ទាល់",
     image: settingsStore.settings?.logo ?? "/assets/img/logo/logo1.png",
     url: window.location.origin,
     type: "website",
@@ -285,7 +275,7 @@ useSeo(
       {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        name: settingsStore.settings?.siteName ?? "Galaxy TV 4K",
+        name: settingsStore.settings?.siteName ?? "Galaxy TV V4K",
         url: window.location.origin,
         potentialAction: {
           "@type": "SearchAction",

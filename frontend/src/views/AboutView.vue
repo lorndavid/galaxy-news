@@ -68,11 +68,11 @@ import NavatraPoster from "@/components/article/NavatraPoster.vue";
 
 const settingsStore = useSettingsStore();
 const settings = computed(() => settingsStore.settings);
-const siteName = computed(() => settings.value?.siteName ?? "Navatra 4K TV");
+const siteName = computed(() => settings.value?.siteName ?? "Galaxy TV V4K");
 
 useSeo({
   title: `អំពីយើង | ${siteName.value}`,
-  description: "ស្វែងយល់ពី Navatra 4K TV មជ្ឈមណ្ឌលព័ត៌មានឌីជីថលរបស់កម្ពុជា",
+  description: "ស្វែងយល់ពី Galaxy TV V4K មជ្ឈមណ្ឌលព័ត៌មានឌីជីថលរបស់កម្ពុជា",
 });
 
 onMounted(() => settingsStore.load());

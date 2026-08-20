@@ -106,6 +106,6 @@ export function createApp() {
 export function logStartup(port: number) {
   logger.info(
     { port, env: env.nodeEnv, uploads: env.uploadsDir, minio: env.minio.bucket, redis: env.redis.url },
-    "Navatra 4K TV API listening"
+    "Galaxy TV V4K API listening"
   );
 }

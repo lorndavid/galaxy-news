@@ -2,7 +2,7 @@
   <div class="news-poster d-none d-lg-block">
     <RouterLink to="/" class="navatra-poster">
       <span class="poster-badge">4K TV</span>
-      <img class="poster-logo" loading="lazy" decoding="async" :src="logoUrl" alt="Navatra 4K TV" />
+      <img class="poster-logo" loading="lazy" decoding="async" :src="logoUrl" alt="Galaxy TV V4K" />
       <h3>{{ siteName }}</h3>
       <p>{{ isEn ? enTagline : khTagline }}</p>
       <span class="poster-btn">{{ isEn ? enBtn : khBtn }}</span>
@@ -22,7 +22,7 @@ const khTagline = "មជ្ឈមណ្ឌលព័ត៌មានឌីជី�
 const enTagline = "Digital news hub — breaking news, entertainment and technology every day";
 const khBtn = "ចូលមើលបន្ថែម";
 const enBtn = "Explore More";
-const siteName = computed(() => settings.settings?.siteName ?? "Navatra 4K TV");
+const siteName = computed(() => settings.settings?.siteName ?? "Galaxy TV V4K");
 const logoUrl = computed(
   () => settings.settings?.logo ?? "/assets/img/logo/logo1.png"
 );

@@ -113,7 +113,7 @@ useSeo(
   computed(() => {
     const c = category.value;
     return {
-      title: `${c?.name ?? "ប្រភេទ"} | Navatra 4K TV`,
+      title: `${c?.name ?? "ប្រភេទ"} | Galaxy TV V4K`,
       description: c?.description ?? `អត្ថបទទាំងអស់ក្នុងប្រភេទ ${c?.name ?? ""}`,
       url: c ? `${window.location.origin}/category/${c.slug}` : undefined,
       type: "website",

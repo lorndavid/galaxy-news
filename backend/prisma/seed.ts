@@ -391,8 +391,8 @@ async function seedArticles(users: Record<string, { id: number }>, categories: R
 }
 
 const siteSettings = {
-  siteName: "Navatra 4K TV",
-  siteNameEn: "Navatra 4K TV",
+  siteName: "Galaxy TV V4K",
+  siteNameEn: "Galaxy TV V4K",
   logo: "/assets/img/logo/logo1.png",
   favicon: "/assets/img/favicon.ico",
   description: "មជ្ឈមណ្ឌលព័ត៌មានឌីជីថល ព័ត៌មានក្តៅៗ កម្សាន្ត និងបច្ចេកវិទ្យាប្រចាំថ្ងៃ",
@@ -459,7 +459,7 @@ async function seedAds() {
   await prisma.advertisement.upsert({
     where: { id: 1 },
     update: {
-      name: "Navatra 4K TV sidebar promo",
+      name: "Galaxy TV V4K sidebar promo",
       title: "ផ្សាយពាណិជ្ជកម្ម",
       image: img("banner4.png"),
       link: "/",
@@ -471,7 +471,7 @@ async function seedAds() {
     },
     create: {
       id: 1,
-      name: "Navatra 4K TV sidebar promo",
+      name: "Galaxy TV V4K sidebar promo",
       title: "ផ្សាយពាណិជ្ជកម្ម",
       image: img("banner4.png"),
       link: "/",

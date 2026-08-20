@@ -39,8 +39,7 @@
             </h3>
             <p v-if="excerpt(a)" class="g-more-excerpt">{{ excerpt(a) }}</p>
             <div class="g-more-meta">
-              <span v-if="a.publishedAt"><i class="ti-calendar"></i> {{ localeDate(a.publishedAt) }}</span>
-              <span><i class="ti-eye"></i> {{ formatViews(a.views) }}</span>
+              <span v-if="a.publishedAt"><i class="ti-calendar"></i> {{ formatDate(a.publishedAt) }}</span>
             </div>
           </div>
         </article>
@@ -74,7 +73,6 @@
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { articleService } from "@/services/article.service";
 import { useLocalized } from "@/composables/useLocalized";
-import { formatKhmerDate, formatEnglishDate, formatViews } from "@/utils/format";
 import type { Article } from "@/types";
 import ArticleThumb from "@/components/common/ArticleThumb.vue";
 
@@ -83,11 +81,7 @@ const props = defineProps<{
   excludeIds: number[];
 }>();
 
-const { isEn, title, excerpt, catName, t } = useLocalized();
-
-function localeDate(date: string | Date | null): string {
-  return isEn ? formatEnglishDate(date) : formatKhmerDate(date);
-}
+const { title, excerpt, catName, t, formatDate } = useLocalized();
 
 const articles = ref<Article[]>([]);
 const page = ref(1);
@@ -199,22 +193,25 @@ onUnmounted(() => {
   gap: 16px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
+  border-radius: 10px;
   padding: 16px;
-  transition: border-color 0.25s ease, transform 0.25s ease;
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 .g-more-card:hover {
   border-color: var(--color-accent);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ─── Image ─── */
 .g-more-img {
   flex-shrink: 0;
-  width: 200px;
+  width: 180px;
   aspect-ratio: 16 / 10;
   overflow: hidden;
   display: block;
   background: var(--color-surface-alt);
+  border-radius: 8px;
 }
 .g-more-img :deep(img) {
   width: 100%;
@@ -223,7 +220,7 @@ onUnmounted(() => {
   transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .g-more-card:hover .g-more-img :deep(img) {
-  transform: scale(1.05);
+  transform: scale(1.06);
 }
 
 /* ─── Body ─── */
@@ -239,7 +236,7 @@ onUnmounted(() => {
 /* ─── Title ─── */
 .g-more-title {
   margin: 4px 0 0;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   line-height: 1.5;
 }
@@ -259,7 +256,7 @@ onUnmounted(() => {
 /* ─── Excerpt ─── */
 .g-more-excerpt {
   margin: 4px 0 0;
-  font-size: 13px;
+  font-size: 12.5px;
   line-height: 1.6;
   color: var(--color-muted);
   display: -webkit-box;
@@ -273,7 +270,7 @@ onUnmounted(() => {
   display: flex;
   gap: 12px;
   margin-top: 6px;
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--color-muted);
 }
 .g-more-meta span {

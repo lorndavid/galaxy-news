@@ -97,7 +97,7 @@ async function loadPageLayout() {
 
 useSeo(
   computed(() => ({
-    title: `${title.value} | Navatra 4K TV`,
+    title: `${title.value} | Galaxy TV V4K`,
     description: `បញ្ជីអត្ថបទព័ត៌មានទាំងអស់`,
   }))
 );

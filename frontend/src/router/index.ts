@@ -12,13 +12,13 @@ export const router = createRouter({
       path: "/",
       name: "home",
       component: () => import("@/views/HomeView.vue"),
-      meta: { title: "Navatra 4K TV | ព័ត៌មាន" },
+      meta: { title: "Galaxy TV V4K | ព័ត៌មាន" },
     },
     {
       path: "/article/:slug",
       name: "article",
       component: () => import("@/views/ArticleView.vue"),
-      meta: { title: "Navatra 4K TV" },
+      meta: { title: "Galaxy TV V4K" },
     },
     // Language-prefixed article URLs — used by Telegram buttons and SEO.
     // The URL language always wins over the stored preference.
@@ -26,13 +26,13 @@ export const router = createRouter({
       path: "/kh/news/:slug",
       name: "article-kh",
       component: () => import("@/views/ArticleView.vue"),
-      meta: { title: "Navatra 4K TV", locale: "kh" },
+      meta: { title: "Galaxy TV V4K", locale: "kh" },
     },
     {
       path: "/en/news/:slug",
       name: "article-en",
       component: () => import("@/views/ArticleView.vue"),
-      meta: { title: "Navatra 4K TV", locale: "en" },
+      meta: { title: "Galaxy TV V4K", locale: "en" },
     },
     {
       path: "/category/:slug",
@@ -48,42 +48,42 @@ export const router = createRouter({
       path: "/search",
       name: "search",
       component: () => import("@/views/SearchView.vue"),
-      meta: { title: "ស្វែងរក | Navatra 4K TV" },
+      meta: { title: "ស្វែងរក | Galaxy TV V4K" },
     },
     {
       path: "/news",
       name: "news",
       component: () => import("@/views/NewsListView.vue"),
-      meta: { title: "បញ្ជីព័ត៌មាន | Navatra 4K TV" },
+      meta: { title: "បញ្ជីព័ត៌មាន | Galaxy TV V4K" },
     },
     {
       path: "/latest",
       name: "latest",
       component: () => import("@/views/NewsListView.vue"),
-      meta: { title: "ព័ត៌មានថ្មីៗ | Navatra 4K TV" },
+      meta: { title: "ព័ត៌មានថ្មីៗ | Galaxy TV V4K" },
     },
     {
       path: "/about",
       name: "about",
       component: () => import("@/views/AboutView.vue"),
-      meta: { title: "អំពីយើង | Navatra 4K TV" },
+      meta: { title: "អំពីយើង | Galaxy TV V4K" },
     },
     {
       path: "/contact",
       name: "contact",
       component: () => import("@/views/ContactView.vue"),
-      meta: { title: "ទំនាក់ទំនង | Navatra 4K TV" },
+      meta: { title: "ទំនាក់ទំនង | Galaxy TV V4K" },
     },
     {
       path: "/:pathMatch(.*)*",
       name: "not-found",
       component: () => import("@/views/NotFoundView.vue"),
-      meta: { title: "រកមិនឃើញ | Navatra 4K TV" },
+      meta: { title: "រកមិនឃើញ | Galaxy TV V4K" },
     },
   ],
 });
 
 router.afterEach((to) => {
-  const t = (to.meta.title as string) || "Navatra 4K TV";
+  const t = (to.meta.title as string) || "Galaxy TV V4K";
   document.title = t;
 });

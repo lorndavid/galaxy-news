@@ -62,7 +62,7 @@ router.beforeEach(async (to) => {
 });
 
 router.afterEach((to) => {
-  document.title = `${String(to.meta.title ?? "Admin")} | Navatra 4K TV`;
+  document.title = `${String(to.meta.title ?? "Admin")} | Galaxy TV V4K`;
 });
 
 export { router };

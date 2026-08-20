@@ -242,10 +242,15 @@ let scrollTimer: number | undefined;
 
 const settings = computed(() => settingsStore.settings);
 const logoUrl = computed(() => settings.value?.logo ?? "/assets/img/logo/logo1.png");
-const siteName = computed(() => locale.pick(settings.value?.siteName ?? "Galaxy TV 4K", settings.value?.siteNameEn));
+const siteName = computed(() => locale.pick(settings.value?.siteName ?? "Galaxy TV V4K", settings.value?.siteNameEn));
 
 const todayLabel = computed(() => {
   const now = new Date();
+  if (locale.isEn) {
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    return `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  }
   const days = ["អាទិត្យ", "ច័ន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍"];
   const months = [
     "មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា",
