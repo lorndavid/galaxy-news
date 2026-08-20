@@ -66,10 +66,10 @@
   --cat-default: #4b5563;
 
   /* Typography */
-  --font-display: "Kantumruy Pro", "Noto Sans Khmer", sans-serif;
-  --font-heading: "Kantumruy Pro", "Noto Sans Khmer", sans-serif;
-  --font-body: "Noto Sans Khmer", "Kantumruy Pro", sans-serif;
-  --font-latin: "Inter", "Noto Sans Khmer", sans-serif;
+  --font-display: "Kantumruy Pro", "Noto Sans SC", "Noto Sans Khmer", sans-serif;
+  --font-heading: "Kantumruy Pro", "Noto Sans SC", "Noto Sans Khmer", sans-serif;
+  --font-body: "Noto Sans Khmer", "Noto Sans SC", "Kantumruy Pro", sans-serif;
+  --font-latin: "Inter", "Noto Sans SC", "Noto Sans Khmer", sans-serif;
 
   /* Type scale */
   --size-hero: 36px;
@@ -152,22 +152,18 @@
 /* Card grids driven by the admin "columns" setting */
 .g-cards {
   display: grid;
-  grid-template-columns: repeat(var(--grid-cols, 4), 1fr);
-  gap: var(--grid-gap);
+  grid-template-columns: repeat(var(--grid-cols, 3), 1fr);
+  gap: 20px;
 }
 @media (max-width: 991px) {
-  .g-cards {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-@media (max-width: 640px) {
   .g-cards {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-@media (max-width: 420px) {
+@media (max-width: 640px) {
   .g-cards {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
 
@@ -372,15 +368,17 @@ p {
 ------------------------------------------------------------------- */
 .section-tittle {
   position: relative;
+  margin-bottom: 20px;
 }
 .section-tittle h3 {
   font-weight: 700;
   font-family: var(--font-heading);
+  font-size: 20px;
 }
 .section-tittle h3::after {
   content: "";
   display: block;
-  width: 32px;
+  width: 40px;
   height: 3px;
   border-radius: 2px;
   background: var(--color-accent);
@@ -645,22 +643,22 @@ p {
 ------------------------------------------------------------------- */
 .news-content {
   font-size: 16px;
-  line-height: 1.95;
-  color: #374151;
+  line-height: 1.9;
+  color: var(--color-text-secondary);
 }
 .news-content p {
   font-size: 16px;
-  line-height: 1.95;
-  color: #374151;
-  margin-bottom: 18px;
+  line-height: 1.9;
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
 }
 .news-title {
-  font-size: clamp(22px, 1.4vw + 1rem, 34px);
+  font-size: clamp(22px, 1.4vw + 1rem, 32px);
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.4;
   color: var(--color-text);
   font-family: var(--font-display);
-  margin: 10px 0 12px;
+  margin: 8px 0 12px;
   overflow-wrap: anywhere;
   padding-bottom: 14px;
   position: relative;
@@ -671,24 +669,27 @@ p {
   position: absolute;
   left: 0;
   bottom: 0;
-  width: 64px;
-  height: 2px;
+  width: 50px;
+  height: 3px;
+  border-radius: 2px;
   background: var(--color-accent);
 }
 .news-lead {
-  font-size: clamp(15px, 0.4vw + 0.9rem, 17px);
+  font-size: clamp(15px, 0.4vw + 0.9rem, 16px);
   line-height: 1.75;
-  color: #4b5563;
+  color: var(--color-text-secondary);
   font-weight: 500;
   margin-bottom: 16px;
 }
 .news-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 18px;
+  gap: 8px 16px;
   font-size: 13px;
   color: var(--color-muted);
   margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
 }
 .news-meta span {
   display: inline-flex;
@@ -924,9 +925,10 @@ select:focus-visible,
 ------------------------------------------------------------------- */
 .news-row {
   display: flex;
-  gap: 16px;
-  padding: 16px 0;
+  gap: 18px;
+  padding: 18px 0;
   border-bottom: 1px solid var(--color-border);
+  transition: background 0.2s ease;
 }
 .news-row:last-child {
   border-bottom: none;
@@ -934,7 +936,7 @@ select:focus-visible,
 .news-row-thumb {
   flex-shrink: 0;
   width: 200px;
-  border-radius: var(--radius-card);
+  border-radius: 8px;
   overflow: hidden;
 }
 .news-row-body {
@@ -944,19 +946,29 @@ select:focus-visible,
 .news-row-title {
   font-family: var(--font-heading);
   font-weight: 600;
-  line-height: 1.45;
+  font-size: 17px;
+  line-height: 1.5;
   margin-bottom: 6px;
 }
 .news-row-title a {
   color: var(--color-text);
   text-decoration: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s ease;
 }
 .news-row-title a:hover {
   color: var(--color-accent);
 }
 @media (max-width: 575px) {
   .news-row-thumb {
-    width: 120px;
+    width: 110px;
+    border-radius: 6px;
+  }
+  .news-row-title {
+    font-size: 15px;
   }
 }
 

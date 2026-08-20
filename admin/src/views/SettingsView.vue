@@ -30,6 +30,7 @@
           <select v-model="form.defaultLanguage" class="input">
             <option value="kh">ខ្មែរ (Khmer)</option>
             <option value="en">English</option>
+            <option value="zh">中文 (Chinese)</option>
           </select>
         </div>
         <div>

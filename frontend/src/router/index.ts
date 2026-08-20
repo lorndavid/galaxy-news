@@ -35,6 +35,12 @@ export const router = createRouter({
       meta: { title: "Galaxy TV V4K", locale: "en" },
     },
     {
+      path: "/zh/news/:slug",
+      name: "article-zh",
+      component: () => import("@/views/ArticleView.vue"),
+      meta: { title: "Galaxy TV V4K", locale: "zh" },
+    },
+    {
       path: "/category/:slug",
       name: "category",
       component: () => import("@/views/CategoryView.vue"),

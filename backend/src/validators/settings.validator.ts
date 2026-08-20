@@ -7,6 +7,7 @@ const hexColor = z
 // Controlled font list — never allow arbitrary values into CSS.
 export const FONT_CHOICES = [
   "Noto Sans Khmer",
+  "Noto Sans SC",
   "Kantumruy",
   "Roboto",
   "Inter",
@@ -67,7 +68,7 @@ export const settingsUpdateSchema = z.object({
     favicon: cleanUrl(500),
     description: nullableText(1000),
     descriptionEn: nullableText(1000),
-    defaultLanguage: z.enum(["kh", "en"]).optional(),
+    defaultLanguage: z.enum(["kh", "en", "zh"]).optional(),
     facebook: cleanUrl(500),
     telegram: cleanUrl(500),
     youtube: cleanUrl(500),

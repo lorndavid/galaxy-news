@@ -49,8 +49,6 @@
             <div class="news-meta">
               <span v-if="article.publishedAt"><i class="ti-calendar"></i> {{ formatDateFull(article.publishedAt) }}</span>
               <span><i class="ti-user"></i> {{ article.author?.name }}</span>
-              <span><i class="ti-timer"></i> {{ toKhmerDigits(readingTime(localizedContent)) }} {{ t.common.minuteRead }}</span>
-              <span><i class="ti-eye"></i> {{ formatViews(article.views) }} {{ t.common.times }}</span>
             </div>
 
             <div class="news-thumb">
@@ -87,41 +85,7 @@
               </div>
             </div>
 
-            <!-- Comments -->
-            <div class="news-comments">
-              <h3 class="side-title">{{ t.article.comments }} ({{ comments.length }})</h3>
-              <div v-if="comments.length" class="comment-list">
-                <div v-for="c in comments" :key="c.id" class="single-comment">
-                  <div class="comment-head">
-                    <strong>{{ c.name }}</strong>
-                    <span class="comment-date">{{ formatDate(c.createdAt) }}</span>
-                  </div>
-                  <p>{{ c.content }}</p>
-                </div>
-              </div>
-              <EmptyState v-else :message="t.article.noComments" />
 
-              <form class="comment-form mt-4" @submit.prevent="submitComment">
-                <h4>{{ t.article.leaveComment }}</h4>
-                <div class="row">
-                  <div class="col-md-6">
-                    <input v-model="commentForm.name" type="text" :placeholder="t.article.name" required class="form-control" />
-                  </div>
-                  <div class="col-md-6">
-                    <input v-model="commentForm.email" type="email" :placeholder="t.article.email" required class="form-control" />
-                  </div>
-                  <div class="col-12">
-                    <textarea v-model="commentForm.content" rows="4" :placeholder="t.article.commentPlaceholder" required class="form-control"></textarea>
-                  </div>
-                  <div class="col-12">
-                    <button type="submit" class="btn boxed-btn" :disabled="commentSending">
-                      {{ commentSending ? t.article.sendingComment : t.article.sendComment }}
-                    </button>
-                  </div>
-                  <p v-if="commentMsg" class="col-12 comment-msg">{{ commentMsg }}</p>
-                </div>
-              </form>
-            </div>
           </div>
         </div>
 
@@ -173,25 +137,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useSeo } from "@/composables/useSeo";
 import { articleService } from "@/services/article.service";
 import { useLocaleStore } from "@/stores/locale";
 import { useSettingsStore } from "@/stores/settings";
-import type { Article, Comment } from "@/types";
+import type { Article } from "@/types";
 import ArticleThumb from "@/components/common/ArticleThumb.vue";
 import SectionTitle from "@/components/common/SectionTitle.vue";
 import SkeletonArticle from "@/components/common/SkeletonArticle.vue";
 import ErrorState from "@/components/common/ErrorState.vue";
-import EmptyState from "@/components/common/EmptyState.vue";
 import ArticleCard from "@/components/article/ArticleCard.vue";
 import SidebarPopular from "@/components/article/SidebarPopular.vue";
 import AdSlot from "@/components/ads/AdSlot.vue";
 import NavatraPoster from "@/components/article/NavatraPoster.vue";
 import { useLocalized } from "@/composables/useLocalized";
 import { useShareLinks } from "@/composables/useShareLinks";
-import { formatViews, readingTime, toKhmerDigits } from "@/utils/format";
 
 const route = useRoute();
 const localeStore = useLocaleStore();
@@ -200,7 +162,7 @@ const settingsStore = useSettingsStore();
 // The language in the URL (/kh/news/…, /en/news/…) takes priority over the
 // stored preference — Telegram deep links must open in the right language.
 function syncLocaleFromRoute() {
-  const loc = route.meta.locale as "kh" | "en" | undefined;
+  const loc = route.meta.locale as "kh" | "en" | "zh" | undefined;
   if (loc) localeStore.setLocale(loc);
 }
 watch(() => route.meta.locale, syncLocaleFromRoute);
@@ -208,15 +170,10 @@ watch(() => route.meta.locale, syncLocaleFromRoute);
 const article = ref<Article | null>(null);
 const related = ref<Article[]>([]);
 const popular = ref<Article[]>([]);
-const comments = ref<Comment[]>([]);
 const loading = ref(true);
 const error = ref("");
 
-const commentForm = reactive({ name: "", email: "", content: "" });
-const commentSending = ref(false);
-const commentMsg = ref("");
-
-const { title, excerpt, content, catName, t, formatDate, formatDateFull } = useLocalized();
+const { title, excerpt, content, catName, t, formatDateFull } = useLocalized();
 
 const localizedExcerpt = computed(() => (article.value ? excerpt(article.value) : ""));
 const localizedContent = computed(() => (article.value ? content(article.value) : ""));
@@ -362,7 +319,7 @@ async function load() {
     article.value = a;
     related.value = rel.slice(0, 6);
     popular.value = pop;
-    comments.value = await articleService.comments(a.id).catch(() => []);
+
   } catch (e) {
     error.value = e instanceof Error ? e.message : t.article.loadFailed;
   } finally {
@@ -370,25 +327,7 @@ async function load() {
   }
 }
 
-async function submitComment() {
-  if (!article.value) return;
-  commentSending.value = true;
-  commentMsg.value = "";
-  try {
-    await articleService.submitComment({
-      articleId: article.value.id,
-      name: commentForm.name,
-      email: commentForm.email,
-      content: commentForm.content,
-    });
-    commentMsg.value = t.article.commentThanks;
-    commentForm.content = "";
-  } catch (e) {
-    commentMsg.value = e instanceof Error ? e.message : t.article.commentFailed;
-  } finally {
-    commentSending.value = false;
-  }
-}
+
 
 onMounted(() => {
   syncLocaleFromRoute();
@@ -621,43 +560,6 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-/* ─── Comments ─── */
-.comment-list {
-  margin-bottom: 10px;
-}
-.single-comment {
-  border-bottom: 1px solid var(--color-border);
-  padding: 14px 0;
-}
-.comment-head {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 4px;
-}
-.comment-head strong {
-  color: var(--color-text);
-  font-size: 15px;
-}
-.comment-date {
-  font-size: 12.5px;
-  color: var(--color-muted);
-}
-.single-comment p {
-  font-size: 14.5px;
-  color: var(--color-text-secondary);
-  line-height: 1.7;
-  margin: 0;
-}
-.comment-form .form-control {
-  margin-bottom: 16px;
-  font-family: "Noto Sans Khmer", "Kantumruy", sans-serif;
-}
-.comment-msg {
-  color: var(--color-accent);
-  font-size: 14px;
-  margin-top: 8px;
-}
 .news-tags {
   display: flex;
   flex-wrap: wrap;
@@ -737,12 +639,6 @@ onUnmounted(() => {
   .tag-chip {
     font-size: 12px;
     padding: 4px 10px;
-  }
-  .comment-head strong {
-    font-size: 14px;
-  }
-  .single-comment p {
-    font-size: 13.5px;
   }
   .g-lightbox {
     padding: 12px;

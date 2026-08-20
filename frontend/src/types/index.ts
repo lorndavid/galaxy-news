@@ -100,7 +100,7 @@ export interface SiteSettings {
   favicon: string | null;
   description: string | null;
   descriptionEn: string | null;
-  defaultLanguage: "kh" | "en";
+  defaultLanguage: "kh" | "en" | "zh";
   facebook: string | null;
   telegram: string | null;
   youtube: string | null;

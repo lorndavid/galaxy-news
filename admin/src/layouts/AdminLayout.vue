@@ -202,7 +202,6 @@ import {
   Tags,
   Image,
   Users,
-  MessageSquare,
   Mail,
   Send,
   Megaphone,
@@ -335,7 +334,6 @@ const navGroups = computed(() => {
     {
       label: prefs.t("nav.interaction"),
       items: [
-        { to: "/comments", label: prefs.t("nav.comments"), icon: MessageSquare },
         { to: "/newsletter", label: prefs.t("nav.newsletter"), icon: Send, adminOnly: true },
         { to: "/messages", label: prefs.t("nav.messages"), icon: Mail, adminOnly: true },
       ],

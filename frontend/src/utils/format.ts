@@ -17,6 +17,11 @@ const MONTHS_EN = [
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
+const MONTHS_ZH = [
+  "1月", "2月", "3月", "4月", "5月", "6月",
+  "7月", "8月", "9月", "10月", "11月", "12月",
+];
+
 /** "១២ សីហា ២០២៦" */
 export function formatKhmerDate(value: string | Date | null): string {
   if (!value) return "";
@@ -31,6 +36,14 @@ export function formatEnglishDate(value: string | Date | null): string {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return "";
   return `${d.getDate()} ${MONTHS_EN[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/** "2026年8月12日" */
+export function formatChineseDate(value: string | Date | null): string {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  return `${d.getFullYear()}年${MONTHS_ZH[d.getMonth()]}${d.getDate()}日`;
 }
 
 /** "ថ្ងៃទី១២ ខែសីហា ឆ្នាំ២០២៦" (full form used in article meta) */

@@ -19,6 +19,16 @@
     >
       EN
     </button>
+    <span class="lang-sep" aria-hidden="true"></span>
+    <button
+      type="button"
+      class="lang-btn"
+      :class="{ active: store.locale === 'zh' }"
+      :aria-pressed="store.locale === 'zh'"
+      @click="switchLang('zh')"
+    >
+      中文
+    </button>
   </div>
 </template>
 
@@ -31,14 +41,15 @@ const route = useRoute();
 const router = useRouter();
 
 /** On article pages the language switch navigates between the language-prefixed
- *  URLs (/kh/news/… ↔ /en/news/…) so the same article stays open. */
+ *  URLs (/kh/news/… ↔ /en/news/… ↔ /zh/news/…) so the same article stays open. */
 function switchLang(next: Locale) {
   store.setLocale(next);
   const slug = route.params.slug as string | undefined;
   const isArticle =
     route.name === "article" ||
     route.name === "article-kh" ||
-    route.name === "article-en";
+    route.name === "article-en" ||
+    route.name === "article-zh";
   if (isArticle && slug) {
     void router.push(`/${next}/news/${slug}`);
   }

@@ -24,7 +24,6 @@ const router = createRouter({
         { path: "tags", name: "tags", component: () => import("@/views/TagsView.vue"), meta: { title: "ស្លាក" } },
         { path: "media", name: "media", component: () => import("@/views/MediaView.vue"), meta: { title: "បណ្ណាល័យមេឌា" } },
         { path: "users", name: "users", component: () => import("@/views/UsersView.vue"), meta: { title: "អ្នកប្រើប្រាស់", requiresAdmin: true } },
-        { path: "comments", name: "comments", component: () => import("@/views/CommentsView.vue"), meta: { title: "មតិយោបល់" } },
         { path: "messages", name: "messages", component: () => import("@/views/MessagesView.vue"), meta: { title: "សារទំនាក់ទំនង", requiresAdmin: true } },
         { path: "newsletter", name: "newsletter", component: () => import("@/views/NewsletterView.vue"), meta: { title: "ព្រឹត្តិបត្រ", requiresAdmin: true } },
         { path: "ads", name: "ads", component: () => import("@/views/AdsView.vue"), meta: { title: "ផ្សាយពាណិជ្ជកម្ម" } },
