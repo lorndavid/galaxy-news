@@ -22,9 +22,11 @@ export interface Category {
   id: number;
   name: string;
   nameEn: string | null;
+  nameZh: string | null;
   slug: string;
   description: string | null;
   descriptionEn: string | null;
+  descriptionZh: string | null;
   image: string | null;
   color: string | null;
   isActive: boolean;
@@ -44,11 +46,14 @@ export interface Article {
   id: number;
   title: string;
   titleEn: string | null;
+  titleZh: string | null;
   slug: string;
   excerpt: string | null;
   excerptEn: string | null;
+  excerptZh: string | null;
   content: string;
   contentEn: string | null;
+  contentZh: string | null;
   featuredImage: string | null;
   authorId: number;
   categoryId: number;
@@ -72,6 +77,9 @@ export interface ArticleImage {
   url: string;
   altText: string | null;
   caption: string | null;
+  title: string | null;
+  description: string | null;
+  cropPosition: string | null;
   width: number | null;
   height: number | null;
   sortOrder: number;
@@ -321,10 +329,25 @@ export interface TelegramStats {
   failed: number;
 }
 
+export type EditorialLayoutType =
+  | "editorial-hero"
+  | "editorial-split"
+  | "editorial-mosaic"
+  | "editorial-three-col"
+  | "editorial-compact"
+  | "editorial-horizontal"
+  | "editorial-list"
+  | "editorial-feature-compact"
+  | "editorial-magazine"
+  | "editorial-minimal";
+
 export interface HomepageSectionConfig {
   columns?: number;
   sidebar?: boolean;
   left?: boolean;
+  layoutType?: EditorialLayoutType;
+  articleLimit?: number;
+  accentColor?: string;
 }
 
 export interface HomepageSection {

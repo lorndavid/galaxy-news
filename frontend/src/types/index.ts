@@ -76,6 +76,9 @@ export interface ArticleImage {
   url: string;
   altText: string | null;
   caption: string | null;
+  title: string | null;
+  description: string | null;
+  cropPosition: string | null;
   width: number | null;
   height: number | null;
   sortOrder: number;

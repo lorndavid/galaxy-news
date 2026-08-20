@@ -29,7 +29,7 @@
               </div>
               <!-- layout preview chip -->
               <span v-if="s.config" class="hidden rounded bg-slate-100 px-2 py-1 text-[10px] font-medium text-slate-500 sm:inline-flex" :title="configSummary(s.config)">
-                {{ columnsOf(s.config) ? `${columnsOf(s.config)} cols` : "" }}{{ s.config?.sidebar !== undefined ? `${columnsOf(s.config) ? " · " : ""}${s.config.sidebar ? "sidebar ✓" : "full ✓"}` : "" }}
+                {{ layoutTypeOf(s.config) ? layoutLabel(layoutTypeOf(s.config)) : (columnsOf(s.config) ? `${columnsOf(s.config)} cols` : "") }}{{ s.config?.sidebar !== undefined ? `${columnsOf(s.config) || layoutTypeOf(s.config) ? " · " : ""}${s.config.sidebar ? "sidebar ✓" : "full ✓"}` : "" }}
               </span>
               <button class="btn-ghost !p-1.5" title="កែប្លង់" :class="{ 'text-brand-600': editing === s.key }" @click="toggleEdit(s.key)">
                 <LayoutGrid class="h-4 w-4" />
@@ -104,6 +104,45 @@
                       <Square v-else class="h-3.5 w-3.5" />
                       {{ leftOf(s.config) ? "បង្ហាញ" : "លាក់" }}
                     </button>
+                  </div>
+
+                  <!-- Layout type selector (for category sections) -->
+                  <div v-if="s.key.startsWith('cat-')" class="w-full">
+                    <label class="label">ប្លង់បង្ហាញ (Editorial Layout)</label>
+                    <select
+                      class="input !py-1.5 text-xs"
+                      :value="layoutTypeOf(s.config)"
+                      @change="setLayoutType(s, ($event.target as HTMLSelectElement).value)"
+                    >
+                      <option value="">Auto (រៀបចំដោយស្វ័យប្រវត្តិ)</option>
+                      <option value="editorial-hero">Hero — Large feature + sidebar</option>
+                      <option value="editorial-split">Split — 50/50 layout</option>
+                      <option value="editorial-mosaic">Mosaic — Creative grid</option>
+                      <option value="editorial-three-col">3-Column — Standard grid</option>
+                      <option value="editorial-compact">Compact — 4-column grid</option>
+                      <option value="editorial-horizontal">Horizontal — Cards with text</option>
+                      <option value="editorial-list">List — Clean editorial list</option>
+                      <option value="editorial-feature-compact">Feature + Compact — Large + sidebar</option>
+                      <option value="editorial-magazine">Magazine — Mosaic + stacked</option>
+                      <option value="editorial-minimal">Minimal — Full-width cards</option>
+                    </select>
+                  </div>
+
+                  <!-- Article limit selector -->
+                  <div>
+                    <label class="label">ចំនួនអត្ថបទ</label>
+                    <div class="flex gap-1.5">
+                      <button
+                        v-for="n in [3, 4, 5, 6, 8, 10]"
+                        :key="n"
+                        type="button"
+                        class="h-8 w-8 rounded border text-xs font-semibold transition-colors"
+                        :class="articleLimitOf(s.config) === n ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300 bg-white text-slate-600 hover:border-brand-400'"
+                        @click="setArticleLimit(s, n)"
+                      >
+                        {{ n }}
+                      </button>
+                    </div>
                   </div>
 
                   <div class="ml-auto text-right">
@@ -230,10 +269,28 @@ function leftOf(c: HomepageSectionConfig | null | undefined): boolean {
 function configSummary(c: HomepageSectionConfig | null): string {
   if (!c) return "";
   const parts: string[] = [];
+  if (c.layoutType) parts.push(c.layoutType);
   if (c.columns) parts.push(`${c.columns} ជួរ`);
   if (c.sidebar !== undefined) parts.push(c.sidebar ? "sidebar" : "full");
   if (c.left !== undefined) parts.push(c.left ? "left" : "no-left");
+  if (c.articleLimit) parts.push(`${c.articleLimit} articles`);
   return parts.join(" · ");
+}
+
+const LAYOUT_LABELS: Record<string, string> = {
+  "editorial-hero": "Hero",
+  "editorial-split": "Split",
+  "editorial-mosaic": "Mosaic",
+  "editorial-three-col": "3-Col",
+  "editorial-compact": "Compact",
+  "editorial-horizontal": "Horizontal",
+  "editorial-list": "List",
+  "editorial-feature-compact": "Feature+List",
+  "editorial-magazine": "Magazine",
+  "editorial-minimal": "Minimal",
+};
+function layoutLabel(key: string): string {
+  return LAYOUT_LABELS[key] ?? key;
 }
 
 function toggleEdit(key: string) {
@@ -242,6 +299,24 @@ function toggleEdit(key: string) {
 
 function setColumns(s: HomepageSection, n: number) {
   s.config = { ...(s.config ?? {}), columns: n };
+  dirty.value = true;
+}
+
+function layoutTypeOf(c: HomepageSectionConfig | null | undefined): string {
+  return c?.layoutType ?? "";
+}
+
+function setLayoutType(s: HomepageSection, value: string) {
+  s.config = { ...(s.config ?? {}), layoutType: value || undefined } as HomepageSectionConfig;
+  dirty.value = true;
+}
+
+function articleLimitOf(c: HomepageSectionConfig | null | undefined): number {
+  return c?.articleLimit ?? 6;
+}
+
+function setArticleLimit(s: HomepageSection, n: number) {
+  s.config = { ...(s.config ?? {}), articleLimit: n };
   dirty.value = true;
 }
 

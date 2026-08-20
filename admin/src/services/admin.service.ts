@@ -97,7 +97,7 @@ export const adminService = {
   addArticleImage(articleId: number, mediaId: number, sortOrder?: number) {
     return unwrap<ArticleImage>(api.post(`/admin/articles/${articleId}/images`, { mediaId, sortOrder }));
   },
-  updateArticleImage(articleId: number, imageId: number, data: { altText?: string | null; caption?: string | null; sortOrder?: number }) {
+  updateArticleImage(articleId: number, imageId: number, data: { altText?: string | null; caption?: string | null; title?: string | null; description?: string | null; cropPosition?: string; sortOrder?: number }) {
     return unwrap<ArticleImage>(api.patch(`/admin/articles/${articleId}/images/${imageId}`, data));
   },
   removeArticleImage(articleId: number, imageId: number) {

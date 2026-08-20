@@ -175,15 +175,18 @@ model ArticleTag {
 
 // Gallery images for an article (ordered by sortOrder)
 model ArticleImage {
-  id        Int      @id @default(autoincrement())
-  articleId Int
-  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  mediaId   Int
-  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-  altText   String?
-  caption   String?
-  sortOrder Int      @default(0)
-  createdAt DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  articleId    Int
+  article      Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  mediaId      Int
+  media        Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  altText      String?
+  caption      String?
+  title        String?  // per-image title (shown above description)
+  description  String?  // per-image description text
+  cropPosition String?  @default("center") // center | top | bottom | left | right
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
 
   @@unique([articleId, mediaId])
   @@index([articleId])

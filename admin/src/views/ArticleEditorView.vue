@@ -135,13 +135,26 @@
             <span class="text-[11px] text-slate-400">ជួរឈរ</span>
           </div>
 
-          <div class="space-y-2">
-            <div v-for="(img, idx) in galleryImages" :key="img.id" class="rounded border border-slate-200 p-2">
-              <div class="flex items-center gap-2">
-                <img :src="img.url" :alt="img.altText || ''" class="h-12 w-16 rounded object-cover" />
-                <div class="min-w-0 flex-1 space-y-1">
-                  <input v-model="img.altText" class="input !py-1 !text-xs" placeholder="Alt text" @change="updateGalleryImage(img)" />
-                  <input v-model="img.caption" class="input !py-1 !text-xs" placeholder="Caption (អក្ខរកម្មនៅក្រោមរូប)" @change="updateGalleryImage(img)" />
+          <div class="space-y-3">
+            <div v-for="(img, idx) in galleryImages" :key="img.id" class="rounded-lg border border-slate-200 p-3">
+              <div class="flex items-start gap-3">
+                <img :src="img.url" :alt="img.altText || ''" class="h-16 w-24 rounded object-cover" />
+                <div class="min-w-0 flex-1 space-y-2">
+                  <input v-model="img.title" class="input !py-1 !text-xs" placeholder="Title (ចំណងជើងរូបភាព)" @change="updateGalleryImage(img)" />
+                  <textarea v-model="img.description" rows="2" class="input !py-1 !text-xs" placeholder="Description (ការពិពណ៌នារូបភាព)" @change="updateGalleryImage(img)"></textarea>
+                  <div class="grid grid-cols-2 gap-2">
+                    <input v-model="img.altText" class="input !py-1 !text-xs" placeholder="Alt text" @change="updateGalleryImage(img)" />
+                    <input v-model="img.caption" class="input !py-1 !text-xs" placeholder="Caption (អក្ខរកម្ម)" @change="updateGalleryImage(img)" />
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-medium text-slate-500">Crop:</span>                    <select v-model="img.cropPosition" class="input !py-0.5 !text-[11px] !h-7" @change="updateGalleryImage(img)">
+                      <option value="center">Center</option>
+                      <option value="top">Top</option>
+                      <option value="bottom">Bottom</option>
+                      <option value="left">Left</option>
+                      <option value="right">Right</option>
+                    </select>
+                  </div>
                 </div>
                 <div class="flex flex-col items-center gap-0.5">
                   <button type="button" class="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30" :disabled="idx === 0" title="ផ្លាស់ទីឡើងលើ" @click="moveGalleryImage(idx, -1)">
@@ -162,7 +175,7 @@
               </button>
             </div>
             <p class="text-[11px] text-slate-400">
-              រូបភាពទាំងអស់នឹងបង្ហាញនៅទំព័រព័ត៌មានលម្អិតក្នុង Grid ដែលបានជ្រើសរើស។
+              រូបភាពនីមួយៗអាចមានចំណងជើង ការពិពណ៌នា និង Crop Position ដាច់ដោយឡែក។
             </p>
           </div>
         </div>
@@ -359,7 +372,7 @@ const mediaOpen = ref(false);
 const mediaGalleryOpen = ref(false);
 const gallerySelected = ref<Set<number>>(new Set());
 const galleryAdding = ref(false);
-const galleryImages = ref<{ id: number; mediaId: number; url: string; altText: string | null; caption: string | null; sortOrder: number }[]>([]);
+const galleryImages = ref<{ id: number; mediaId: number; url: string; altText: string | null; caption: string | null; title: string | null; description: string | null; cropPosition: string | null; sortOrder: number }[]>([]);
 const saving = ref(false);
 const sending = ref(false);
 const dirty = ref(false);
@@ -522,12 +535,15 @@ async function addGalleryImages() {
   }
 }
 
-async function updateGalleryImage(img: { id: number; altText: string | null; caption: string | null }) {
+async function updateGalleryImage(img: { id: number; altText: string | null; caption: string | null; title: string | null; description: string | null; cropPosition: string | null }) {
   if (!articleId.value) return;
   try {
     await adminService.updateArticleImage(articleId.value, img.id, {
       altText: img.altText,
       caption: img.caption,
+      title: img.title,
+      description: img.description,
+      cropPosition: img.cropPosition ?? "center",
     });
   } catch {
     /* ignore */

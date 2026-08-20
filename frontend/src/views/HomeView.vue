@@ -258,10 +258,11 @@ const editorialSections = computed(() => {
     const articles = categoryArticles.value[cat.slug] ?? [];
     const adminConfig = sectionConfig(`cat-${cat.slug}`);
     const layoutType = adminConfig?.layoutType ?? LAYOUT_RHYTHM[i % LAYOUT_RHYTHM.length];
+    const articleLimit = adminConfig?.articleLimit ?? 6;
     return {
       key: `cat-${cat.slug}`,
       title: locale.pick(cat.name, cat.nameEn),
-      articles,
+      articles: articles.slice(0, articleLimit),
       layoutType,
       accentColor: cat.color || CAT_COLORS[i % CAT_COLORS.length],
       viewAllTo: `/category/${cat.slug}`,

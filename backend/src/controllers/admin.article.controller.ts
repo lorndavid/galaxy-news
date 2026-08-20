@@ -79,6 +79,9 @@ export const getImages = asyncHandler(async (req: Request, res: Response) => {
     url: img.media.url,
     altText: img.altText ?? img.media.altText,
     caption: img.caption ?? img.media.caption,
+    title: img.title ?? null,
+    description: img.description ?? null,
+    cropPosition: img.cropPosition ?? "center",
     width: img.media.width,
     height: img.media.height,
     sortOrder: img.sortOrder,
@@ -87,7 +90,7 @@ export const getImages = asyncHandler(async (req: Request, res: Response) => {
 
 export const addImage = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.validated.params as { id: string };
-  const body = req.body as { mediaId: number; altText?: string; caption?: string; sortOrder?: number };
+  const body = req.body as { mediaId: number; altText?: string; caption?: string; title?: string; description?: string; cropPosition?: string; sortOrder?: number };
   const articleId = Number(id);
 
   // Verify article exists
@@ -110,6 +113,9 @@ export const addImage = asyncHandler(async (req: Request, res: Response) => {
       mediaId: body.mediaId,
       altText: body.altText,
       caption: body.caption,
+      title: body.title ?? null,
+      description: body.description ?? null,
+      cropPosition: body.cropPosition ?? "center",
       sortOrder: body.sortOrder ?? 0,
     },
     include: { media: true },
@@ -121,13 +127,16 @@ export const addImage = asyncHandler(async (req: Request, res: Response) => {
     url: image.media.url,
     altText: image.altText ?? image.media.altText,
     caption: image.caption ?? image.media.caption,
+    title: image.title ?? null,
+    description: image.description ?? null,
+    cropPosition: image.cropPosition ?? "center",
     sortOrder: image.sortOrder,
   });
 });
 
 export const updateImage = asyncHandler(async (req: Request, res: Response) => {
   const { articleId, imageId } = req.params;
-  const body = req.body as { altText?: string; caption?: string; sortOrder?: number };
+  const body = req.body as { altText?: string; caption?: string; title?: string; description?: string; cropPosition?: string; sortOrder?: number };
 
   const image = await prisma.articleImage.findFirst({
     where: { id: Number(imageId), articleId: Number(articleId) },
@@ -139,6 +148,9 @@ export const updateImage = asyncHandler(async (req: Request, res: Response) => {
     data: {
       ...(body.altText !== undefined && { altText: body.altText }),
       ...(body.caption !== undefined && { caption: body.caption }),
+      ...(body.title !== undefined && { title: body.title }),
+      ...(body.description !== undefined && { description: body.description }),
+      ...(body.cropPosition !== undefined && { cropPosition: body.cropPosition }),
       ...(body.sortOrder !== undefined && { sortOrder: body.sortOrder }),
     },
     include: { media: true },
@@ -150,6 +162,9 @@ export const updateImage = asyncHandler(async (req: Request, res: Response) => {
     url: updated.media.url,
     altText: updated.altText ?? updated.media.altText,
     caption: updated.caption ?? updated.media.caption,
+    title: updated.title ?? null,
+    description: updated.description ?? null,
+    cropPosition: updated.cropPosition ?? "center",
     sortOrder: updated.sortOrder,
   });
 });
