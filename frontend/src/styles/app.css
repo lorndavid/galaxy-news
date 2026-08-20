@@ -1081,3 +1081,210 @@ select:focus-visible,
   width: 90%;
   box-shadow: var(--shadow-elevated);
 }
+
+/* ==================================================================
+   28. MOBILE-FIRST RESPONSIVE SYSTEM
+   -----------------------------------------------------------------
+   Mobile is the primary product. Desktop/tablet enhance it.
+   Breakpoints: 480, 640, 768, 991, 1200
+=================================================================== */
+
+/* --- Mobile: ≤ 640px --- */
+@media (max-width: 640px) {
+  /* Tighter container */
+  .container {
+    padding-inline: 12px;
+  }
+
+  /* Section spacing */
+  .g-home > section,
+  .g-home > div {
+    margin-bottom: 24px;
+  }
+
+  /* Hero section mobile */
+  .g-hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+  }
+  .g-hero-left {
+    display: none !important;
+  }
+  .g-hero-img {
+    aspect-ratio: 16 / 9;
+  }
+  .g-hero-title {
+    font-size: 20px !important;
+    line-height: 1.35 !important;
+  }
+  .g-hero-excerpt {
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .g-hero-meta {
+    font-size: 11px !important;
+    gap: 10px !important;
+  }
+  .g-hero-bottom {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    margin-top: 16px !important;
+  }
+  .g-hero-bottom-card {
+    display: flex !important;
+    gap: 12px !important;
+    align-items: center;
+  }
+  .g-hero-bottom-img {
+    width: 100px !important;
+    flex-shrink: 0;
+    aspect-ratio: 4 / 3;
+  }
+  .g-hero-bottom-body {
+    padding: 0 !important;
+  }
+  .g-hero-bottom-body h4 {
+    font-size: 14px !important;
+    -webkit-line-clamp: 2;
+  }
+  .g-hero-bottom-body .card-meta-line {
+    font-size: 11px !important;
+  }
+
+  /* Sidebar */
+  .g-sidebar {
+    display: none !important;
+  }
+
+  /* MoreNews section mobile */
+  .more-news-card {
+    flex-direction: column !important;
+  }
+  .more-news-card .more-news-img {
+    width: 100% !important;
+    aspect-ratio: 16 / 9;
+  }
+
+  /* Section titles */
+  .section-tittle h3 {
+    font-size: 17px !important;
+  }
+  .section-title-modern h3 {
+    font-size: 17px !important;
+  }
+
+  /* News cards grid */
+  .g-cards {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  /* News row cards */
+  .news-row-thumb {
+    width: 100px !important;
+  }
+  .news-row-title {
+    font-size: 14px !important;
+  }
+  .news-row {
+    gap: 10px !important;
+    padding: 12px 0 !important;
+  }
+
+  /* Category page */
+  .category-hero {
+    padding: 24px 0 !important;
+  }
+  .category-hero h1 {
+    font-size: 22px !important;
+  }
+
+  /* Search */
+  .search-input {
+    font-size: 16px !important;
+    padding: 12px 16px !important;
+  }
+
+  /* Back to top */
+  .back-to-top {
+    width: 40px;
+    height: 40px;
+    bottom: 16px;
+    right: 16px;
+  }
+
+  /* Article page */
+  .news-title {
+    font-size: 22px !important;
+    margin: 8px 0 10px !important;
+  }
+  .news-lead {
+    font-size: 14px !important;
+  }
+  .news-content {
+    font-size: 15px !important;
+    line-height: 1.85 !important;
+  }
+  .news-content p {
+    font-size: 15px !important;
+    line-height: 1.85 !important;
+    margin-bottom: 14px !important;
+  }
+  .news-meta {
+    font-size: 12px !important;
+  }
+
+  /* Video grid */
+  .video-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .video-card {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+/* --- Tablet: 641px – 991px --- */
+@media (min-width: 641px) and (max-width: 991px) {
+  .container {
+    padding-inline: 16px;
+  }
+  .g-hero-title {
+    font-size: 24px;
+  }
+  .g-hero-bottom {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .g-cards {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .g-sidebar {
+    display: none !important;
+  }
+}
+
+/* --- Desktop: 992px+ --- */
+@media (min-width: 992px) {
+  .g-hero-bottom {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* --- Touch-friendly tap targets --- */
+@media (pointer: coarse) {
+  a, button, [role="button"] {
+    min-height: 44px;
+  }
+  .g-mobile-list a {
+    min-height: 48px;
+    padding: 14px 12px;
+  }
+  .g-ticker-item {
+    padding: 0 20px;
+    line-height: 44px;
+  }
+}

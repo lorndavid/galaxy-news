@@ -222,6 +222,52 @@ onMounted(async () => {
     padding-top: 28px;
   }
 }
+@media (max-width: 640px) {
+  .g-footer-top {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+    padding: 32px 0 !important;
+  }
+  .g-footer-brand {
+    text-align: center;
+  }
+  .g-footer-logo {
+    justify-content: center;
+  }
+  .g-footer-logo img {
+    height: 36px;
+  }
+  .g-footer-desc {
+    font-size: 13px;
+  }
+  .g-footer-social {
+    justify-content: center;
+  }
+  .g-footer-col {
+    padding: 0;
+  }
+  .g-footer-col h4 {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  .g-footer-links li {
+    margin-bottom: 8px;
+  }
+  .g-footer-links a {
+    font-size: 13px;
+  }
+  .g-footer-bottom-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+    padding: 16px 0;
+  }
+  .g-footer-bottom ul {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
 
 /* Columns */
 .g-footer-col h4 {

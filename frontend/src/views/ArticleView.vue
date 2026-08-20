@@ -711,4 +711,49 @@ onUnmounted(() => {
   color: var(--color-accent);
   text-decoration: underline;
 }
+
+/* ─── Mobile article optimizations ─── */
+@media (max-width: 640px) {
+  .g-breadcrumb {
+    font-size: 12px;
+    padding: 12px 0 0;
+  }
+  .g-breadcrumb span:last-child {
+    max-width: 180px;
+  }
+  .news-content-read {
+    max-width: 100%;
+  }
+  .news-gallery {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+  .news-gallery-item {
+    border-radius: 8px;
+  }
+  .news-tags {
+    gap: 6px;
+  }
+  .tag-chip {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+  .comment-head strong {
+    font-size: 14px;
+  }
+  .single-comment p {
+    font-size: 13.5px;
+  }
+  .g-lightbox {
+    padding: 12px;
+  }
+  .g-lightbox-prev,
+  .g-lightbox-next {
+    width: 36px;
+    height: 52px;
+    font-size: 16px;
+  }
+  .g-lightbox-prev { left: 8px; }
+  .g-lightbox-next { right: 8px; }
+}
 </style>

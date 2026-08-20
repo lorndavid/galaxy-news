@@ -147,51 +147,72 @@
       </form>
     </Transition>
 
-    <!-- ─── Mobile drawer ─── -->
-    <Transition name="g-mobile-drop">
-      <div v-if="mobileOpen" class="g-mobile">
-        <form class="g-mobile-search" role="search" @submit.prevent="submitSearch">
-          <input
-            v-model="searchInput"
-            type="text"
-            :placeholder="locale.t.search.placeholder"
-            :aria-label="locale.t.common.search"
-          />
-          <button type="submit" :aria-label="locale.t.common.search">
-            <i class="fas fa-search"></i>
-          </button>
-        </form>
-        <nav aria-label="ម៉ឺនុយទូរស័ព្ទ">
-          <ul class="g-mobile-list">
-            <li v-for="item in allNavItems" :key="item.id">
-              <RouterLink
-                v-if="item.type === 'category'"
-                :to="`/category/${item.value ?? ''}`"
-                @click="mobileOpen = false"
-              >
-                {{ locale.pick(item.label, item.labelEn) }}
-              </RouterLink>
-              <a
-                v-else-if="item.type === 'link'"
-                :href="item.value ?? '#'"
-                target="_blank"
-                rel="noopener"
-                @click="mobileOpen = false"
-              >
-                {{ locale.pick(item.label, item.labelEn) }}
-              </a>
-              <RouterLink
-                v-else
-                :to="navPath(item)"
-                @click="mobileOpen = false"
-              >
-                {{ locale.pick(item.label, item.labelEn) }}
-              </RouterLink>
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </Transition>
+    <!-- ─── Mobile drawer (slide-in from right) ─── -->
+    <Teleport to="body">
+      <Transition name="g-drawer-overlay">
+        <div v-if="mobileOpen" class="g-mobile-overlay" @click="mobileOpen = false"></div>
+      </Transition>
+      <Transition name="g-drawer-slide">
+        <div v-if="mobileOpen" class="g-mobile-drawer">
+          <div class="g-drawer-header">
+            <span class="g-drawer-title">{{ locale.pick(settings?.siteName ?? 'Galaxy TV', settings?.siteNameEn) }}</span>
+            <button class="g-drawer-close" aria-label="បិទម៉ឺនុយ" @click="mobileOpen = false">
+              <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+          </div>
+          <form class="g-drawer-search" role="search" @submit.prevent="submitSearch">
+            <i class="fas fa-search g-drawer-search-icon" aria-hidden="true"></i>
+            <input
+              v-model="searchInput"
+              type="text"
+              :placeholder="locale.t.search.placeholder"
+              :aria-label="locale.t.common.search"
+            />
+            <button type="submit" :aria-label="locale.t.common.search">
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </form>
+          <nav aria-label="ម៉ឺនុយទូរស័ព្ទ">
+            <ul class="g-drawer-nav">
+              <li v-for="item in allNavItems" :key="item.id">
+                <RouterLink
+                  v-if="item.type === 'category'"
+                  :to="`/category/${item.value ?? ''}`"
+                  class="g-drawer-nav-item"
+                  @click="mobileOpen = false"
+                >
+                  <span>{{ locale.pick(item.label, item.labelEn) }}</span>
+                  <i class="fas fa-chevron-right g-drawer-arrow" aria-hidden="true"></i>
+                </RouterLink>
+                <a
+                  v-else-if="item.type === 'link'"
+                  :href="item.value ?? '#'"
+                  target="_blank"
+                  rel="noopener"
+                  class="g-drawer-nav-item"
+                  @click="mobileOpen = false"
+                >
+                  <span>{{ locale.pick(item.label, item.labelEn) }}</span>
+                  <i class="fas fa-arrow-up-right-from-square g-drawer-arrow" aria-hidden="true"></i>
+                </a>
+                <RouterLink
+                  v-else
+                  :to="navPath(item)"
+                  class="g-drawer-nav-item"
+                  @click="mobileOpen = false"
+                >
+                  <span>{{ locale.pick(item.label, item.labelEn) }}</span>
+                  <i class="fas fa-chevron-right g-drawer-arrow" aria-hidden="true"></i>
+                </RouterLink>
+              </li>
+            </ul>
+          </nav>
+          <div class="g-drawer-footer">
+            <LanguageSwitcher />
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </header>
 </template>
 
@@ -238,6 +259,27 @@ watch(desktopSearchOpen, async (open) => {
     await nextTick();
     desktopSearchInput.value?.focus();
   }
+});
+
+// Lock body scroll when mobile drawer is open
+watch(mobileOpen, (open) => {
+  if (open) {
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+  } else {
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+  }
+});
+
+// Clean up on unmount
+import { onBeforeUnmount } from 'vue';
+onBeforeUnmount(() => {
+  document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.width = '';
 });
 
 function isActive(path: string): boolean {
@@ -421,9 +463,9 @@ onUnmounted(() => {
   justify-content: center;
 }
 .g-brand-logo img {
-  height: 66px;
+  height: 125px;
   width: auto;
-  max-width: 340px;
+  max-width: 600px;
   object-fit: contain;
 }
 
@@ -462,11 +504,15 @@ onUnmounted(() => {
 }
 @media (max-width: 640px) {
   .g-brand-logo img {
-    height: 48px;
-    max-width: 200px;
+    height: 74px;
+    max-width: 288px;
   }
   .g-brand-inner {
-    min-height: 64px;
+    min-height: 56px;
+  }
+  .g-burger {
+    width: 38px;
+    height: 38px;
   }
 }
 @media (max-width: 991px) {
@@ -789,69 +835,155 @@ onUnmounted(() => {
   transform: translateY(-8px);
 }
 
-/* ─── Mobile drawer ─── */
-.g-mobile {
+/* ─── Mobile drawer (slide-in from right) ─── */
+.g-mobile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+}
+.g-mobile-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10001;
+  width: min(320px, 85vw);
+  max-width: 320px;
   background: var(--color-header-bg);
-  border-bottom: 1px solid var(--color-border);
-  padding: 16px;
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
-}
-.g-mobile-search {
   display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
-.g-mobile-search input {
-  flex: 1;
+.g-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+.g-drawer-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-header-text);
+  font-family: var(--font-heading);
+}
+.g-drawer-close {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--color-surface-alt);
+  border-radius: 8px;
+  color: var(--color-header-text);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.g-drawer-close:hover {
+  background: var(--color-border);
+}
+.g-drawer-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 16px;
+  background: var(--color-surface-alt);
   border: 1px solid var(--color-border);
-  padding: 10px 14px;
+  border-radius: 10px;
+  padding: 0 12px;
+  flex-shrink: 0;
+}
+.g-drawer-search-icon {
+  color: var(--color-muted);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.g-drawer-search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 12px 0;
   font-size: 14px;
   font-family: var(--font-body);
   color: var(--color-header-text);
   outline: none;
-  transition: border-color 0.2s ease;
+  min-width: 0;
 }
-.g-mobile-search input:focus {
-  border-color: var(--color-accent);
+.g-drawer-search input::placeholder {
+  color: var(--color-muted);
 }
-.g-mobile-search button {
+.g-drawer-search button {
   border: none;
   background: var(--color-accent);
   color: #fff;
-  padding: 0 16px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-.g-mobile-search button:hover {
-  filter: brightness(1.1);
-}
-.g-mobile-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.g-mobile-list li {
-  border-bottom: 1px solid var(--color-border);
-}
-.g-mobile-list li:last-child {
-  border-bottom: none;
-}
-.g-mobile-list a {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 13px 6px;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: filter 0.15s ease;
+}
+.g-drawer-search button:hover {
+  filter: brightness(1.1);
+}
+
+/* Drawer nav list */
+.g-drawer-nav {
+  margin: 0;
+  padding: 8px 0;
+  list-style: none;
+  flex: 1;
+  overflow-y: auto;
+}
+.g-drawer-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
   color: var(--color-header-text);
   font-size: 15px;
   font-family: var(--font-body);
   font-weight: 500;
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: background 0.15s ease, color 0.15s ease;
+  min-height: 48px;
 }
-.g-mobile-list a.router-link-active {
+.g-drawer-nav-item:hover,
+.g-drawer-nav-item.router-link-active {
+  background: var(--color-surface-alt);
   color: var(--color-accent);
+}
+.g-drawer-nav-item.router-link-active {
   font-weight: 700;
+  border-left: 3px solid var(--color-accent);
+  padding-left: 17px;
+}
+.g-drawer-arrow {
+  font-size: 11px;
+  color: var(--color-muted);
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+.g-drawer-nav-item:hover .g-drawer-arrow {
+  transform: translateX(2px);
+  color: var(--color-accent);
+}
+
+/* Drawer footer */
+.g-drawer-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
 }
 
 /* ─── Responsive ─── */
@@ -861,14 +993,23 @@ onUnmounted(() => {
   .g-brand-ad { display: none; }
 }
 
-/* ─── Transitions ─── */
-.g-mobile-drop-enter-active,
-.g-mobile-drop-leave-active {
-  transition: all 0.22s ease;
+/* ─── Drawer transitions ─── */
+.g-drawer-overlay-enter-active,
+.g-drawer-overlay-leave-active {
+  transition: opacity 0.25s ease;
 }
-.g-mobile-drop-enter-from,
-.g-mobile-drop-leave-to {
+.g-drawer-overlay-enter-from,
+.g-drawer-overlay-leave-to {
   opacity: 0;
-  transform: translateY(-8px);
+}
+.g-drawer-slide-enter-active {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.g-drawer-slide-leave-active {
+  transition: transform 0.22s ease-in;
+}
+.g-drawer-slide-enter-from,
+.g-drawer-slide-leave-to {
+  transform: translateX(100%);
 }
 </style>
