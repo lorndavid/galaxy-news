@@ -15,10 +15,13 @@ const imageField = z
 const articleFields = {
   title: z.string().trim().min(3, "Title must be at least 3 characters").max(300, "Title is too long"),
   titleEn: z.string().trim().max(300, "English title is too long").nullable().optional(),
+  titleZh: z.string().trim().max(300, "Chinese title is too long").nullable().optional(),
   excerpt: z.string().max(600, "Excerpt is too long").nullable().optional(),
   excerptEn: z.string().max(600, "English excerpt is too long").nullable().optional(),
+  excerptZh: z.string().max(600, "Chinese excerpt is too long").nullable().optional(),
   content: z.string().default(""),
   contentEn: z.string().nullable().optional(),
+  contentZh: z.string().nullable().optional(),
   featuredImage: imageField,
   categoryId: z.number().int().positive("Category is required"),
   status: articleStatusEnum.optional(),

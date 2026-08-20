@@ -9,21 +9,32 @@ import { formatKhmerDate, formatKhmerDateFull, formatEnglishDate, formatChineseD
 export function useLocalized() {
   const locale = useLocaleStore();
 
-  const title = (a: { title: string; titleEn: string | null }) =>
-    locale.pick(a.title, a.titleEn);
+  /** Pick the right content based on locale, with zh → en → primary fallback chain. */
+  function pickLocalized(
+    primary: string | null | undefined,
+    secondary: string | null | undefined,
+    tertiary: string | null | undefined,
+  ): string {
+    if (locale.isZh && tertiary) return tertiary;
+    if (locale.isEn && secondary) return secondary;
+    return primary || secondary || tertiary || "";
+  }
 
-  const excerpt = (a: { excerpt: string | null; excerptEn: string | null }) =>
-    locale.pick(a.excerpt, a.excerptEn);
+  const title = (a: { title: string; titleEn: string | null; titleZh?: string | null }) =>
+    pickLocalized(a.title, a.titleEn, a.titleZh);
 
-  const content = (a: { content: string; contentEn: string | null }) =>
-    locale.pick(a.content, a.contentEn);
+  const excerpt = (a: { excerpt: string | null; excerptEn: string | null; excerptZh?: string | null }) =>
+    pickLocalized(a.excerpt, a.excerptEn, a.excerptZh);
 
-  const catName = (a: { category?: { name: string; nameEn: string | null } | null }) =>
-    locale.pick(a.category?.name, a.category?.nameEn);
+  const content = (a: { content: string; contentEn: string | null; contentZh?: string | null }) =>
+    pickLocalized(a.content, a.contentEn, a.contentZh);
+
+  const catName = (a: { category?: { name: string; nameEn: string | null; nameZh?: string | null } | null }) =>
+    pickLocalized(a.category?.name, a.category?.nameEn, a.category?.nameZh);
 
   const catDescription = (a: {
-    category?: { description: string | null; descriptionEn: string | null } | null;
-  }) => locale.pick(a.category?.description, a.category?.descriptionEn);
+    category?: { description: string | null; descriptionEn: string | null; descriptionZh?: string | null } | null;
+  }) => pickLocalized(a.category?.description, a.category?.descriptionEn, a.category?.descriptionZh);
 
   /** Locale-aware short date: "១២ សីហា ២០២៦" / "12 Aug 2026" / "2026年8月12日" */
   const formatDate = (value: string | Date | null): string => {

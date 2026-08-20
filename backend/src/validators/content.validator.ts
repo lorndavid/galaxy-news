@@ -29,9 +29,11 @@ export const categoryCreateSchema = z.object({
   body: z.object({
     name: z.string().trim().min(1, "Name is required").max(80),
     nameEn: z.string().trim().max(80).nullable().optional(),
+    nameZh: z.string().trim().max(80).nullable().optional(),
     slug: z.string().trim().max(100).optional(),
     description: z.string().max(600).nullable().optional(),
     descriptionEn: z.string().max(600).nullable().optional(),
+    descriptionZh: z.string().max(600).nullable().optional(),
     image: imageField,
     color: z.string().regex(/^#[0-9a-fA-F]{3,8}$/, "Color must be a hex value").nullable().optional(),
     isActive: z.boolean().optional(),

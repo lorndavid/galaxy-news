@@ -21,9 +21,11 @@ export interface Category {
   id: number;
   name: string;
   nameEn: string | null;
+  nameZh: string | null;
   slug: string;
   description: string | null;
   descriptionEn: string | null;
+  descriptionZh: string | null;
   image: string | null;
   color: string | null;
   isActive: boolean;
@@ -43,11 +45,14 @@ export interface Article {
   id: number;
   title: string;
   titleEn: string | null;
+  titleZh: string | null;
   slug: string;
   excerpt: string | null;
   excerptEn: string | null;
+  excerptZh: string | null;
   content: string;
   contentEn: string | null;
+  contentZh: string | null;
   featuredImage: string | null;
   authorId: number;
   categoryId: number;
@@ -121,6 +126,7 @@ export interface SiteSettings {
   tickerBgColor: string;
   tickerTextColor: string;
   tickerAccentColor: string;
+  tickerLayout: "boxed" | "wide" | "fluid";
 
   // Theme tokens
   primaryColor: string;

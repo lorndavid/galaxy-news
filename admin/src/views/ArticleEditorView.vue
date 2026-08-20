@@ -40,6 +40,29 @@
         </div>
       </div>
 
+      <!-- Chinese version (optional) -->
+      <div class="rounded-lg border border-slate-200 p-4">
+        <div class="mb-3 flex items-center gap-2">
+          <span class="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">ZH</span>
+          <h3 class="text-sm font-semibold text-slate-700">中文版本</h3>
+          <span class="text-xs text-slate-400">(可选 — 当用户选择中文时显示)</span>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="label">标题 (中文)</label>
+            <input v-model="form.titleZh" type="text" class="input" placeholder="Article title in Chinese" />
+          </div>
+          <div>
+            <label class="label">摘要 (中文)</label>
+            <textarea v-model="form.excerptZh" rows="2" class="input" placeholder="Short excerpt in Chinese"></textarea>
+          </div>
+          <div>
+            <label class="label">内容 (中文)</label>
+            <RichTextEditor v-model="form.contentZh" />
+          </div>
+        </div>
+      </div>
+
       <div class="flex gap-2">
         <button type="submit" class="btn-primary" :disabled="saving">
           <CheckCircle class="h-4 w-4" /> បោះពុម្ពផ្សាយ
@@ -377,10 +400,13 @@ function statusTextClass(status: string): string {
 const form = reactive({
   title: "",
   titleEn: "",
+  titleZh: "",
   excerpt: "",
   excerptEn: "",
+  excerptZh: "",
   content: "",
   contentEn: "",
+  contentZh: "",
   categoryId: "" as number | "",
   tagIds: [] as number[],
   featuredImage: "",
@@ -399,10 +425,13 @@ async function save(status: string) {
     const payload = {
       title: form.title,
       titleEn: form.titleEn || null,
+      titleZh: form.titleZh || null,
       excerpt: form.excerpt || null,
       excerptEn: form.excerptEn || null,
+      excerptZh: form.excerptZh || null,
       content: form.content,
       contentEn: form.contentEn || null,
+      contentZh: form.contentZh || null,
       categoryId: form.categoryId,
       tagIds: form.tagIds,
       featuredImage: form.featuredImage || null,
@@ -602,7 +631,7 @@ onBeforeRouteLeave((_to, _from, next) => {
 
 // Track changes to form fields
 watch(
-  () => [form.title, form.titleEn, form.excerpt, form.excerptEn, form.content, form.contentEn, form.status, form.categoryId, form.isFeatured, form.isBreaking],
+  () => [form.title, form.titleEn, form.titleZh, form.excerpt, form.excerptEn, form.excerptZh, form.content, form.contentEn, form.contentZh, form.status, form.categoryId, form.isFeatured, form.isBreaking],
   () => { if (!dirty.value && isEdit.value) markDirty(); },
   { deep: true }
 );
@@ -614,10 +643,13 @@ onMounted(async () => {
     const a = await adminService.article(Number(route.params.id));
     form.title = a.title;
     form.titleEn = a.titleEn ?? "";
+    form.titleZh = a.titleZh ?? "";
     form.excerpt = a.excerpt ?? "";
     form.excerptEn = a.excerptEn ?? "";
+    form.excerptZh = a.excerptZh ?? "";
     form.content = a.content;
     form.contentEn = a.contentEn ?? "";
+    form.contentZh = a.contentZh ?? "";
     form.categoryId = a.categoryId;
     form.tagIds = a.tags.map((t) => t.id);
     form.featuredImage = a.featuredImage ?? "";

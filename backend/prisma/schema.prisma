@@ -59,9 +59,11 @@ model Category {
   id           Int       @id @default(autoincrement())
   name         String
   nameEn       String?   // English display name (falls back to name)
+  nameZh       String?   // Chinese display name (falls back to nameEn)
   slug         String    @unique
   description  String?
   descriptionEn String?
+  descriptionZh String?
   image        String?
   color        String?   @default("#0b1c39")
   isActive     Boolean   @default(true)
@@ -88,11 +90,14 @@ model Article {
   id            Int          @id @default(autoincrement())
   title         String
   titleEn       String?      // English title (falls back to title)
+  titleZh       String?      // Chinese title (falls back to titleEn)
   slug          String       @unique
   excerpt       String?
   excerptEn     String?
+  excerptZh     String?
   content       String       @default("")
   contentEn     String?      // English content (falls back to content)
+  contentZh     String?      // Chinese content (falls back to contentEn)
   featuredImage String?
   authorId      Int
   author        User         @relation(fields: [authorId], references: [id])
