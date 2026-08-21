@@ -515,15 +515,16 @@ onUnmounted(() => {
 }
 @media (max-width: 640px) {
   .g-brand-logo img {
-    height: 68px;
-    max-width: 264px;
+    height: 56px;
+    max-width: 220px;
   }
   .g-brand-inner {
-    min-height: 77px;
+    min-height: 68px;
   }
   .g-burger {
-    width: 38px;
-    height: 38px;
+    width: 48px;
+    height: 48px;
+    padding: 0 12px;
   }
 }
 @media (max-width: 991px) {

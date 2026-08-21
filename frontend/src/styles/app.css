@@ -1101,11 +1101,30 @@ select:focus-visible,
    Breakpoints: 480, 640, 768, 991, 1200
 =================================================================== */
 
+/* --- Global: prevent any horizontal overflow --- */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+html {
+  scroll-behavior: smooth;
+}
+
+/* --- Safe area support for notch phones --- */
+@supports (padding: env(safe-area-inset-top)) {
+  .g-ticker-wrap {
+    padding-top: env(safe-area-inset-top);
+  }
+  .g-footer-bottom-inner {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
 /* --- Mobile: ≤ 640px --- */
 @media (max-width: 640px) {
   /* Tighter container */
   .container {
-    padding-inline: 12px;
+    padding-inline: 16px;
   }
 
   /* Section spacing */
@@ -1126,8 +1145,9 @@ select:focus-visible,
     aspect-ratio: 16 / 9;
   }
   .g-hero-title {
-    font-size: 20px !important;
+    font-size: 22px !important;
     line-height: 1.35 !important;
+    font-weight: 700 !important;
   }
   .g-hero-excerpt {
     font-size: 13px !important;
@@ -1229,25 +1249,41 @@ select:focus-visible,
     right: 16px;
   }
 
-  /* Article page */
+  /* ═══ Article page — PROFESSIONAL NEWS TYPOGRAPHY ═══ */
   .news-title {
-    font-size: 22px !important;
-    margin: 8px 0 10px !important;
+    font-size: 26px !important;
+    line-height: 1.3 !important;
+    font-weight: 700 !important;
+    margin: 10px 0 12px !important;
+    letter-spacing: -0.01em;
   }
   .news-lead {
-    font-size: 14px !important;
+    font-size: 16px !important;
+    line-height: 1.7 !important;
+    color: var(--color-text-secondary);
   }
   .news-content {
-    font-size: 15px !important;
+    font-size: 17px !important;
     line-height: 1.85 !important;
+    word-break: break-word;
   }
   .news-content p {
-    font-size: 15px !important;
+    font-size: 17px !important;
     line-height: 1.85 !important;
-    margin-bottom: 14px !important;
+    margin-bottom: 16px !important;
   }
   .news-meta {
     font-size: 12px !important;
+  }
+  /* Ensure images never overflow */
+  .news-content img,
+  .news-thumb img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  /* News card titles on mobile — slightly heavier */
+  .news-row-title {
+    font-weight: 600;
   }
 
   /* Video grid */
@@ -1257,6 +1293,28 @@ select:focus-visible,
   }
   .video-card {
     aspect-ratio: 16 / 9;
+  }
+
+  /* Breadcrumb — prevent overflow */
+  .g-breadcrumb {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+}
+
+/* --- Small mobile: ≤ 380px (iPhone SE, etc.) --- */
+@media (max-width: 380px) {
+  .news-title {
+    font-size: 23px !important;
+  }
+  .news-content,
+  .news-content p {
+    font-size: 16px !important;
+  }
+  .container {
+    padding-inline: 12px;
   }
 }
 

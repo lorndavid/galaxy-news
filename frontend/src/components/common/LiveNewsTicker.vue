@@ -197,7 +197,7 @@ onUnmounted(() => {
   text-decoration: none;
   transition: color 0.2s ease;
   border-right: 1px solid color-mix(in srgb, currentColor 14%, transparent);
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 .g-ticker-item:hover {
   color: currentColor;
@@ -219,13 +219,11 @@ onUnmounted(() => {
   to { transform: translateX(0); }
 }
 
-/* Reduced motion: static readable list */
+/* Reduced motion: stop scroll but keep single line */
 @media (prefers-reduced-motion: reduce) {
   .g-ticker-track.is-left,
   .g-ticker-track.is-right {
     animation: none;
-    flex-wrap: wrap;
-    white-space: normal;
   }
   .g-ticker-pulse {
     animation: none;
@@ -236,8 +234,8 @@ onUnmounted(() => {
 /* Mobile */
 @media (max-width: 640px) {
   .g-ticker-badge {
-    padding: 0 14px;
-    padding-right: 22px;
+    padding: 0 12px;
+    padding-right: 20px;
     min-height: 36px;
   }
   .g-ticker-badge-text {
@@ -247,6 +245,7 @@ onUnmounted(() => {
     font-size: 13px;
     padding: 0 16px;
     line-height: 36px;
+    white-space: nowrap;
   }
 }
 </style>
