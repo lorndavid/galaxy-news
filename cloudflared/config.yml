@@ -16,7 +16,7 @@
 # ============================================================
 
 tunnel: galaxytv
-credentials-file: ~/.cloudflared/galaxytv.json
+credentials-file: ~/.cloudflared/fdb3778b-85e8-403e-aab2-c15fa61d6d0f.json
 
 ingress:
   # API endpoint → backend (port 4000)

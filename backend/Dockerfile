@@ -23,8 +23,8 @@ RUN npm run build
 
 FROM base AS runtime
 ENV NODE_ENV=production
-# Prisma's query engine requires OpenSSL at runtime
-RUN apt-get update -y && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
+# Prisma's query engine + R2 TLS require updated OpenSSL/libssl3
+RUN apt-get update -y && apt-get install -y --no-install-recommends openssl libssl3 ca-certificates curl && update-ca-certificates && rm -rf /var/lib/apt/lists/*
 # node_modules was installed at /app (deps stage) — copy from there.
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/backend/dist ./dist
