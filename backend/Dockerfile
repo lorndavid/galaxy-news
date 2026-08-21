@@ -1,18 +1,20 @@
-# Debian-slim (not alpine) because Prisma's query engine needs a full
-# OpenSSL install; alpine lacks the OpenSSL 3 compat layer and the
-# schema engine crashes at runtime.
-#
-# Build context is the repo ROOT (see docker-compose.yml) so the seed's
-# demo images (assets/img/...) are included for seeded articles.
+# ============================================================
+# Galaxy TV V4K — Backend (Express + Prisma + PostgreSQL)
+# ============================================================
+# Multi-stage build. Build context is repo ROOT (docker-compose.yml).
+# Layer cache: deps stage is cached until package.json changes.
+# ============================================================
+
 FROM node:20-slim AS base
 WORKDIR /app
 
-# Backend package has no own lockfile (workspace deps are hoisted at root),
-# so install from package.json instead of npm ci.
+# ── Stage 1: Install dependencies (cached layer) ─────────────
 FROM base AS deps
 COPY backend/package.json ./package.json
-RUN npm install --no-audit --no-fund
+RUN npm install --no-audit --no-fund \
+    && npm cache clean --force
 
+# ── Stage 2: Build (compile + generate) ──────────────────────
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY backend/ ./backend/
@@ -21,24 +23,33 @@ WORKDIR /app/backend
 RUN npx prisma generate
 RUN npm run build
 
+# ── Stage 3: Production runtime (smallest image) ─────────────
 FROM base AS runtime
 ENV NODE_ENV=production
-# Prisma's query engine + R2 TLS require updated OpenSSL/libssl3
-RUN apt-get update -y && apt-get install -y --no-install-recommends openssl libssl3 ca-certificates curl && update-ca-certificates && rm -rf /var/lib/apt/lists/*
-# node_modules was installed at /app (deps stage) — copy from there.
-COPY --from=build /app/node_modules ./node_modules
+
+# Prisma query engine + R2 TLS need OpenSSL
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+       openssl libssl3 ca-certificates curl \
+    && update-ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Production-only node_modules
+COPY --from=deps /app/node_modules ./node_modules
+
+# Compiled output
 COPY --from=build /app/backend/dist ./dist
 COPY --from=build /app/backend/prisma ./prisma
 COPY --from=build /app/backend/package.json ./package.json
-# The seed imports ../src/constants from prisma/seed.ts, so src must be present.
 COPY --from=build /app/backend/src ./src
-# Seed demo images (the seed copies them into /app/uploads/seed).
 COPY --from=build /app/assets ./assets
-# Local upload fallback storage (persisted via docker volume)
+
+# Local upload fallback storage
 RUN mkdir -p /app/uploads
 VOLUME /app/uploads
 EXPOSE 4000
-# Apply migrations and seed demo data (all upserts, so re-running is
-# safe on every boot), then start the API. DATABASE_URL points at the
-# persistent sqlite volume, so data survives container restarts.
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
+  CMD curl -sf http://localhost:4000/health || exit 1
+
 CMD ["sh", "-c", "npx prisma generate && npx prisma migrate deploy && npx prisma db seed && node dist/server.js"]

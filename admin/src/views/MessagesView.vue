@@ -1,7 +1,7 @@
 <template>
   <div class="card overflow-hidden">
     <div class="border-b border-slate-200 px-5 py-4">
-      <h3 class="text-sm font-semibold text-slate-700">សារទំនាក់ទំនង ({{ total }})</h3>
+      <h3 class="text-sm font-semibold text-slate-700">{{ prefs.t('messages.title') }} ({{ total }})</h3>
     </div>
     <div v-if="loading" class="space-y-3 p-5">
       <div v-for="i in 4" :key="i" class="flex animate-pulse gap-3">
@@ -14,7 +14,7 @@
     </div>
     <div v-else-if="error" class="p-8 text-center">
       <p class="text-sm text-red-600">{{ error }}</p>
-      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load(1)">ព្យាយាមម្តងទៀត</button>
+      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load(1)">{{ prefs.t('common.retry') }}</button>
     </div>
     <div v-else class="divide-y divide-slate-100">
       <div v-for="m in items" :key="m.id" class="px-5 py-4">
@@ -28,7 +28,7 @@
             <p v-if="m.subject" class="mt-1 text-sm font-medium text-slate-600">{{ m.subject }}</p>
             <p class="mt-1 text-sm text-slate-600">{{ m.message }}</p>
           </div>
-          <button class="btn-ghost !p-2 shrink-0 text-red-600" title="លុប" @click="askDelete(m)">
+          <button class="btn-ghost !p-2 shrink-0 text-red-600" title="prefs.t('common.delete')" @click="askDelete(m)">
             <Trash2 class="h-4 w-4" />
           </button>
         </div>
@@ -37,7 +37,7 @@
 
     <div v-if="!loading && !error && !items.length" class="empty-state">
       <div class="empty-icon"><Mail class="h-6 w-6" /></div>
-      <h3>មិនមានសារទេ</h3>
+      <h3>{{ prefs.t('messages.emptyTitle') }}</h3>
       <p>សារទំនាក់ទំនងពីទស្សនិកជននឹងបង្ហាញនៅទីនេះ</p>
     </div>
     <div class="px-4 pb-4">
@@ -56,8 +56,10 @@ import { useToastStore } from "@/stores/toast";
 import AdminPagination from "@/components/ui/AdminPagination.vue";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import type { ContactMessage } from "@/types";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 const items = ref<ContactMessage[]>([]);
 const page = ref(1);
 const totalPages = ref(1);
@@ -95,7 +97,7 @@ async function doDelete() {
     toast.success("បានលុបសារ");
     load(page.value);
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "លុបបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.deleteError'));
   } finally {
     confirmOpen.value = false;
     target = null;

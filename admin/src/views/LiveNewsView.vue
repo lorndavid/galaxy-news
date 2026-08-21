@@ -90,8 +90,10 @@
 import { onMounted, reactive, ref } from "vue";
 import { adminService } from "@/services/admin.service";
 import { useToastStore } from "@/stores/toast";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 const saving = ref(false);
 
 const tickerColors = [
@@ -128,7 +130,7 @@ async function save() {
     await adminService.updateSettings({ ...form });
     toast.success("បានរក្សាទុកការកំណត់បន្ទាត់ព័ត៌មាន");
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "រក្សាទុកបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.saveError'));
   } finally {
     saving.value = false;
   }

@@ -49,3 +49,54 @@ export function serializeArticle(article: ArticleWithRelations) {
 export function isPublished(a: Pick<Article, "status">): boolean {
   return a.status === "PUBLISHED";
 }
+
+// ------------------------------------------------------------------
+// Lightweight list serializer — skips the full HTML body, gallery
+// images, and tag details. Used by listing endpoints (latest,
+// breaking, popular, category feed, search) where the response can
+// be 3-5× smaller without the rich article body.
+// ------------------------------------------------------------------
+
+export const articleListSelect = {
+  id: true,
+  title: true,
+  titleEn: true,
+  titleZh: true,
+  slug: true,
+  excerpt: true,
+  excerptEn: true,
+  excerptZh: true,
+  featuredImage: true,
+  authorId: true,
+  categoryId: true,
+  status: true,
+  isFeatured: true,
+  isBreaking: true,
+  views: true,
+  galleryColumns: true,
+  publishedAt: true,
+  createdAt: true,
+  updatedAt: true,
+  author: { select: { id: true, name: true, avatar: true, role: true } },
+  category: true,
+  tags: { include: { tag: { select: { id: true, name: true, nameEn: true, slug: true } } } },
+  images: false,
+} satisfies Prisma.ArticleSelect;
+
+type ArticleListRow = Prisma.ArticleGetPayload<{
+  select: typeof articleListSelect;
+}>;
+
+/**
+ * Serialize a lightweight article row for listing endpoints.
+ * 3-5× smaller than the full serializer because it omits content
+ * and gallery images.
+ */
+export function serializeArticleListItem(article: ArticleListRow) {
+  return {
+    ...article,
+    // content is NOT included — callers don't need the full HTML body
+    tags: article.tags.map((t) => t.tag),
+    // images omitted — listings use featuredImage only
+  };
+}

@@ -12,7 +12,7 @@
       <div v-if="loading" class="p-8 text-center text-sm text-slate-400">កំពុងផ្ទុក...</div>
       <div v-else-if="error" class="p-8 text-center">
         <p class="text-sm text-red-600">{{ error }}</p>
-        <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load">ព្យាយាមម្តងទៀត</button>
+        <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load">{{ prefs.t('common.retry') }}</button>
       </div>
 
       <template v-else>
@@ -232,8 +232,10 @@ import {
 import { adminService } from "@/services/admin.service";
 import { useToastStore } from "@/stores/toast";
 import type { HomepageSection, HomepageSectionConfig } from "@/types";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 const sections = ref<HomepageSection[]>([]);
 const loading = ref(false);
 const error = ref("");
@@ -364,7 +366,7 @@ async function save() {
     toast.success("បានរក្សាទុកការរៀបចំទំព័រដើម");
     dirty.value = false;
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "រក្សាទុកបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.saveError'));
   } finally {
     saving.value = false;
   }

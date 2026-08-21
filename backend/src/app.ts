@@ -1,3 +1,4 @@
+import compression from "compression";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import express from "express";
@@ -5,6 +6,7 @@ import helmet from "helmet";
 import { env } from "./config/env";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { apiLimiter } from "./middleware/rateLimit";
+import { requestLogger } from "./middleware/requestLogger";
 import { logger } from "./lib/logger";
 import { prisma } from "./lib/prisma";
 import { checkR2 } from "./lib/r2";
@@ -17,6 +19,9 @@ export function createApp() {
 
   app.disable("x-powered-by");
   app.set("trust proxy", 1);
+
+  // Request logging — assigns request ID, logs timing, flags slow requests
+  app.use(requestLogger);
 
   app.use(
     helmet({
@@ -41,9 +46,38 @@ export function createApp() {
     next();
   });
 
+  // Response compression — gzip/deflate for JSON and text payloads.
+  // Images (binary) are excluded since R2 already handles compression.
+  app.use(
+    compression({
+      filter: (req, res) => {
+        // Don't compress if the client doesn't want it
+        if (req.headers["x-no-compression"]) return false;
+        // Don't compress image requests (proxy)
+        if (req.path.startsWith("/media/")) return false;
+        // Use default filter for everything else
+        return compression.filter(req, res);
+      },
+      threshold: 1024, // Only compress responses > 1 KB
+    })
+  );
+
+  // Build allowed origins list:
+  // 1. Development URLs (localhost)
+  // 2. Production Vercel URLs (from env)
+  // 3. Any configured frontend/admin URLs
+  const allowedOrigins = [
+    env.cors.frontendUrl,
+    env.cors.adminUrl,
+    /^http:\/\/localhost:\d+$/,
+  ];
+  // Add production origins if configured
+  if (env.cors.frontendOrigin) allowedOrigins.push(env.cors.frontendOrigin);
+  if (env.cors.adminOrigin) allowedOrigins.push(env.cors.adminOrigin);
+
   app.use(
     cors({
-      origin: [env.cors.frontendUrl, env.cors.adminUrl, /^http:\/\/localhost:\d+$/],
+      origin: allowedOrigins,
       credentials: true,
     })
   );
@@ -80,6 +114,21 @@ export function createApp() {
   });
 
   // API routes
+  // Liveness — always 200 if the process is running (for orchestrators)
+  app.get("/api/live", (_req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
+  // Readiness — 200 only if database is reachable
+  app.get("/api/ready", async (_req, res) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      res.json({ status: "ok", database: "connected" });
+    } catch {
+      res.status(503).json({ status: "degraded", database: "unreachable" });
+    }
+  });
+
   app.use("/api/v1", apiLimiter, apiRouter);
 
   app.use(notFoundHandler);

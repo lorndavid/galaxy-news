@@ -1,7 +1,7 @@
 <template>
   <div class="card overflow-hidden">
     <div class="border-b border-slate-200 px-5 py-4">
-      <h3 class="text-sm font-semibold text-slate-700">ប្រវត្តិសកម្មភាព</h3>
+      <h3 class="text-sm font-semibold text-slate-700">{{ prefs.t('activity.title') }}</h3>
     </div>
     <div v-if="loading" class="space-y-3 p-5">
       <div v-for="i in 6" :key="i" class="flex animate-pulse gap-3">
@@ -14,7 +14,7 @@
     </div>
     <div v-else-if="error" class="p-8 text-center">
       <p class="text-sm text-red-600">{{ error }}</p>
-      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load(1)">ព្យាយាមម្តងទៀត</button>
+      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load(1)">{{ prefs.t('common.retry') }}</button>
     </div>
     <div v-else class="divide-y divide-slate-100">
       <div v-for="a in items" :key="a.id" class="flex items-start gap-3 px-5 py-3">
@@ -32,7 +32,7 @@
 
     <div v-if="!loading && !error && !items.length" class="empty-state">
       <div class="empty-icon"><Activity class="h-6 w-6" /></div>
-      <h3>មិនមានសកម្មភាពទេ</h3>
+      <h3>{{ prefs.t('activity.emptyTitle') }}</h3>
       <p>សកម្មភាពនឹងបង្ហាញនៅទីនេះនៅពេលអ្នកប្រើប្រាស់ប្រព័ន្ធផ្សេងៗ</p>
     </div>
     <div class="px-4 pb-4">
@@ -47,8 +47,10 @@ import { Activity } from "lucide-vue-next";
 import { adminService } from "@/services/admin.service";
 import AdminPagination from "@/components/ui/AdminPagination.vue";
 import type { ActivityLog } from "@/types";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const items = ref<ActivityLog[]>([]);
+const prefs = usePreferencesStore();
 const page = ref(1);
 const totalPages = ref(1);
 const total = ref(0);

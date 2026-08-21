@@ -1,8 +1,8 @@
 <template>
   <div class="card overflow-hidden">
     <div class="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center">
-      <input v-model="search" type="text" placeholder="ស្វែងរកអ្នកប្រើប្រាស់..." class="input max-w-xs" @input="onSearch" />
-      <button class="btn-primary ml-auto !py-1.5 text-xs" @click="openCreate"><Plus class="h-3.5 w-3.5" /> បន្ថែមអ្នកប្រើប្រាស់</button>
+      <input v-model="search" type="text" placeholder="prefs.t('users.search')" class="input max-w-xs" @input="onSearch" />
+      <button class="btn-primary ml-auto !py-1.5 text-xs" @click="openCreate"><Plus class="h-3.5 w-3.5" /> {{ prefs.t('categories.add') }}អ្នកប្រើប្រាស់</button>
     </div>
     <div v-if="loading" class="p-6 space-y-3">
       <div v-for="i in 4" :key="i" class="flex animate-pulse items-center gap-3">
@@ -15,16 +15,16 @@
     </div>
     <div v-else-if="error" class="p-8 text-center">
       <p class="text-sm text-red-600">{{ error }}</p>
-      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load(1)">ព្យាយាមម្តងទៀត</button>
+      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load(1)">{{ prefs.t('common.retry') }}</button>
     </div>
     <div v-else class="overflow-x-auto">
       <table class="data-table">
         <thead class="bg-slate-50 text-xs uppercase text-slate-500">
           <tr>
-            <th class="px-4 py-3">អ្នកប្រើប្រាស់</th>
-            <th class="px-4 py-3">តួនាទី</th>
-            <th class="px-4 py-3">ស្ថានភាព</th>
-            <th class="px-4 py-3 text-right">សកម្មភាព</th>
+            <th class="px-4 py-3">{{ prefs.t('users.colUser') }}</th>
+            <th class="px-4 py-3">{{ prefs.t('users.colRole') }}</th>
+            <th class="px-4 py-3">{{ prefs.t('users.colStatus') }}</th>
+            <th class="px-4 py-3 text-right">{{ prefs.t('users.colActions') }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
@@ -50,8 +50,8 @@
             </td>
             <td class="px-4 py-3">
               <div class="flex justify-end gap-1">
-                <button class="btn-ghost !p-2" title="កែសម្រួល" @click="openEdit(u)"><Pencil class="h-4 w-4" /></button>
-                <button class="btn-ghost !p-2 text-red-600 hover:!bg-red-50" title="លុប" @click="askDelete(u)"><Trash2 class="h-4 w-4" /></button>
+                <button class="btn-ghost !p-2" title="prefs.t('common.edit')" @click="openEdit(u)"><Pencil class="h-4 w-4" /></button>
+                <button class="btn-ghost !p-2 text-red-600 hover:!bg-red-50" title="prefs.t('common.delete')" @click="askDelete(u)"><Trash2 class="h-4 w-4" /></button>
               </div>
             </td>
           </tr>
@@ -95,7 +95,7 @@
           <input v-model="form.isActive" type="checkbox" class="h-4 w-4 rounded border-slate-300" />
           សកម្ម
         </label>
-        <button type="submit" class="btn-primary w-full">រក្សាទុក</button>
+        <button type="submit" class="btn-primary w-full">{{ prefs.t('common.save') }}</button>
       </form>
     </Modal>
 
@@ -113,8 +113,10 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import AdminPagination from "@/components/ui/AdminPagination.vue";
 import EmptyState from "@/components/ui/EmptyState.vue";
 import type { User, UserRole } from "@/types";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 const items = ref<User[]>([]);
 const search = ref("");
 const page = ref(1);
@@ -197,15 +199,15 @@ async function save() {
   try {
     if (editing.value && target) {
       await adminService.updateUser(target.id, payload);
-      toast.success("បានកែសម្រួលអ្នកប្រើប្រាស់");
+      toast.success(prefs.t('toast.userUpdated'));
     } else {
       await adminService.createUser(payload);
-      toast.success("បានបង្កើតអ្នកប្រើប្រាស់");
+      toast.success(prefs.t('toast.userCreated'));
     }
     modalOpen.value = false;
     load(page.value);
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "រក្សាទុកបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.saveError'));
   }
 }
 
@@ -218,10 +220,10 @@ async function doDelete() {
   if (!target) return;
   try {
     await adminService.deleteUser(target.id);
-    toast.success("បានលុបអ្នកប្រើប្រាស់");
+    toast.success(prefs.t('toast.userDeleted'));
     load(page.value);
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "លុបបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.deleteError'));
   } finally {
     confirmOpen.value = false;
     target = null;

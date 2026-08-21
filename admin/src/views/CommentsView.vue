@@ -20,7 +20,7 @@
     </div>
     <div v-else-if="error" class="p-8 text-center">
       <p class="text-sm text-red-600">{{ error }}</p>
-      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load(1)">ព្យាយាមម្តងទៀត</button>
+      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load(1)">{{ prefs.t('common.retry') }}</button>
     </div>
     <div v-else class="divide-y divide-slate-100">
       <div v-for="c in items" :key="c.id" class="px-5 py-4">
@@ -43,7 +43,7 @@
             <button v-if="c.status !== 'REJECTED'" class="btn-ghost !p-2 text-red-600" title="បដិសេធ" @click="moderate(c, 'REJECTED')">
               <X class="h-4 w-4" />
             </button>
-            <button class="btn-ghost !p-2 text-slate-400" title="លុប" @click="askDelete(c)">
+            <button class="btn-ghost !p-2 text-slate-400" title="prefs.t('common.delete')" @click="askDelete(c)">
               <Trash2 class="h-4 w-4" />
             </button>
           </div>
@@ -73,8 +73,10 @@ import StatusBadge from "@/components/ui/StatusBadge.vue";
 import AdminPagination from "@/components/ui/AdminPagination.vue";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import type { Comment } from "@/types";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 const items = ref<Comment[]>([]);
 const filter = ref("");
 const page = ref(1);
@@ -135,7 +137,7 @@ async function doDelete() {
     toast.success("បានលុបមតិ");
     load(page.value);
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "លុបបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.deleteError'));
   } finally {
     confirmOpen.value = false;
     target = null;

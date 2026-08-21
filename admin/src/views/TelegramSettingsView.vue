@@ -98,7 +98,7 @@
                 <Radar class="h-3.5 w-3.5" /> ស្វែងរក Chats
               </button>
               <button type="button" class="btn-secondary !py-1 !px-2.5 text-xs" @click="addDestination">
-                <Plus class="h-3.5 w-3.5" /> បន្ថែម
+                <Plus class="h-3.5 w-3.5" /> {{ prefs.t('categories.add') }}
               </button>
             </div>
           </div>
@@ -241,8 +241,10 @@ import type {
   TelegramStats,
   TelegramTestResult,
 } from "@/types";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 const busy = ref(false);
 const testing = ref(false);
 const result = ref<TelegramTestResult | null>(null);

@@ -1,22 +1,22 @@
 <template>
   <div class="card overflow-hidden">
     <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-      <h3 class="text-sm font-semibold text-slate-700">ស្លាក ({{ items.length }})</h3>
-      <button class="btn-primary !py-1.5 text-xs" @click="openCreate"><Plus class="h-3.5 w-3.5" /> បន្ថែម</button>
+      <h3 class="text-sm font-semibold text-slate-700">{{ prefs.t('tags.title') }} ({{ items.length }})</h3>
+      <button class="btn-primary !py-1.5 text-xs" @click="openCreate"><Plus class="h-3.5 w-3.5" /> {{ prefs.t('categories.add') }}</button>
     </div>
     <div v-if="loading" class="flex flex-wrap gap-2 p-5">
       <div v-for="i in 8" :key="i" class="h-8 w-24 animate-pulse rounded-full bg-slate-200"></div>
     </div>
     <div v-else-if="error" class="p-8 text-center">
       <p class="text-sm text-red-600">{{ error }}</p>
-      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load()">ព្យាយាមម្តងទៀត</button>
+      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load()">{{ prefs.t('common.retry') }}</button>
     </div>
     <div v-else class="flex flex-wrap gap-2 p-5">
       <div v-for="t in items" :key="t.id" class="flex items-center gap-2 rounded-full bg-slate-100 py-1 pl-3 pr-1 text-sm">
         <span class="text-slate-700">{{ t.name }}</span>
         <span class="text-xs text-slate-400">/{{ t.slug }}</span>
-        <button class="rounded-full p-1 hover:bg-slate-200" title="កែសម្រួល" @click="openEdit(t)"><Pencil class="h-3.5 w-3.5" /></button>
-        <button class="rounded-full p-1 text-red-500 hover:bg-red-50" title="លុប" @click="askDelete(t)"><X class="h-3.5 w-3.5" /></button>
+        <button class="rounded-full p-1 hover:bg-slate-200" title="prefs.t('common.edit')" @click="openEdit(t)"><Pencil class="h-3.5 w-3.5" /></button>
+        <button class="rounded-full p-1 text-red-500 hover:bg-red-50" title="prefs.t('common.delete')" @click="askDelete(t)"><X class="h-3.5 w-3.5" /></button>
       </div>
     </div>
 
@@ -42,7 +42,7 @@
           <label class="label">Slug</label>
           <input v-model="form.slug" type="text" class="input" placeholder="ទុកទទេដើម្បីបង្កើតដោយស្វ័យប្រវត្តិ" />
         </div>
-        <button type="submit" class="btn-primary w-full">រក្សាទុក</button>
+        <button type="submit" class="btn-primary w-full">{{ prefs.t('common.save') }}</button>
       </form>
     </Modal>
 
@@ -58,8 +58,10 @@ import { useToastStore } from "@/stores/toast";
 import Modal from "@/components/ui/Modal.vue";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import type { Tag } from "@/types";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 const items = ref<Tag[]>([]);
 const loading = ref(false);
 const error = ref("");
@@ -99,15 +101,15 @@ async function save() {
   try {
     if (editing.value && target) {
       await adminService.updateTag(target.id, payload);
-      toast.success("បានកែសម្រួលស្លាក");
+      toast.success(prefs.t('toast.tagUpdated'));
     } else {
       await adminService.createTag(payload);
-      toast.success("បានបង្កើតស្លាក");
+      toast.success(prefs.t('toast.tagCreated'));
     }
     modalOpen.value = false;
     load();
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "រក្សាទុកបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.saveError'));
   }
 }
 
@@ -120,10 +122,10 @@ async function doDelete() {
   if (!target) return;
   try {
     await adminService.deleteTag(target.id);
-    toast.success("បានលុបស្លាក");
+    toast.success(prefs.t('toast.tagDeleted'));
     load();
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "លុបបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.deleteError'));
   } finally {
     confirmOpen.value = false;
     target = null;

@@ -15,7 +15,7 @@
 
     <!-- ============ GENERAL ============ -->
     <form v-if="activeTab === 'general'" class="card max-w-2xl space-y-4 p-6" @submit.prevent="save">
-      <h3 class="text-sm font-semibold text-slate-700">ព័ត៌មានគេហទំព័រ</h3>
+      <h3 class="text-sm font-semibold text-slate-700">{{ prefs.t('settings.siteInfo') }}</h3>
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
           <label class="label">ឈ្មោះគេហទំព័រ (ខ្មែរ)</label>
@@ -317,8 +317,10 @@
 import { computed, onMounted, reactive, ref } from "vue";
 import { adminService } from "@/services/admin.service";
 import { useToastStore } from "@/stores/toast";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 const saving = ref(false);
 const activeTab = ref<"general" | "appearance">("general");
 
@@ -446,9 +448,9 @@ async function save() {
   saving.value = true;
   try {
     await adminService.updateSettings({ ...form });
-    toast.success("បានរក្សាទុកការកំណត់");
+    toast.success(prefs.t('toast.settingsSaved'));
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "រក្សាទុកបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.saveError'));
   } finally {
     saving.value = false;
   }

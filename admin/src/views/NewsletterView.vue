@@ -1,7 +1,7 @@
 <template>
   <div class="card overflow-hidden">
     <div class="border-b border-slate-200 px-5 py-4">
-      <h3 class="text-sm font-semibold text-slate-700">អតិថិជនព្រឹត្តិបត្រ ({{ total }})</h3>
+      <h3 class="text-sm font-semibold text-slate-700">{{ prefs.t('newsletter.title') }} ({{ total }})</h3>
       <p class="mt-0.5 text-xs text-slate-400">អ្នកដែលបានចុះឈ្មោះទទួលព័ត៌មានពីគេហទំព័រ</p>
     </div>
     <div class="divide-y divide-slate-100">
@@ -16,16 +16,16 @@
         <span class="badge" :class="s.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'">
           {{ s.isActive ? "សកម្ម" : "អសកម្ម" }}
         </span>
-        <button class="btn-ghost !p-2 shrink-0 text-red-600 hover:!bg-red-50" title="លុប" @click="askDelete(s)">
+        <button class="btn-ghost !p-2 shrink-0 text-red-600 hover:!bg-red-50" title="prefs.t('common.delete')" @click="askDelete(s)">
           <Trash2 class="h-4 w-4" />
         </button>
       </div>
     </div>
-    <div v-if="!loading && !items.length" class="p-10 text-center text-sm text-slate-400">មិនទាន់មានអ្នកចុះឈ្មោះទេ</div>
+    <div v-if="!loading && !items.length" class="p-10 text-center text-sm text-slate-400">{{ prefs.t('newsletter.empty') }}</div>
     <div v-if="loading" class="p-10 text-center text-sm text-slate-400">កំពុងផ្ទុក...</div>
     <div v-if="error" class="p-8 text-center">
       <p class="text-sm text-red-600">{{ error }}</p>
-      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load(1)">ព្យាយាមម្តងទៀត</button>
+      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load(1)">{{ prefs.t('common.retry') }}</button>
     </div>
     <div v-if="!loading && !error && items.length" class="px-4 pb-4">
       <AdminPagination :page="page" :total-pages="totalPages" :total="total" @change="load" />
@@ -43,8 +43,10 @@ import { useToastStore } from "@/stores/toast";
 import AdminPagination from "@/components/ui/AdminPagination.vue";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import type { NewsletterSubscriber } from "@/types";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 const items = ref<NewsletterSubscriber[]>([]);
 const page = ref(1);
 const totalPages = ref(1);
@@ -82,7 +84,7 @@ async function doDelete() {
     toast.success("បានលុបអ្នកចុះឈ្មោះ");
     load(page.value);
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "លុបបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.deleteError'));
   } finally {
     confirmOpen.value = false;
     target = null;

@@ -357,10 +357,12 @@ import Modal from "@/components/ui/Modal.vue";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import ImageUploader from "@/components/media/ImageUploader.vue";
 import type { Category, Media, Tag, TelegramPublication } from "@/types";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const route = useRoute();
 const router = useRouter();
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 
 const isEdit = computed(() => !!route.params.id);
 
@@ -468,7 +470,7 @@ async function save(status: string) {
       await refreshPublication();
     }
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "រក្សាទុកបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.saveError'));
   } finally {
     saving.value = false;
   }

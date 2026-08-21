@@ -464,7 +464,7 @@ onUnmounted(() => {
 .g-brand-inner {
   display: flex;
   align-items: center;
-  min-height: 88px;
+  min-height: 108px;
 }
 .g-brand-logo {
   flex-shrink: 0;
@@ -473,10 +473,11 @@ onUnmounted(() => {
   justify-content: center;
 }
 .g-brand-logo img {
-  height: 125px;
+  height: 108px;
   width: auto;
-  max-width: 600px;
+  max-width: 540px;
   object-fit: contain;
+  transition: height 0.3s ease;
 }
 
 /* Ad banner (admin-managed, position: header) — right side */
@@ -514,11 +515,11 @@ onUnmounted(() => {
 }
 @media (max-width: 640px) {
   .g-brand-logo img {
-    height: 74px;
-    max-width: 288px;
+    height: 68px;
+    max-width: 264px;
   }
   .g-brand-inner {
-    min-height: 56px;
+    min-height: 77px;
   }
   .g-burger {
     width: 38px;
@@ -564,9 +565,9 @@ onUnmounted(() => {
   align-items: center;
 }
 .g-navbar-logo img {
-  height: 44px;
+  height: 54px;
   width: auto;
-  max-width: 200px;
+  max-width: 240px;
   object-fit: contain;
 }
 
@@ -714,21 +715,26 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   z-index: 9999;
-  background: #0b1c39;
+  background: var(--color-primary);
   box-shadow: var(--shadow-header);
+  transition: background 0.3s ease;
 }
 .is-sticky .g-navbar-inner {
-  justify-content: space-between;
+  justify-content: flex-start;
+  align-items: center;
   min-height: 60px;
+  gap: 24px;
 }
 .is-sticky .g-navbar-logo {
   display: flex;
 }
 .is-sticky .g-navbar-logo img {
-  height: 44px;
-  max-width: 220px;
+  height: 56px;
+  max-width: 280px;
+  transition: height 0.3s ease;
 }
 .is-sticky .g-nav {
+  flex: 1;
   margin-left: auto;
 }
 .is-sticky .g-nav ul {

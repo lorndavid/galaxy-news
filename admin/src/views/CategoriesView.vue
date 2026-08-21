@@ -2,8 +2,8 @@
   <div class="space-y-5">
     <div class="card overflow-hidden">
       <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-        <h3 class="text-sm font-semibold text-slate-700">ប្រភេទ ({{ items.length }})</h3>
-        <button class="btn-primary !py-1.5 text-xs" @click="openCreate"><Plus class="h-3.5 w-3.5" /> បន្ថែម</button>
+        <h3 class="text-sm font-semibold text-slate-700">{{ prefs.t('categories.title') }} ({{ items.length }})</h3>
+        <button class="btn-primary !py-1.5 text-xs" @click="openCreate"><Plus class="h-3.5 w-3.5" /> {{ prefs.t('categories.add') }}</button>
       </div>
       <div class="divide-y divide-slate-100">
         <div v-for="c in items" :key="c.id" class="flex items-center gap-4 px-5 py-3">
@@ -13,11 +13,11 @@
             <p class="text-xs text-slate-400">/{{ c.slug }} · {{ c.description ?? "—" }}</p>
           </div>
           <span class="badge" :class="c.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'">
-            {{ c.isActive ? "សកម្ម" : "អសកម្ម" }}
+            {{ c.isActive ? prefs.t('common.active') : prefs.t('common.inactive') }}
           </span>
           <div class="flex gap-1">
-            <button class="btn-ghost !p-2" title="កែសម្រួល" @click="openEdit(c)"><Pencil class="h-4 w-4" /></button>
-            <button class="btn-ghost !p-2 text-red-600 hover:!bg-red-50" title="លុប" @click="askDelete(c)"><Trash2 class="h-4 w-4" /></button>
+            <button class="btn-ghost !p-2" title="prefs.t('common.edit')" @click="openEdit(c)"><Pencil class="h-4 w-4" /></button>
+            <button class="btn-ghost !p-2 text-red-600 hover:!bg-red-50" title="prefs.t('common.delete')" @click="askDelete(c)"><Trash2 class="h-4 w-4" /></button>
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@
           <input v-model="form.isActive" type="checkbox" class="h-4 w-4 rounded border-slate-300" />
           សកម្ម
         </label>
-        <button type="submit" class="btn-primary w-full">រក្សាទុក</button>
+        <button type="submit" class="btn-primary w-full">{{ prefs.t('common.save') }}</button>
       </form>
     </Modal>
 
@@ -73,8 +73,10 @@ import { useToastStore } from "@/stores/toast";
 import Modal from "@/components/ui/Modal.vue";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import type { Category } from "@/types";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 const items = ref<Category[]>([]);
 const modalOpen = ref(false);
 const confirmOpen = ref(false);
@@ -129,15 +131,15 @@ async function save() {
   try {
     if (editing.value && target) {
       await adminService.updateCategory(target.id, payload);
-      toast.success("បានកែសម្រួលប្រភេទ");
+      toast.success(prefs.t('toast.categoryUpdated'));
     } else {
       await adminService.createCategory(payload);
-      toast.success("បានបង្កើតប្រភេទ");
+      toast.success(prefs.t('toast.categoryCreated'));
     }
     modalOpen.value = false;
     load();
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "រក្សាទុកបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.saveError'));
   }
 }
 
@@ -150,10 +152,10 @@ async function doDelete() {
   if (!target) return;
   try {
     await adminService.deleteCategory(target.id);
-    toast.success("បានលុបប្រភេទ");
+    toast.success(prefs.t('toast.categoryDeleted'));
     load();
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "លុបបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.deleteError'));
   } finally {
     confirmOpen.value = false;
     target = null;

@@ -7,9 +7,13 @@ import { noContent, ok } from "../utils/respond";
 export const REFRESH_COOKIE = "navatra_refresh";
 
 function refreshCookieOptions() {
+  // In production with Vercel frontend on different subdomain:
+  // www.galaxytv4k.online → api.galaxytv4k.online requires sameSite: "none"
+  // This is safe because: secure: true enforces HTTPS, httpOnly prevents XSS
+  const isCrossSubdomain = env.isProd && env.cors.frontendOrigin?.includes("https://");
   return {
     httpOnly: true,
-    sameSite: "lax" as const,
+    sameSite: isCrossSubdomain ? ("none" as const) : ("lax" as const),
     secure: env.isProd,
     path: "/api/v1/auth",
     maxAge: env.jwt.refreshTtlDays * 24 * 60 * 60 * 1000,

@@ -8,7 +8,7 @@
       <div v-if="loading" class="p-8 text-center text-sm text-slate-400">កំពុងផ្ទុក...</div>
       <div v-else-if="error" class="p-8 text-center">
         <p class="text-sm text-red-600">{{ error }}</p>
-        <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load">ព្យាយាមម្តងទៀត</button>
+        <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load">{{ prefs.t('common.retry') }}</button>
       </div>
       <div v-else class="divide-y divide-slate-100">
         <div v-for="(item, i) in items" :key="item.id" class="px-5 py-3" :class="{ 'opacity-50': !item.isActive }">
@@ -30,8 +30,8 @@
               </button>
               <button class="btn-ghost !p-1.5" :disabled="i === 0" title="ឡើងលើ" @click="move(i, -1)"><ChevronUp class="h-4 w-4" /></button>
               <button class="btn-ghost !p-1.5" :disabled="i === items.length - 1" title="ចុះក្រោម" @click="move(i, 1)"><ChevronDown class="h-4 w-4" /></button>
-              <button class="btn-ghost !p-1.5" title="កែសម្រួល" @click="edit(item)"><Pencil class="h-4 w-4" /></button>
-              <button class="btn-ghost !p-1.5 text-red-600 hover:!bg-red-50" title="លុប" @click="askDelete(item)"><Trash2 class="h-4 w-4" /></button>
+              <button class="btn-ghost !p-1.5" title="prefs.t('common.edit')" @click="edit(item)"><Pencil class="h-4 w-4" /></button>
+              <button class="btn-ghost !p-1.5 text-red-600 hover:!bg-red-50" title="prefs.t('common.delete')" @click="askDelete(item)"><Trash2 class="h-4 w-4" /></button>
             </div>
           </div>
 
@@ -167,8 +167,10 @@ import { adminService } from "@/services/admin.service";
 import { useToastStore } from "@/stores/toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import type { NavigationItem, NavigationItemConfig } from "@/types";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 const items = ref<NavigationItem[]>([]);
 const loading = ref(false);
 const error = ref("");
@@ -320,7 +322,7 @@ async function doDelete() {
     toast.success("បានលុបធាតុម៉ឺនុយ");
     await load();
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "លុបបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.deleteError'));
   } finally {
     confirmOpen.value = false;
     deleteTarget = null;
@@ -334,7 +336,7 @@ async function save() {
     toast.success("បានរក្សាទុកលំដាប់ម៉ឺនុយ");
     dirty.value = false;
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "រក្សាទុកបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.saveError'));
   } finally {
     saving.value = false;
   }

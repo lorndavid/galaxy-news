@@ -1,18 +1,23 @@
 # ============================================================
-# Cloudflare Tunnel Configuration
+# Cloudflare Tunnel Configuration — Production
 # Galaxy TV V4K — galaxytv4k.online
 # ============================================================
-# This config routes your domain traffic to local Docker services.
+# In production, only the API routes through the tunnel.
+# Frontend and admin are deployed to Vercel (not via tunnel).
+#
+# DNS Architecture:
+#   www.galaxytv4k.online     → Vercel (public frontend)
+#   admin.galaxytv4k.online   → Vercel (admin CMS)
+#   api.galaxytv4k.online     → Cloudflare Tunnel → VPS
+#   media.galaxytv4k.online   → Cloudflare R2 (image storage)
 #
 # Setup:
-#   1. Install cloudflared: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
+#   1. Install cloudflared on VPS
 #   2. Login: cloudflared tunnel login
 #   3. Create tunnel: cloudflared tunnel create galaxytv
 #   4. Copy this config to ~/.cloudflared/config.yml
-#   5. Route DNS: cloudflared tunnel route dns galaxytv www.galaxytv4k.online
-#   6. Route DNS: cloudflared tunnel route dns galaxytv api.galaxytv4k.online
-#   7. Route DNS: cloudflared tunnel route dns galaxytv admin.galaxytv4k.online
-#   8. Run: cloudflared tunnel run galaxytv
+#   5. Route DNS: cloudflared tunnel route dns galaxytv api.galaxytv4k.online
+#   6. Run: cloudflared tunnel run galaxytv
 # ============================================================
 
 tunnel: galaxytv
@@ -20,20 +25,14 @@ credentials-file: ~/.cloudflared/fdb3778b-85e8-403e-aab2-c15fa61d6d0f.json
 
 ingress:
   # API endpoint → backend (port 4000)
+  # This is the ONLY route through the tunnel in production.
+  # Frontend (www) and admin go directly to Vercel.
   - hostname: api.galaxytv4k.online
-    service: http://localhost:4000
+    service: http://backend:4000
 
-  # Admin dashboard → nginx proxy (port 3001)
-  - hostname: admin.galaxytv4k.online
-    service: http://localhost:3001
-
-  # Public website → nginx proxy (port 3000)
-  - hostname: www.galaxytv4k.online
-    service: http://localhost:3000
-
-  # Root domain redirect to www
+  # Root domain → redirect to www (Vercel handles this, but just in case)
   - hostname: galaxytv4k.online
-    service: http://localhost:3000
+    service: http_status:301
 
   # Catch-all — must be last
   - service: http_status:404

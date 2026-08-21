@@ -1,8 +1,8 @@
 <template>
   <div class="card overflow-hidden">
     <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-      <h3 class="text-sm font-semibold text-slate-700">ការផ្សាយពាណិជ្ជកម្ម / Banner Ads</h3>
-      <button class="btn-primary !py-1.5 text-xs" @click="openCreate"><Plus class="h-3.5 w-3.5" /> បន្ថែម</button>
+      <h3 class="text-sm font-semibold text-slate-700">{{ prefs.t('ads.title') }}</h3>
+      <button class="btn-primary !py-1.5 text-xs" @click="openCreate"><Plus class="h-3.5 w-3.5" /> {{ prefs.t('categories.add') }}</button>
     </div>
     <div v-if="loading" class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
       <div v-for="i in 3" :key="i" class="card animate-pulse overflow-hidden">
@@ -15,7 +15,7 @@
     </div>
     <div v-else-if="error" class="p-8 text-center">
       <p class="text-sm text-red-600">{{ error }}</p>
-      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load()">ព្យាយាមម្តងទៀត</button>
+      <button class="btn-secondary mt-3 !py-1.5 text-xs" @click="load()">{{ prefs.t('common.retry') }}</button>
     </div>
     <div v-else class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
       <div v-for="a in items" :key="a.id" class="card overflow-hidden">
@@ -33,8 +33,8 @@
             {{ a.startDate ? formatDate(a.startDate) : "…" }} → {{ a.endDate ? formatDate(a.endDate) : "…" }}
           </p>
           <div class="mt-3 flex gap-1">
-            <button class="btn-ghost !p-2" title="កែសម្រួល" @click="openEdit(a)"><Pencil class="h-4 w-4" /></button>
-            <button class="btn-ghost !p-2 text-red-600" title="លុប" @click="askDelete(a)"><Trash2 class="h-4 w-4" /></button>
+            <button class="btn-ghost !p-2" title="prefs.t('common.edit')" @click="openEdit(a)"><Pencil class="h-4 w-4" /></button>
+            <button class="btn-ghost !p-2 text-red-600" title="prefs.t('common.delete')" @click="askDelete(a)"><Trash2 class="h-4 w-4" /></button>
           </div>
         </div>
       </div>
@@ -121,7 +121,7 @@
           <input v-model="form.isActive" type="checkbox" class="h-4 w-4 rounded border-slate-300" />
           សកម្ម
         </label>
-        <button type="submit" class="btn-primary w-full">រក្សាទុក</button>
+        <button type="submit" class="btn-primary w-full">{{ prefs.t('common.save') }}</button>
       </form>
     </Modal>
 
@@ -137,8 +137,10 @@ import { useToastStore } from "@/stores/toast";
 import Modal from "@/components/ui/Modal.vue";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import type { Advertisement } from "@/types";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 const items = ref<Advertisement[]>([]);
 const loading = ref(false);
 const error = ref("");
@@ -282,7 +284,7 @@ async function save() {
     modalOpen.value = false;
     load();
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "រក្សាទុកបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.saveError'));
   }
 }
 
@@ -298,7 +300,7 @@ async function doDelete() {
     toast.success("បានលុបផ្សាយពាណិជ្ជកម្ម");
     load();
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "លុបបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.deleteError'));
   } finally {
     confirmOpen.value = false;
     target = null;

@@ -3,8 +3,8 @@
     <!-- Page header -->
     <div class="page-header">
       <div>
-        <h2>បណ្ណាល័យមេឌា</h2>
-        <p>ផ្ទុក គ្រប់គ្រង និងជ្រើសរើសរូបភាពសម្រាប់អត្ថបទ</p>
+        <h2>{{ prefs.t('media.title') }}</h2>
+        <p>{{ prefs.t('media.subtitle') }}</p>
       </div>
     </div>
 
@@ -12,16 +12,16 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
       <div class="relative max-w-xs flex-1">
         <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-        <input v-model="search" type="text" placeholder="ស្វែងរកមេឌា..." class="input !pl-9" @input="onSearch" />
+        <input v-model="search" type="text" placeholder="prefs.t('media.search')" class="input !pl-9" @input="onSearch" />
       </div>
       <select v-model="folderFilter" class="input !w-auto" @change="load(1)">
-        <option value="all">គ្រប់ថតទាំងអស់</option>
-        <option value="articles">អត្ថបទ</option>
-        <option value="categories">ប្រភេទ</option>
-        <option value="authors">អ្នកនិពន្ធ</option>
-        <option value="ads">ផ្សាយពាណិជ្ជកម្ម</option>
-        <option value="gallery">វិចិត្រសាល</option>
-        <option value="site">គេហទំព័រ</option>
+        <option value="all">{{ prefs.t('media.allFolders') }}</option>
+        <option value="articles">{{ prefs.t('media.folderArticles') }}</option>
+        <option value="categories">{{ prefs.t('media.folderCategories') }}</option>
+        <option value="authors">{{ prefs.t('media.folderAuthors') }}</option>
+        <option value="ads">{{ prefs.t('media.folderAds') }}</option>
+        <option value="gallery">{{ prefs.t('media.folderGallery') }}</option>
+        <option value="site">{{ prefs.t('media.folderSite') }}</option>
       </select>
       <label class="ml-auto flex cursor-pointer items-center gap-2 text-sm text-slate-600">
         <input
@@ -31,7 +31,7 @@
           :indeterminate.prop="someSelected"
           @change="toggleAll"
         />
-        ជ្រើសរើសទាំងអស់
+        prefs.t('common.selectAll')
       </label>
     </div>
 
@@ -43,10 +43,10 @@
       <span class="text-sm font-medium text-brand-700">បានជ្រើសរើស {{ selected.size }} មេឌា</span>
       <span class="mx-1 hidden h-4 w-px bg-brand-200 sm:block" />
       <button class="btn-danger !py-1.5 text-xs" :disabled="bulkBusy" @click="askBulkDelete">
-        <Trash2 class="h-3.5 w-3.5" /> លុប
+        <Trash2 class="h-3.5 w-3.5" /> {{ prefs.t('articles.bulkDelete') }}
       </button>
       <button class="ml-auto text-xs text-slate-500 hover:text-slate-700" :disabled="bulkBusy" @click="clearSelection">
-        ឈប់ជ្រើសរើស
+        prefs.t('common.deselect')
       </button>
     </div>
 
@@ -60,7 +60,7 @@
       @drop.prevent="onDrop"
     >
       <UploadCloud class="h-7 w-7 text-slate-400" />
-      <p class="text-sm font-medium text-slate-600">អូសរូបភាពមកទីនេះ ឬចុចដើម្បីផ្ទុក</p>
+      <p class="text-sm font-medium text-slate-600">{{ prefs.t('media.dropzone') }}</p>
       <p class="text-xs text-slate-400">JPG, PNG, WebP, GIF · អតិបរមា 8MB · រក្សាទុកក្នុង MinIO</p>
       <div class="flex items-center gap-2 text-left">
         <input v-model="altText" type="text" placeholder="អត្ថបទជំនួស (alt) — ស្រេចចិត្ត" class="input !w-64 !py-1.5 text-xs" @click.stop />
@@ -100,10 +100,10 @@
             {{ m.width }}×{{ m.height }} · {{ formatSize(m.size) }}
           </p>
           <div class="mt-2 flex gap-1">
-            <button class="btn-ghost !p-1.5 text-xs" title="ចម្លង URL" @click="copyUrl(m.secureUrl ?? m.url)">
+            <button class="btn-ghost !p-1.5 text-xs" title="prefs.t('common.copyUrl')" @click="copyUrl(m.secureUrl ?? m.url)">
               <Copy class="h-3.5 w-3.5" />
             </button>
-            <button class="btn-ghost !p-1.5 text-xs text-red-600" title="លុប" @click="askDelete(m)">
+            <button class="btn-ghost !p-1.5 text-xs text-red-600" title="prefs.t('common.delete')" @click="askDelete(m)">
               <Trash2 class="h-3.5 w-3.5" />
             </button>
           </div>
@@ -140,8 +140,10 @@ import AdminPagination from "@/components/ui/AdminPagination.vue";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import EmptyState from "@/components/ui/EmptyState.vue";
 import type { Media } from "@/types";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 const items = ref<Media[]>([]);
 const page = ref(1);
 const totalPages = ref(1);
@@ -217,7 +219,7 @@ async function doUpload(file: File) {
       altText: altText.value.trim() || undefined,
       folder: uploadFolder.value,
     });
-    toast.success("បានផ្ទុកមេឌាទៅ MinIO");
+    toast.success(prefs.t('toast.mediaUploaded'));
     altText.value = "";
     load(page.value);
   } catch (e) {
@@ -249,7 +251,7 @@ function formatSize(bytes: number | null) {
 
 async function copyUrl(url: string) {
   await navigator.clipboard.writeText(url);
-  toast.success("បានចម្លង URL");
+  toast.success(prefs.t('toast.mediaCopied'));
 }
 
 function askDelete(m: Media) {
@@ -261,10 +263,10 @@ async function doDelete() {
   if (!target) return;
   try {
     await adminService.deleteMedia(target.id);
-    toast.success("បានលុបមេឌា");
+    toast.success(prefs.t('toast.mediaDeleted'));
     load(page.value);
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "លុបបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.deleteError'));
   } finally {
     confirmOpen.value = false;
     target = null;
@@ -284,7 +286,7 @@ async function doBulkDelete() {
     clearSelection();
     load(page.value);
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "លុបបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.deleteError'));
   } finally {
     bulkBusy.value = false;
     bulkConfirmOpen.value = false;

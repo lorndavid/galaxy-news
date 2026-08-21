@@ -44,6 +44,10 @@ export const env = {
   cors: {
     frontendUrl: process.env.FRONTEND_URL ?? "http://localhost:5173",
     adminUrl: process.env.ADMIN_URL ?? "http://localhost:5174",
+    // Production: allow cross-subdomain requests from Vercel
+    // These are used alongside the localhost regex in app.ts
+    frontendOrigin: process.env.FRONTEND_ORIGIN ?? "",
+    adminOrigin: process.env.ADMIN_ORIGIN ?? "",
   },
   uploadsDir: path.resolve(process.cwd(), "uploads"),
   maxUploadMb: Number(process.env.MAX_UPLOAD_MB ?? 8),

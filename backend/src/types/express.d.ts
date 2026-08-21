@@ -3,6 +3,8 @@ import { Role } from "../constants";
 declare global {
   namespace Express {
     interface Request {
+      /** Unique request ID (UUID) assigned by the request logger */
+      id?: string;
       user?: {
         id: number;
         name: string;

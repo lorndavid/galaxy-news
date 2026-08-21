@@ -4,22 +4,22 @@
     <div class="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center">
       <div class="relative max-w-xs flex-1">
         <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-        <input v-model="search" type="text" placeholder="ស្វែងរកអត្ថបទ..." class="input !pl-9" @input="onSearch" />
+        <input v-model="search" type="text" placeholder="prefs.t('articles.search')" class="input !pl-9" @input="onSearch" />
       </div>
       <div class="flex flex-wrap items-center gap-2">
         <select v-model="statusFilter" class="input !w-auto" @change="load(1)">
-          <option value="">ស្ថានភាពទាំងអស់</option>
+          <option value="">{{ prefs.t('articles.allStatus') }}</option>
           <option value="PUBLISHED">បានផ្សាយ</option>
           <option value="DRAFT">សេចក្តីព្រាង</option>
           <option value="SCHEDULED">បានកំណត់ពេល</option>
           <option value="ARCHIVED">ប័ណ្ណសារ</option>
         </select>
         <select v-model="categoryFilter" class="input !w-auto" @change="load(1)">
-          <option value="">ប្រភេទទាំងអស់</option>
+          <option value="">{{ prefs.t('articles.allCategories') }}</option>
           <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
         </select>
         <RouterLink to="/articles/new" class="btn-primary">
-          <Plus class="h-4 w-4" /> អត្ថបទថ្មី
+          <Plus class="h-4 w-4" /> {{ prefs.t('articles.new') }}
         </RouterLink>
       </div>
     </div>
@@ -30,22 +30,22 @@
       class="flex flex-wrap items-center gap-2 border-b border-brand-100 bg-brand-50/60 px-4 py-2.5"
     >
       <span class="text-sm font-medium text-brand-700">
-        បានជ្រើសរើស {{ selected.size }} អត្ថបទ
+        {{ prefs.t('articles.bulkSelected') }} {{ selected.size }} {{ prefs.t('nav.articles') }}
       </span>
       <span class="mx-1 hidden h-4 w-px bg-brand-200 sm:block" />
       <div class="flex flex-wrap items-center gap-1.5">
         <button class="btn-secondary !py-1.5 text-xs" :disabled="bulkBusy" @click="runBulk('publish')">
-          <Send class="h-3.5 w-3.5" /> ផ្សាយ
+          <Send class="h-3.5 w-3.5" /> {{ prefs.t('articles.bulkPublish') }}
         </button>
         <button class="btn-secondary !py-1.5 text-xs" :disabled="bulkBusy" @click="runBulk('unpublish')">
-          <Archive class="h-3.5 w-3.5" /> ឈប់ផ្សាយ
+          <Archive class="h-3.5 w-3.5" /> {{ prefs.t('articles.bulkUnpublish') }}
         </button>
         <button class="btn-danger !py-1.5 text-xs" :disabled="bulkBusy" @click="askBulkDelete">
-          <Trash2 class="h-3.5 w-3.5" /> លុប
+          <Trash2 class="h-3.5 w-3.5" /> {{ prefs.t('articles.bulkDelete') }}
         </button>
       </div>
       <button class="ml-auto text-xs text-slate-500 hover:text-slate-700" :disabled="bulkBusy" @click="clearSelection">
-        ឈប់ជ្រើសរើស
+        prefs.t('common.deselect')
       </button>
     </div>
 
@@ -58,19 +58,19 @@
               <input
                 type="checkbox"
                 class="h-4 w-4 rounded border-slate-300"
-                aria-label="ជ្រើសរើសទាំងអស់"
+                aria-label="prefs.t('common.selectAll')"
                 :checked="allSelected"
                 :indeterminate.prop="someSelected"
                 @change="toggleAll"
               />
             </th>
-            <th>អត្ថបទ</th>
-            <th>ស្ថានភាព</th>
-            <th class="hidden md:table-cell">ប្រភេទ</th>
-            <th class="hidden lg:table-cell">អ្នកនិពន្ធ</th>
-            <th class="hidden lg:table-cell">ការមើល</th>
-            <th class="hidden xl:table-cell">ផ្សាយនៅ</th>
-            <th class="text-right">សកម្មភាព</th>
+            <th>{{ prefs.t('articles.colArticle') }}</th>
+            <th>{{ prefs.t('articles.colStatus') }}</th>
+            <th class="hidden md:table-cell">{{ prefs.t('articles.colCategory') }}</th>
+            <th class="hidden lg:table-cell">{{ prefs.t('articles.colAuthor') }}</th>
+            <th class="hidden lg:table-cell">{{ prefs.t('articles.colViews') }}</th>
+            <th class="hidden xl:table-cell">{{ prefs.t('articles.colPublished') }}</th>
+            <th class="text-right">{{ prefs.t('articles.colActions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -92,8 +92,8 @@
                     <RouterLink :to="`/articles/${a.id}/edit`" class="transition-colors hover:text-brand-600">{{ a.title }}</RouterLink>
                   </p>
                   <p class="flex items-center gap-2 text-xs text-slate-400">
-                    <span v-if="a.isFeatured" class="badge bg-brand-50 text-brand-600">ពិសេស</span>
-                    <span v-if="a.isBreaking" class="badge bg-red-50 text-red-600">ក្តៅ</span>
+                    <span v-if="a.isFeatured" class="badge bg-brand-50 text-brand-600">{{ prefs.t('articles.featured') }}</span>
+                    <span v-if="a.isBreaking" class="badge bg-red-50 text-red-600">{{ prefs.t('articles.breaking') }}</span>
                   </p>
                 </div>
               </div>
@@ -105,13 +105,13 @@
             <td class="hidden text-slate-400 xl:table-cell">{{ a.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : "—" }}</td>
             <td>
               <div class="flex justify-end gap-1">
-                <RouterLink :to="`/articles/${a.id}/edit`" class="btn-ghost !p-2" title="កែសម្រួល">
+                <RouterLink :to="`/articles/${a.id}/edit`" class="btn-ghost !p-2" title="prefs.t('common.edit')">
                   <Pencil class="h-4 w-4" />
                 </RouterLink>
-                <a :href="`/article/${a.slug}`" target="_blank" rel="noopener" class="btn-ghost !p-2" title="មើលជាសាធារណៈ">
+                <a :href="`/article/${a.slug}`" target="_blank" rel="noopener" class="btn-ghost !p-2" title="prefs.t('top.previewSite')">
                   <Eye class="h-4 w-4" />
                 </a>
-                <button class="btn-ghost !p-2 text-red-600 hover:!bg-red-50" title="លុប" @click="askDelete(a)">
+                <button class="btn-ghost !p-2 text-red-600 hover:!bg-red-50" title="prefs.t('common.delete')" @click="askDelete(a)">
                   <Trash2 class="h-4 w-4" />
                 </button>
               </div>
@@ -152,8 +152,10 @@ import AdminPagination from "@/components/ui/AdminPagination.vue";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import EmptyState from "@/components/ui/EmptyState.vue";
 import type { Article, Category } from "@/types";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const toast = useToastStore();
+const prefs = usePreferencesStore();
 const articles = ref<Article[]>([]);
 const categories = ref<Category[]>([]);
 const search = ref("");
@@ -192,7 +194,7 @@ async function load(p = 1) {
     const ids = new Set(data.items.map((a) => a.id));
     selected.value = new Set([...selected.value].filter((id) => ids.has(id)));
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "ផ្ទុកទិន្នន័យបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.loadError'));
   } finally {
     loading.value = false;
   }
@@ -232,10 +234,10 @@ async function doDelete() {
   deleting.value = true;
   try {
     await adminService.deleteArticle(target.id);
-    toast.success("បានលុបអត្ថបទ");
+    toast.success(prefs.t('toast.articleDeleted'));
     load(page.value);
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "លុបបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.deleteError'));
   } finally {
     deleting.value = false;
     confirmOpen.value = false;
@@ -271,7 +273,7 @@ async function doBulkDelete() {
     clearSelection();
     load(page.value);
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "លុបបរាជ័យ");
+    toast.error(e instanceof Error ? e.message : prefs.t('toast.deleteError'));
   } finally {
     bulkBusy.value = false;
     bulkConfirmOpen.value = false;

@@ -2,7 +2,7 @@
   <div class="space-y-5">
     <div class="flex items-center justify-between">
       <div>
-        <h3 class="text-sm font-semibold text-slate-700">សុខភាពប្រព័ន្ធ</h3>
+        <h3 class="text-sm font-semibold text-slate-700">{{ prefs.t('health.title') }}</h3>
         <p class="mt-0.5 text-xs text-slate-400">
           ជួនកាលអាប់ដេតរាល់ 30 វិនាទី · ពេលត្រួតពិនិត្យចុងក្រោយ៖ {{ lastChecked }}
         </p>
@@ -70,6 +70,7 @@ import {
   Server,
   XCircle,
 } from "lucide-vue-next";
+import { usePreferencesStore } from "@/stores/preferences";
 
 type DepStatus = "ok" | "down" | "unknown";
 type ServiceStatus = "ok" | "down" | "degraded" | "unknown";
@@ -85,6 +86,7 @@ interface ServiceCard {
 
 const checking = ref(false);
 const error = ref("");
+const prefs = usePreferencesStore();
 const lastChecked = ref("—");
 const services = ref<ServiceCard[]>([
   { key: "api", label: "API", icon: HeartPulse, status: "unknown", latency: null, checkedAt: null },

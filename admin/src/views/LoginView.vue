@@ -13,13 +13,13 @@
           <img :src="'/assets/img/logo/logo1.png'" alt="Galaxy TV4K" class="h-10 w-auto" />
         </div>
         <h1 class="mt-4 text-xl font-bold text-white">Galaxy TV4K</h1>
-        <p class="mt-1 text-sm text-white/60">ប្រព័ន្ធគ្រប់គ្រងមាតិកា</p>
+        <p class="mt-1 text-sm text-white/60">{{ prefs.t('settings.siteInfo') }}</p>
       </div>
 
       <!-- Login form -->
       <form class="card p-6" @submit.prevent="submit">
         <div class="mb-4">
-          <label class="label" for="email">អ៊ីមែល</label>
+          <label class="label" for="email">{{ prefs.t('login.email') }}</label>
           <input
             id="email"
             v-model="email"
@@ -32,7 +32,7 @@
           />
         </div>
         <div class="mb-5">
-          <label class="label" for="password">ពាក្យសម្ងាត់</label>
+          <label class="label" for="password">{{ prefs.t('login.password') }}</label>
           <input
             id="password"
             v-model="password"
@@ -69,8 +69,10 @@ import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { Loader2, AlertCircle } from "lucide-vue-next";
 import { useAuthStore } from "@/stores/auth";
+import { usePreferencesStore } from "@/stores/preferences";
 
 const auth = useAuthStore();
+const prefs = usePreferencesStore();
 const router = useRouter();
 const route = useRoute();
 

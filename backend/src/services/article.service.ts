@@ -3,7 +3,7 @@ import { ArticleStatus, Role } from "../constants";
 import { prisma } from "../lib/prisma";
 import { ApiError } from "../utils/ApiError";
 import { buildPagination, Pagination, parsePagination } from "../utils/paginate";
-import { articleInclude, serializeArticle } from "../utils/serialize";
+import { articleInclude, articleListSelect, serializeArticle, serializeArticleListItem } from "../utils/serialize";
 import { slugify } from "../utils/slugify";
 import { sanitizeContent } from "../utils/sanitize";
 import { logActivity } from "./activity.service";
@@ -84,7 +84,7 @@ export async function listPublic(params: PublicListParams) {
   const [items, total] = await Promise.all([
     prisma.article.findMany({
       where,
-      include: articleInclude,
+      select: articleListSelect,
       orderBy,
       skip: pagination.skip,
       take: pagination.take,
@@ -92,7 +92,7 @@ export async function listPublic(params: PublicListParams) {
     prisma.article.count({ where }),
   ]);
 
-  return buildPagination(items.map(serializeArticle), total, pagination);
+  return buildPagination(items.map(serializeArticleListItem), total, pagination);
 }
 
 export async function getBySlug(slug: string, userAgent?: string | null) {
@@ -137,51 +137,51 @@ export async function getRelated(articleId: number, categoryId: number, limit = 
         },
       ],
     },
-    include: articleInclude,
+    select: articleListSelect,
     orderBy: { publishedAt: "desc" },
     take: limit,
   });
-  return items.map(serializeArticle);
+  return items.map(serializeArticleListItem);
 }
 
 export async function getBreaking(limit = 10) {
   const items = await prisma.article.findMany({
     where: { ...wherePublished(), isBreaking: true },
-    include: articleInclude,
+    select: articleListSelect,
     orderBy: { publishedAt: "desc" },
     take: limit,
   });
-  return items.map(serializeArticle);
+  return items.map(serializeArticleListItem);
 }
 
 export async function getFeatured(limit = 5) {
   const items = await prisma.article.findMany({
     where: { ...wherePublished(), isFeatured: true },
-    include: articleInclude,
+    select: articleListSelect,
     orderBy: { publishedAt: "desc" },
     take: limit,
   });
-  return items.map(serializeArticle);
+  return items.map(serializeArticleListItem);
 }
 
 export async function getLatest(limit = 8) {
   const items = await prisma.article.findMany({
     where: wherePublished(),
-    include: articleInclude,
+    select: articleListSelect,
     orderBy: { publishedAt: "desc" },
     take: limit,
   });
-  return items.map(serializeArticle);
+  return items.map(serializeArticleListItem);
 }
 
 export async function getPopular(limit = 5) {
   const items = await prisma.article.findMany({
     where: wherePublished(),
-    include: articleInclude,
+    select: articleListSelect,
     orderBy: [{ views: "desc" }, { publishedAt: "desc" }],
     take: limit,
   });
-  return items.map(serializeArticle);
+  return items.map(serializeArticleListItem);
 }
 
 export async function listByCategory(categorySlug: string, pageRaw?: unknown) {
@@ -196,7 +196,7 @@ export async function listByCategory(categorySlug: string, pageRaw?: unknown) {
   const [items, total] = await Promise.all([
     prisma.article.findMany({
       where,
-      include: articleInclude,
+      select: articleListSelect,
       orderBy: { publishedAt: "desc" },
       skip: pagination.skip,
       take: pagination.take,
@@ -206,7 +206,7 @@ export async function listByCategory(categorySlug: string, pageRaw?: unknown) {
 
   return {
     category,
-    ...buildPagination(items.map(serializeArticle), total, pagination),
+    ...buildPagination(items.map(serializeArticleListItem), total, pagination),
   };
 }
 

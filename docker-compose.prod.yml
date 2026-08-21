@@ -1,14 +1,19 @@
 # ============================================================
-# Galaxy TV V4K — News Platform (Docker Compose)
+# Galaxy TV V4K — Production Docker Compose (VPS only)
+# ============================================================
+# Frontend + Admin are deployed to Vercel.
+# This file runs only the backend infrastructure on the VPS:
+#   - backend (Express API)
+#   - postgres (PostgreSQL 17)
+#   - redis (Redis 7)
+#   - backup (automated daily PostgreSQL backups)
+#   - cloudflared (Cloudflare Tunnel for API routing)
 #
-# Services:
-#   backend  — Express + Prisma API (PostgreSQL)
-#   frontend — Public Vue 3 website (nginx)
-#   admin    — Editorial CMS (nginx)
-#   postgres — PostgreSQL 17 database
-#   redis    — API cache (persistent volume)
+# Usage:
+#   docker compose -f docker-compose.prod.yml up -d --build
 #
-# Images are stored in Cloudflare R2 (S3-compatible).
+# For local development with frontend+admin, use:
+#   docker compose up -d --build
 # ============================================================
 
 services:
@@ -35,17 +40,18 @@ services:
       R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
       R2_BUCKET_NAME: ${R2_BUCKET_NAME:-news-media}
       R2_PUBLIC_URL: ${R2_PUBLIC_URL:-https://media.galaxytv4k.online}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
-      ADMIN_URL: ${ADMIN_URL:-http://localhost:3001}
+      # Production origins (Vercel deployments)
+      FRONTEND_URL: ${FRONTEND_URL:-https://www.galaxytv4k.online}
+      ADMIN_URL: ${ADMIN_URL:-https://admin.galaxytv4k.online}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-https://www.galaxytv4k.online}
+      ADMIN_ORIGIN: ${ADMIN_ORIGIN:-https://admin.galaxytv4k.online}
       TELEGRAM_API_BASE: ${TELEGRAM_API_BASE:-https://api.telegram.org}
       PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-https://www.galaxytv4k.online}
     volumes:
       - uploads_data:/app/uploads
-    ports:
-      - "127.0.0.1:4000:4000"
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://localhost:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
-      interval: 10s
+      interval: 15s
       timeout: 5s
       retries: 10
       start_period: 30s
@@ -60,8 +66,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "127.0.0.1:5432:5432"
+    # NOT exposed to public — only accessible within Docker network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-galaxy_admin} -d ${POSTGRES_DB:-galaxy_tv}"]
       interval: 5s
@@ -75,37 +80,13 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
-    ports:
-      - "127.0.0.1:6379:6379"
+    # NOT exposed to public — only accessible within Docker network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 10
 
-  frontend:
-    build:
-      context: ./frontend
-      args:
-        VITE_API_BASE: /api/v1
-    restart: unless-stopped
-    depends_on:
-      - backend
-    ports:
-      - "127.0.0.1:3000:80"
-
-  admin:
-    build:
-      context: ./admin
-      args:
-        VITE_API_BASE: /api/v1
-    restart: unless-stopped
-    depends_on:
-      - backend
-    ports:
-      - "127.0.0.1:3001:80"
-
-  # ── Automated PostgreSQL backup (daily at 2:00 AM UTC) ──
   backup:
     image: postgres:17-alpine
     container_name: galaxy-backup
@@ -129,14 +110,21 @@ services:
         echo "Scheduled: daily at 02:00 UTC"
         echo "Backups kept: 30 days"
         echo ""
-        # Run backup now on first start
         /usr/local/bin/backup.sh
         echo ""
         echo "Waiting for next scheduled backup..."
-        # Create a crontab and run crond
         echo "0 2 * * * /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1" > /etc/crontabs/root
         crond -f -l 2
     restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: galaxy-tunnel
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    # No ports exposed — Cloudflare Tunnel makes outbound connections only
 
 volumes:
   postgres_data:
