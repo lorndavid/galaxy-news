@@ -74,7 +74,18 @@ export function resolveImage(url: string | null | undefined, fallback = "/assets
     const w = width ?? 640;
     return url.replace("/image/upload/", `/image/upload/f_auto,q_auto,w_${w}/`);
   }
-  return url.startsWith("http") ? url : fallback;
+  // R2 / external images → proxy through /media to avoid CORS issues
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    try {
+      const u = new URL(url);
+      // Strip leading slash — the proxy expects /media/<objectKey>
+      const key = u.pathname.replace(/^\//, "");
+      return key ? `/media/${key}` : url;
+    } catch {
+      return url;
+    }
+  }
+  return fallback;
 }
 
 /**

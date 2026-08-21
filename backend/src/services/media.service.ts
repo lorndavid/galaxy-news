@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma";
 import { deleteStoredImage, storeImage } from "../lib/storage";
+import { imageCacheDelete } from "../lib/redis";
 import { ApiError } from "../utils/ApiError";
 import { buildPagination, parsePagination } from "../utils/paginate";
 import { logActivity } from "./activity.service";
@@ -72,6 +73,8 @@ export async function deleteMedia(id: number, userId: number, ip?: string | null
 
   await deleteStoredImage(media.objectKey, media.publicId, media.url);
   await prisma.media.delete({ where: { id } });
+  // Invalidate cached image in Redis
+  if (media.objectKey) await imageCacheDelete(media.objectKey);
   await logActivity({ userId, action: "MEDIA_DELETED", entity: "Media", entityId: id, meta: { fileName: media.fileName }, ip });
 }
 
@@ -97,6 +100,11 @@ export async function bulkDeleteMedia(
   // not block the database delete.
   await Promise.allSettled(
     items.map((m) => deleteStoredImage(m.objectKey, m.publicId, m.url))
+  );
+
+  // Invalidate cached images in Redis
+  await Promise.allSettled(
+    items.filter((m) => m.objectKey).map((m) => imageCacheDelete(m.objectKey!))
   );
 
   await prisma.media.deleteMany({ where: { id: { in: items.map((m) => m.id) } } });

@@ -171,3 +171,133 @@ export async function checkRedis(): Promise<boolean> {
     return false;
   }
 }
+
+// ------------------------------------------------------------------
+// Binary image cache (for /media proxy)
+// Stores raw image bytes as base64 to avoid re-fetching from R2.
+// Max 5 MB per image; TTL 24 hours.
+// ------------------------------------------------------------------
+
+const IMAGE_PREFIX = `${PREFIX}img:`;
+const IMAGE_MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+const IMAGE_TTL = 24 * 60 * 60; // 24 hours
+
+interface ImageCacheEntry {
+  data: string; // base64-encoded body
+  contentType: string;
+  etag: string;
+  size: number;
+  expiresAt: number;
+}
+
+const imageMemoryStore = new Map<string, ImageCacheEntry>();
+const IMAGE_MEMORY_MAX = 100;
+
+export interface CachedImage {
+  body: Buffer;
+  contentType: string;
+  etag: string;
+  size: number;
+}
+
+export async function imageCacheGet(key: string): Promise<CachedImage | null> {
+  const full = `${IMAGE_PREFIX}${key}`;
+  const redis = getRedis();
+
+  // Try Redis first
+  if (redis && redis.status === "ready") {
+    try {
+      const raw = await redis.getBuffer(full);
+      if (raw) {
+        const parsed = JSON.parse(raw.toString()) as ImageCacheEntry;
+        return {
+          body: Buffer.from(parsed.data, "base64"),
+          contentType: parsed.contentType,
+          etag: parsed.etag,
+          size: parsed.size,
+        };
+      }
+    } catch (error) {
+      logger.warn({ error, key }, "Redis image GET failed");
+    }
+  }
+
+  // Fallback: in-memory
+  const entry = imageMemoryStore.get(full);
+  if (entry && entry.expiresAt > Date.now()) {
+    return {
+      body: Buffer.from(entry.data, "base64"),
+      contentType: entry.contentType,
+      etag: entry.etag,
+      size: entry.size,
+    };
+  }
+  imageMemoryStore.delete(full);
+  return null;
+}
+
+export async function imageCacheSet(
+  key: string,
+  body: Buffer,
+  contentType: string,
+  etag: string
+): Promise<void> {
+  if (body.length > IMAGE_MAX_BYTES) return; // skip large images
+
+  const full = `${IMAGE_PREFIX}${key}`;
+  const entry: ImageCacheEntry = {
+    data: body.toString("base64"),
+    contentType,
+    etag,
+    size: body.length,
+    expiresAt: Date.now() + IMAGE_TTL * 1000,
+  };
+  const payload = JSON.stringify(entry);
+
+  const redis = getRedis();
+  if (redis && redis.status === "ready") {
+    try {
+      await redis.set(full, payload, "EX", IMAGE_TTL);
+      return;
+    } catch (error) {
+      logger.warn({ error, key }, "Redis image SET failed");
+    }
+  }
+
+  // In-memory fallback
+  if (imageMemoryStore.size > IMAGE_MEMORY_MAX) {
+    const now = Date.now();
+    for (const [k, v] of imageMemoryStore) {
+      if (v.expiresAt <= now) imageMemoryStore.delete(k);
+    }
+  }
+  imageMemoryStore.set(full, entry);
+}
+
+/** Clear cached image (called when an image is deleted or replaced). */
+export async function imageCacheDelete(key: string): Promise<void> {
+  const full = `${IMAGE_PREFIX}${key}`;
+  const redis = getRedis();
+  if (redis && redis.status === "ready") {
+    try {
+      await redis.del(full);
+    } catch {
+      /* best-effort */
+    }
+  }
+  imageMemoryStore.delete(full);
+}
+
+/** Clear all cached images (e.g. after storage migration). */
+export async function imageCacheClearAll(): Promise<void> {
+  const redis = getRedis();
+  if (redis && redis.status === "ready") {
+    try {
+      const keys = await redis.keys(`${IMAGE_PREFIX}*`);
+      if (keys.length) await redis.del(...keys);
+    } catch {
+      /* best-effort */
+    }
+  }
+  imageMemoryStore.clear();
+}

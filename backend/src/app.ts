@@ -10,6 +10,7 @@ import { prisma } from "./lib/prisma";
 import { checkR2 } from "./lib/r2";
 import { checkRedis } from "./lib/redis";
 import { apiRouter } from "./routes";
+import { mediaProxyRouter } from "./routes/media.proxy";
 
 export function createApp() {
   const app = express();
@@ -54,8 +55,9 @@ export function createApp() {
   // Local uploads (fallback storage when MinIO is not configured)
   app.use("/uploads", express.static(env.uploadsDir, { maxAge: "7d" }));
 
-  // R2 images are served directly from the public R2 URL or a custom
-  // domain (e.g. media.galaxytv4k.online). No backend proxy needed.
+  // Media proxy — serves R2 images through the backend domain.
+  // This eliminates all cross-origin issues for <img> tags on the frontend.
+  app.use(mediaProxyRouter);
 
   // Health — reports the API plus each dependency independently so a
   // degraded stack is obvious (Redis/MinIO down ≠ backend down).
@@ -77,6 +79,7 @@ export function createApp() {
     res.status(degraded ? 503 : 200).json({ success: true, data: healthy });
   });
 
+  // API routes
   app.use("/api/v1", apiLimiter, apiRouter);
 
   app.use(notFoundHandler);
