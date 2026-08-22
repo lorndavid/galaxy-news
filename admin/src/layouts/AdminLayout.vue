@@ -151,9 +151,9 @@
             class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             :title="prefs.t('top.lang.tooltip')"
             :aria-label="prefs.t('top.lang.tooltip')"
-            @click="prefs.setAdminLang(prefs.adminLang === 'km' ? 'en' : 'km')"
+            @click="prefs.setAdminLang(prefs.adminLang === 'km' ? 'en' : prefs.adminLang === 'en' ? 'zh' : 'km')"
           >
-            {{ prefs.adminLang === "km" ? "EN" : "ខ្មែរ" }}
+            {{ prefs.adminLang === 'km' ? 'EN' : prefs.adminLang === 'en' ? '中文' : 'ខ្មែរ' }}
           </button>
           <RouterLink
             to="/preview"

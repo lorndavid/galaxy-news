@@ -2,106 +2,132 @@
   <div class="grid gap-5 lg:grid-cols-3">
     <!-- Main form -->
     <form class="card space-y-4 p-5 lg:col-span-2" @submit.prevent="save('PUBLISHED')">
-      <div>
-        <label class="label">ចំណងជើង *</label>
-        <textarea
-          :ref="el => autoResize(el as HTMLTextAreaElement)"
-          :value="form.title"
-          @input="e => { form.title = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
-          rows="1"
-          class="input text-base resize-none overflow-hidden"
-          placeholder="ចំណងជើងអត្ថបទ"
-          required
-        ></textarea>
-      </div>
-
-      <div>
-        <label class="label">សេចក្តីសង្ខេប</label>
-        <textarea
-          :ref="el => autoResize(el as HTMLTextAreaElement)"
-          :value="form.excerpt"
-          @input="e => { form.excerpt = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
-          rows="3"
-          class="input resize-none overflow-hidden"
-          placeholder="សេចក្តីសង្ខេបខ្លីនៃអត្ថបទ (លេចឡើងក្នុងបញ្ជី និង SEO)"
-        ></textarea>
-      </div>
-
-      <div>
-        <label class="label">ខ្លឹមសារ (ខ្មែរ)</label>
-        <RichTextEditor v-model="form.content" />
-      </div>
-
-      <!-- English version (optional) -->
-      <div class="rounded-lg border border-slate-200 p-4">
+      <!-- ═══ Khmer (primary) ═══ -->
+      <div class="rounded-lg border border-indigo-200 bg-indigo-50/30 p-4">
         <div class="mb-3 flex items-center gap-2">
-          <span class="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">EN</span>
-          <h3 class="text-sm font-semibold text-slate-700">English version</h3>
-          <span class="text-xs text-slate-400">(ស្រេចចិត្ត — បង្ហាញនៅពេលអ្នកប្រើជ្រើស English)</span>
+          <span class="rounded bg-indigo-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-indigo-600">KH</span>
+          <h3 class="text-sm font-semibold text-slate-700">ខ្លឹមសារខ្មែរ</h3>
+          <span class="text-xs text-slate-400">(ភាសាដើម)</span>
         </div>
         <div class="space-y-4">
           <div>
-            <label class="label">ចំណងជើង (English)</label>
+            <label class="label">ចំណងជើង *</label>
             <textarea
               :ref="el => autoResize(el as HTMLTextAreaElement)"
-              :value="form.titleEn"
-              @input="e => { form.titleEn = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
+              :value="form.title"
+              @input="e => { form.title = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
               rows="1"
-              class="input resize-none overflow-hidden"
-              placeholder="Article title in English"
+              class="input text-base resize-none overflow-hidden"
+              placeholder="ចំណងជើងអត្ថបទ"
+              required
             ></textarea>
           </div>
           <div>
-            <label class="label">សេចក្តីសង្ខេប (English)</label>
+            <label class="label">សេចក្តីសង្ខេប</label>
             <textarea
               :ref="el => autoResize(el as HTMLTextAreaElement)"
-              :value="form.excerptEn"
-              @input="e => { form.excerptEn = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
+              :value="form.excerpt"
+              @input="e => { form.excerpt = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
               rows="3"
               class="input resize-none overflow-hidden"
-              placeholder="Short excerpt in English"
+              placeholder="សេចក្តីសង្ខេបខ្លីនៃអត្ថបទ (លេចឡើងក្នុងបញ្ជី និង SEO)"
             ></textarea>
           </div>
           <div>
-            <label class="label">ខ្លឹមសារ (English)</label>
-            <RichTextEditor v-model="form.contentEn" />
+            <label class="label">ខ្លឹមសារ (ខ្មែរ)</label>
+            <RichTextEditor v-model="form.content" />
           </div>
         </div>
       </div>
 
-      <!-- Chinese version (optional) -->
-      <div class="rounded-lg border border-slate-200 p-4">
-        <div class="mb-3 flex items-center gap-2">
-          <span class="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">ZH</span>
-          <h3 class="text-sm font-semibold text-slate-700">中文版本</h3>
-          <span class="text-xs text-slate-400">(可选 — 当用户选择中文时显示)</span>
+      <!-- ═══ English version (collapsible) ═══ -->
+      <div class="overflow-hidden rounded-lg border border-slate-200 transition-all">
+        <button
+          type="button"
+          class="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-slate-50"
+          @click="showEn = !showEn"
+        >
+          <div class="flex items-center gap-2">
+            <span class="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-600">EN</span>
+            <h3 class="text-sm font-semibold text-slate-700">English version</h3>
+            <span v-if="!showEn && (form.titleEn || form.contentEn)" class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+          </div>
+          <ChevronDown class="h-4 w-4 text-slate-400 transition-transform" :class="showEn ? 'rotate-180' : ''" />
+        </button>
+        <div v-show="showEn" class="border-t border-slate-100 px-4 py-4">
+          <div class="space-y-4">
+            <div>
+              <label class="label">ចំណងជើង (English)</label>
+              <textarea
+                :ref="el => autoResize(el as HTMLTextAreaElement)"
+                :value="form.titleEn"
+                @input="e => { form.titleEn = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
+                rows="1"
+                class="input resize-none overflow-hidden"
+                placeholder="Article title in English"
+              ></textarea>
+            </div>
+            <div>
+              <label class="label">សេចក្តីសង្ខេប (English)</label>
+              <textarea
+                :ref="el => autoResize(el as HTMLTextAreaElement)"
+                :value="form.excerptEn"
+                @input="e => { form.excerptEn = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
+                rows="3"
+                class="input resize-none overflow-hidden"
+                placeholder="Short excerpt in English"
+              ></textarea>
+            </div>
+            <div>
+              <label class="label">ខ្លឹមសារ (English)</label>
+              <RichTextEditor v-model="form.contentEn" />
+            </div>
+          </div>
         </div>
-        <div class="space-y-4">
-          <div>
-            <label class="label">标题 (中文)</label>
-            <textarea
-              :ref="el => autoResize(el as HTMLTextAreaElement)"
-              :value="form.titleZh"
-              @input="e => { form.titleZh = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
-              rows="1"
-              class="input resize-none overflow-hidden"
-              placeholder="Article title in Chinese"
-            ></textarea>
+      </div>
+
+      <!-- ═══ Chinese version (collapsible) ═══ -->
+      <div class="overflow-hidden rounded-lg border border-slate-200 transition-all">
+        <button
+          type="button"
+          class="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-slate-50"
+          @click="showZh = !showZh"
+        >
+          <div class="flex items-center gap-2">
+            <span class="rounded bg-rose-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-rose-600">ZH</span>
+            <h3 class="text-sm font-semibold text-slate-700">中文版本</h3>
+            <span v-if="!showZh && (form.titleZh || form.contentZh)" class="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
           </div>
-          <div>
-            <label class="label">摘要 (中文)</label>
-            <textarea
-              :ref="el => autoResize(el as HTMLTextAreaElement)"
-              :value="form.excerptZh"
-              @input="e => { form.excerptZh = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
-              rows="3"
-              class="input resize-none overflow-hidden"
-              placeholder="Short excerpt in Chinese"
-            ></textarea>
-          </div>
-          <div>
-            <label class="label">内容 (中文)</label>
-            <RichTextEditor v-model="form.contentZh" />
+          <ChevronDown class="h-4 w-4 text-slate-400 transition-transform" :class="showZh ? 'rotate-180' : ''" />
+        </button>
+        <div v-show="showZh" class="border-t border-slate-100 px-4 py-4">
+          <div class="space-y-4">
+            <div>
+              <label class="label">标题 (中文)</label>
+              <textarea
+                :ref="el => autoResize(el as HTMLTextAreaElement)"
+                :value="form.titleZh"
+                @input="e => { form.titleZh = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
+                rows="1"
+                class="input resize-none overflow-hidden"
+                placeholder="Article title in Chinese"
+              ></textarea>
+            </div>
+            <div>
+              <label class="label">摘要 (中文)</label>
+              <textarea
+                :ref="el => autoResize(el as HTMLTextAreaElement)"
+                :value="form.excerptZh"
+                @input="e => { form.excerptZh = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
+                rows="3"
+                class="input resize-none overflow-hidden"
+                placeholder="Short excerpt in Chinese"
+              ></textarea>
+            </div>
+            <div>
+              <label class="label">内容 (中文)</label>
+              <RichTextEditor v-model="form.contentZh" />
+            </div>
           </div>
         </div>
       </div>
@@ -418,6 +444,8 @@ const mediaGalleryOpen = ref(false);
 const gallerySelected = ref<Set<number>>(new Set());
 const galleryAdding = ref(false);
 const galleryImages = ref<{ id: number; mediaId: number; url: string; altText: string | null; caption: string | null; title: string | null; description: string | null; cropPosition: string | null; sortOrder: number }[]>([]);
+const showEn = ref(true);
+const showZh = ref(true);
 const saving = ref(false);
 const sending = ref(false);
 const dirty = ref(false);
@@ -728,6 +756,9 @@ onMounted(async () => {
     form.publishedAt = a.publishedAt ? new Date(a.publishedAt).toISOString().slice(0, 16) : "";
     await refreshPublication();
     await loadGallery();
+    // Auto-collapse empty language sections, expand ones with content
+    showEn.value = !!(a.titleEn || a.contentEn || a.excerptEn);
+    showZh.value = !!(a.titleZh || a.contentZh || a.excerptZh);
     // Auto-resize all textareas to fit loaded content
     requestAnimationFrame(() => {
       document.querySelectorAll<HTMLTextAreaElement>("textarea").forEach(autoResize);
