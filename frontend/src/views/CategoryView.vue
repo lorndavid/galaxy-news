@@ -101,7 +101,7 @@ async function loadPageLayout(slug: string) {
   }
 }
 
-const catNameOf = (c: Category | null) => (c ? locale.pick(c.name, c.nameEn) : "");
+const catNameOf = (c: Category | null) => (c ? locale.pick(c.name, c.nameEn, c.nameZh) : "");
 const sectionTitle = computed(() => {
   const name = catNameOf(category.value);
   return name ? `${t.home.whatsNew} — ${name}` : t.home.whatsNew;

@@ -28,15 +28,17 @@
 
     <Modal v-model="modalOpen" :title="editing ? 'កែសម្រួលស្លាក' : 'បន្ថែមស្លាក'">
       <form class="space-y-3" @submit.prevent="save">
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="label">ឈ្មោះ (ខ្មែរ) *</label>
-            <input v-model="form.name" type="text" class="input" required />
-          </div>
-          <div>
-            <label class="label">ឈ្មោះ (English)</label>
-            <input v-model="form.nameEn" type="text" class="input" placeholder="Technology" />
-          </div>
+        <div>
+          <label class="label">ឈ្មោះ (ខ្មែរ) *</label>
+          <input v-model="form.name" type="text" class="input" required />
+        </div>
+        <div>
+          <label class="label">ឈ្មោះ (English)</label>
+          <input v-model="form.nameEn" type="text" class="input" placeholder="Technology" />
+        </div>
+        <div>
+          <label class="label">ឈ្មោះ (中文)</label>
+          <input v-model="form.nameZh" type="text" class="input" placeholder="科技" />
         </div>
         <div>
           <label class="label">Slug</label>
@@ -69,7 +71,7 @@ const modalOpen = ref(false);
 const confirmOpen = ref(false);
 const editing = ref(false);
 let target: Tag | null = null;
-const form = reactive({ name: "", nameEn: "", slug: "" });
+const form = reactive({ name: "", nameEn: "", nameZh: "", slug: "" });
 
 async function load() {
   loading.value = true;
@@ -85,19 +87,19 @@ async function load() {
 
 function openCreate() {
   editing.value = false;
-  Object.assign(form, { name: "", nameEn: "", slug: "" });
+  Object.assign(form, { name: "", nameEn: "", nameZh: "", slug: "" });
   modalOpen.value = true;
 }
 
 function openEdit(t: Tag) {
   editing.value = true;
-  Object.assign(form, { name: t.name, nameEn: t.nameEn ?? "", slug: t.slug });
+  Object.assign(form, { name: t.name, nameEn: t.nameEn ?? "", nameZh: t.nameZh ?? "", slug: t.slug });
   target = t;
   modalOpen.value = true;
 }
 
 async function save() {
-  const payload = { name: form.name, nameEn: form.nameEn || null, slug: form.slug || undefined };
+  const payload = { name: form.name, nameEn: form.nameEn || null, nameZh: form.nameZh || null, slug: form.slug || undefined };
   try {
     if (editing.value && target) {
       await adminService.updateTag(target.id, payload);

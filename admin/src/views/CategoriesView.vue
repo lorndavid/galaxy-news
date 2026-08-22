@@ -25,15 +25,17 @@
 
     <Modal v-model="modalOpen" :title="editing ? 'កែសម្រួលប្រភេទ' : 'បន្ថែមប្រភេទ'">
       <form class="space-y-3" @submit.prevent="save">
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="label">ឈ្មោះ (ខ្មែរ) *</label>
-            <input v-model="form.name" type="text" class="input" required />
-          </div>
-          <div>
-            <label class="label">ឈ្មោះ (English)</label>
-            <input v-model="form.nameEn" type="text" class="input" placeholder="Technology" />
-          </div>
+        <div>
+          <label class="label">ឈ្មោះ (ខ្មែរ) *</label>
+          <input v-model="form.name" type="text" class="input" required />
+        </div>
+        <div>
+          <label class="label">ឈ្មោះ (English)</label>
+          <input v-model="form.nameEn" type="text" class="input" placeholder="Technology" />
+        </div>
+        <div>
+          <label class="label">ឈ្មោះ (中文)</label>
+          <input v-model="form.nameZh" type="text" class="input" placeholder="科技" />
         </div>
         <div>
           <label class="label">Slug</label>
@@ -48,6 +50,10 @@
             <label class="label">ការពិពណ៌នា (English)</label>
             <textarea v-model="form.descriptionEn" rows="2" class="input"></textarea>
           </div>
+        </div>
+        <div>
+          <label class="label">ការពិពណ៌នា (中文)</label>
+          <textarea v-model="form.descriptionZh" rows="2" class="input" placeholder="中文描述"></textarea>
         </div>
         <div>
           <label class="label">ពណ៌</label>
@@ -86,9 +92,11 @@ let target: Category | null = null;
 const form = reactive({
   name: "",
   nameEn: "",
+  nameZh: "",
   slug: "",
   description: "",
   descriptionEn: "",
+  descriptionZh: "",
   color: "#0d3fa9",
   isActive: true,
 });
@@ -99,7 +107,7 @@ async function load() {
 
 function openCreate() {
   editing.value = false;
-  Object.assign(form, { name: "", nameEn: "", slug: "", description: "", descriptionEn: "", color: "#0d3fa9", isActive: true });
+  Object.assign(form, { name: "", nameEn: "", nameZh: "", slug: "", description: "", descriptionEn: "", descriptionZh: "", color: "#0d3fa9", isActive: true });
   modalOpen.value = true;
 }
 
@@ -108,9 +116,11 @@ function openEdit(c: Category) {
   Object.assign(form, {
     name: c.name,
     nameEn: c.nameEn ?? "",
+    nameZh: c.nameZh ?? "",
     slug: c.slug,
     description: c.description ?? "",
     descriptionEn: c.descriptionEn ?? "",
+    descriptionZh: c.descriptionZh ?? "",
     color: c.color ?? "#0d3fa9",
     isActive: c.isActive,
   });
@@ -122,9 +132,11 @@ async function save() {
   const payload = {
     name: form.name,
     nameEn: form.nameEn || null,
+    nameZh: form.nameZh || null,
     slug: form.slug || undefined,
     description: form.description || null,
     descriptionEn: form.descriptionEn || null,
+    descriptionZh: form.descriptionZh || null,
     color: form.color,
     isActive: form.isActive,
   };

@@ -242,7 +242,7 @@ let scrollTimer: number | undefined;
 
 const settings = computed(() => settingsStore.settings);
 const logoUrl = computed(() => settings.value?.logo ?? "/assets/img/logo/logo1.png");
-const siteName = computed(() => locale.pick(settings.value?.siteName ?? "Galaxy TV V4K", settings.value?.siteNameEn));
+const siteName = computed(() => locale.pick(settings.value?.siteName ?? "Galaxy TV V4K", settings.value?.siteNameEn, settings.value?.siteNameZh as string | null));
 
 const todayLabel = computed(() => {
   const now = new Date();

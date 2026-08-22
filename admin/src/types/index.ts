@@ -39,6 +39,7 @@ export interface Tag {
   id: number;
   name: string;
   nameEn: string | null;
+  nameZh: string | null;
   slug: string;
 }
 

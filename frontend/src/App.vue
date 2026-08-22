@@ -1,5 +1,5 @@
 <template>
-  <div class="news-app">
+  <div class="news-app" :class="{ 'lang-kh': !isEn && !isZh, 'lang-en': isEn, 'lang-zh': isZh }">
     <a href="#main-content" class="skip-link">{{ isZh ? "跳到内容" : isEn ? "Skip to content" : "រំលងទៅកាន់មាតិកា" }}</a>
     <PageLoader />
     <SiteHeader v-if="!route.meta.bare" />

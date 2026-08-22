@@ -88,19 +88,20 @@ const settingsStore = useSettingsStore();
 const locale = useLocaleStore();
 const categoryStore = useCategoryStore();
 const settings = computed(() => settingsStore.settings);
-const siteName = computed(() => locale.pick(settings.value?.siteName ?? "Galaxy TV 4K", settings.value?.siteNameEn));
+const siteName = computed(() => locale.pick(settings.value?.siteName ?? "Galaxy TV 4K", settings.value?.siteNameEn, settings.value?.siteNameZh as string | null));
 const footerDescription = computed(() =>
   locale.pick(
     settings.value?.description ?? "Galaxy TV 4K ជាមជ្ឈមណ្ឌលព័ត៌មានឌីជីថលរបស់កម្ពុជា",
-    settings.value?.descriptionEn ?? "Galaxy TV 4K — a digital news hub for Cambodia"
+    settings.value?.descriptionEn ?? "Galaxy TV 4K — a digital news hub for Cambodia",
+    settings.value?.descriptionZh as string | null ?? "Galaxy TV V4K — 柬埔寨数字新闻中心"
   )
 );
 const logoUrl = computed(() => settings.value?.logo ?? "/assets/img/logo/logo1.png");
 const year = computed(() => toKhmerDigits(new Date().getFullYear()));
 const t = computed(() => locale.t);
 
-const catNameOf = (c: { name: string; nameEn: string | null }) => locale.pick(c.name, c.nameEn);
-const title = (a: { title: string; titleEn: string | null }) => locale.pick(a.title, a.titleEn);
+const catNameOf = (c: { name: string; nameEn: string | null; nameZh?: string | null }) => locale.pick(c.name, c.nameEn, c.nameZh);
+const title = (a: { title: string; titleEn: string | null; titleZh?: string | null }) => locale.pick(a.title, a.titleEn, a.titleZh);
 
 const latestArticles = ref<Article[]>([]);
 const footerCategories = computed(() => categoryStore.categories.filter((c) => c.isActive).slice(0, 6));

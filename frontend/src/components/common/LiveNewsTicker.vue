@@ -53,8 +53,8 @@ const loopItems = computed(() => {
   return items.length > 1 ? [...items, ...items] : items;
 });
 
-function displayTitle(item: { title: string; titleEn: string | null }) {
-  return locale.pick(item.title, item.titleEn);
+function displayTitle(item: { title: string; titleEn: string | null; titleZh?: string | null }) {
+  return locale.pick(item.title, item.titleEn, item.titleZh);
 }
 
 const tickerStyle = computed(() => ({

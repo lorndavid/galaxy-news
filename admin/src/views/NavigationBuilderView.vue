@@ -117,15 +117,17 @@
     <div class="card h-fit p-5">
       <h3 class="text-sm font-semibold text-slate-700">{{ editing ? "កែសម្រួលធាតុ" : "បន្ថែមធាតុ" }}</h3>
       <form class="mt-4 space-y-3" @submit.prevent="submit">
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="label">ឈ្មោះ (ខ្មែរ) *</label>
-            <input v-model="form.label" type="text" class="input" required />
-          </div>
-          <div>
-            <label class="label">ឈ្មោះ (English)</label>
-            <input v-model="form.labelEn" type="text" class="input" placeholder="Home" />
-          </div>
+        <div>
+          <label class="label">ឈ្មោះ (ខ្មែរ) *</label>
+          <input v-model="form.label" type="text" class="input" required />
+        </div>
+        <div>
+          <label class="label">ឈ្មោះ (English)</label>
+          <input v-model="form.labelEn" type="text" class="input" placeholder="Home" />
+        </div>
+        <div>
+          <label class="label">ឈ្មោះ (中文)</label>
+          <input v-model="form.labelZh" type="text" class="input" placeholder="首页" />
         </div>
         <div>
           <label class="label">ប្រភេទ</label>
@@ -226,6 +228,7 @@ async function saveLayout(item: NavigationItem) {
 const form = reactive({
   label: "",
   labelEn: "",
+  labelZh: "",
   type: "page" as NavigationItem["type"],
   value: "",
   isActive: true,
@@ -259,6 +262,7 @@ function resetForm() {
   editing.value = null;
   form.label = "";
   form.labelEn = "";
+  form.labelZh = "";
   form.type = "page";
   form.value = "";
   form.isActive = true;
@@ -268,6 +272,7 @@ function edit(item: NavigationItem) {
   editing.value = item;
   form.label = item.label;
   form.labelEn = item.labelEn ?? "";
+  form.labelZh = item.labelZh ?? "";
   form.type = item.type;
   form.value = item.value ?? "";
   form.isActive = item.isActive;
@@ -288,6 +293,7 @@ async function submit() {
       await adminService.updateNavItem(editing.value.id, {
         label: form.label,
         labelEn: form.labelEn || null,
+        labelZh: form.labelZh || null,
         type: form.type,
         value: form.value || null,
         isActive: form.isActive,
@@ -297,6 +303,7 @@ async function submit() {
       await adminService.createNavItem({
         label: form.label,
         labelEn: form.labelEn || null,
+        labelZh: form.labelZh || null,
         type: form.type,
         value: form.value || null,
         isActive: form.isActive,
