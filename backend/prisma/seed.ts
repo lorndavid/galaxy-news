@@ -438,7 +438,7 @@ const siteSettings = {
   shareWhatsapp: "https://wa.me/?text={title} {url}",
   fontHeading: "Noto Sans Khmer",
   fontBody: "Noto Sans Khmer",
-  fontArticle: "Noto Sans Khmer",
+  fontArticle: "Suwannaphum",
   fontSizeHero: 36,
   fontSizeSection: 24,
   fontSizeCard: 18,

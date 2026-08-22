@@ -332,6 +332,8 @@ const tabs = [
 const fontChoices = [
   "Noto Sans Khmer",
   "Kantumruy",
+  "Google Sans",
+  "Suwannaphum",
   "Roboto",
   "Inter",
   "Source Sans 3",
@@ -391,7 +393,7 @@ const form = reactive({
   bodyBgColor: "#f8f7f4", headerBgColor: "#ffffff", headerTextColor: "#0b1c39",
   footerBgColor: "#0b1c39", footerTextColor: "#ffffff",
   layoutStyle: "boxed",
-  fontHeading: "Noto Sans Khmer", fontBody: "Noto Sans Khmer", fontArticle: "Noto Sans Khmer",
+  fontHeading: "Noto Sans Khmer", fontBody: "Noto Sans Khmer", fontArticle: "Suwannaphum",
   fontSizeHero: 36, fontSizeSection: 24, fontSizeCard: 18, fontSizeBody: 16,
   radiusPreset: "sharp", shadowPreset: "none",
 } as Record<string, string | number>);

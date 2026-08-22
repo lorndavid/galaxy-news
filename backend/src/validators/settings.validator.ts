@@ -9,6 +9,8 @@ export const FONT_CHOICES = [
   "Noto Sans Khmer",
   "Noto Sans SC",
   "Kantumruy",
+  "Google Sans",
+  "Suwannaphum",
   "Roboto",
   "Inter",
   "Source Sans 3",
