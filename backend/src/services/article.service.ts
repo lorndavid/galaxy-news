@@ -265,16 +265,20 @@ export async function getAdmin(id: number) {
 export interface ArticleInput {
   title?: string;
   titleEn?: string | null;
+  titleZh?: string | null;
   excerpt?: string | null;
   excerptEn?: string | null;
+  excerptZh?: string | null;
   content?: string;
   contentEn?: string | null;
+  contentZh?: string | null;
   featuredImage?: string | null;
   authorId?: number;
   categoryId?: number;
   status?: ArticleStatus;
   isFeatured?: boolean;
   isBreaking?: boolean;
+  galleryColumns?: number;
   publishedAt?: string | null;
   tagIds?: number[];
 }
@@ -293,11 +297,14 @@ export async function createArticle(input: ArticleInput, userId: number, role: R
   const data: Prisma.ArticleUncheckedCreateInput = {
     title,
     titleEn: input.titleEn?.trim() || null,
+    titleZh: input.titleZh?.trim() || null,
     slug,
     excerpt: input.excerpt?.trim() ?? null,
     excerptEn: input.excerptEn?.trim() || null,
+    excerptZh: input.excerptZh?.trim() || null,
     content: sanitizeContent(input.content ?? ""),
     contentEn: input.contentEn ? sanitizeContent(input.contentEn) : null,
+    contentZh: input.contentZh ? sanitizeContent(input.contentZh) : null,
     featuredImage: input.featuredImage ?? null,
     authorId: role === Role.AUTHOR ? userId : input.authorId ?? userId,
     categoryId: input.categoryId,
@@ -355,14 +362,18 @@ export async function updateArticle(
     }
   }
   if (input.titleEn !== undefined) data.titleEn = input.titleEn?.trim() || null;
+  if (input.titleZh !== undefined) data.titleZh = input.titleZh?.trim() || null;
   if (input.excerpt !== undefined) data.excerpt = input.excerpt?.trim() || null;
   if (input.excerptEn !== undefined) data.excerptEn = input.excerptEn?.trim() || null;
+  if (input.excerptZh !== undefined) data.excerptZh = input.excerptZh?.trim() || null;
   if (input.content !== undefined) data.content = sanitizeContent(input.content);
   if (input.contentEn !== undefined) data.contentEn = input.contentEn ? sanitizeContent(input.contentEn) : null;
+  if (input.contentZh !== undefined) data.contentZh = input.contentZh ? sanitizeContent(input.contentZh) : null;
   if (input.featuredImage !== undefined) data.featuredImage = input.featuredImage || null;
   if (input.categoryId !== undefined) data.categoryId = input.categoryId;
   if (input.isFeatured !== undefined) data.isFeatured = input.isFeatured;
   if (input.isBreaking !== undefined) data.isBreaking = input.isBreaking;
+  if (input.galleryColumns !== undefined) data.galleryColumns = input.galleryColumns;
 
   if (input.status !== undefined) {
     data.status = input.status;
