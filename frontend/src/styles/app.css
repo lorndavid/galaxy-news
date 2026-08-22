@@ -1389,3 +1389,69 @@ html {
     line-height: 44px;
   }
 }
+
+/* ==================================================================
+   Per-Language Font System
+   ----------------------------------------------------------------
+   The admin configures font family / size / weight per language.
+   CSS variables are set by useTheme.ts on :root.
+   Language classes (.lang-kh / .lang-en / .lang-zh) are applied to
+   wrapper elements in article views.
+   ================================================================== */
+
+/* --- Khmer language --- */
+.lang-kh,
+[lang="km"] {
+  font-family: var(--font-kh, "Noto Sans Khmer", sans-serif);
+  font-size: var(--font-size-kh, 16px);
+  font-weight: var(--font-weight-kh, 400);
+}
+
+/* --- English language --- */
+.lang-en,
+[lang="en"] {
+  font-family: var(--font-en, "Inter", sans-serif);
+  font-size: var(--font-size-en, 16px);
+  font-weight: var(--font-weight-en, 400);
+}
+
+/* --- Chinese language --- */
+.lang-zh,
+[lang="zh"] {
+  font-family: var(--font-zh, "Huninn", sans-serif);
+  font-size: var(--font-size-zh, 16px);
+  font-weight: var(--font-weight-zh, 400);
+}
+
+/* Article body inherits per-language font */
+.lang-kh .news-content,
+.lang-kh .news-content p {
+  font-family: var(--font-kh, "Noto Sans Khmer", sans-serif);
+  font-size: var(--font-size-kh, 16px);
+  font-weight: var(--font-weight-kh, 400);
+}
+.lang-en .news-content,
+.lang-en .news-content p {
+  font-family: var(--font-en, "Inter", sans-serif);
+  font-size: var(--font-size-en, 16px);
+  font-weight: var(--font-weight-en, 400);
+}
+.lang-zh .news-content,
+.lang-zh .news-content p {
+  font-family: var(--font-zh, "Huninn", sans-serif);
+  font-size: var(--font-size-zh, 16px);
+  font-weight: var(--font-weight-zh, 400);
+}
+
+/* Article title inherits per-language font */
+.lang-kh .news-title { font-family: var(--font-kh, "Noto Sans Khmer", sans-serif); }
+.lang-en .news-title { font-family: var(--font-en, "Inter", sans-serif); }
+.lang-zh .news-title { font-family: var(--font-zh, "Huninn", sans-serif); }
+
+/* Card titles inherit per-language font */
+.lang-kh .g-card-title,
+.lang-kh .news-row-title { font-family: var(--font-kh, "Noto Sans Khmer", sans-serif); }
+.lang-en .g-card-title,
+.lang-en .news-row-title { font-family: var(--font-en, "Inter", sans-serif); }
+.lang-zh .g-card-title,
+.lang-zh .news-row-title { font-family: var(--font-zh, "Huninn", sans-serif); }

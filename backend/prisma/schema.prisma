@@ -311,9 +311,20 @@ model SiteSettings {
   shareTelegram  String  @default("https://t.me/share/url?url={url}&text={title}")
   shareWhatsapp  String  @default("https://wa.me/?text={title} {url}")
 
-  fontHeading String @default("Noto Sans Khmer") // headings & titles
-  fontBody    String @default("Noto Sans Khmer") // body & UI
-  fontArticle String @default("Noto Sans Khmer") // article content
+  fontHeading String @default("Noto Sans Khmer") // headings & titles (legacy)
+  fontBody    String @default("Noto Sans Khmer") // body & UI (legacy)
+  fontArticle String @default("Noto Sans Khmer") // article content (legacy)
+
+  // --- Per-language font customization ---
+  fontFamilyKh   String  @default("Noto Sans Khmer") // Khmer font family
+  fontFamilyEn   String  @default("Inter")           // English font family
+  fontFamilyZh   String  @default("Huninn")          // Chinese font family
+  fontSizeKh     Int     @default(16)                 // Khmer body size (px)
+  fontSizeEn     Int     @default(16)                 // English body size (px)
+  fontSizeZh     Int     @default(16)                 // Chinese body size (px)
+  fontWeightKh   Int     @default(400)                // Khmer weight (100-900)
+  fontWeightEn   Int     @default(400)                // English weight (100-900)
+  fontWeightZh   Int     @default(400)                // Chinese weight (100-900)
 
   fontSizeHero    Int @default(36) // desktop hero headline (px)
   fontSizeSection Int @default(24) // section headings (px)

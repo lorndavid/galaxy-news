@@ -72,6 +72,16 @@ const DEFAULTS: SiteSettings = {
   fontHeading: "Noto Sans Khmer",
   fontBody: "Noto Sans Khmer",
   fontArticle: "Suwannaphum",
+  // Per-language font customization
+  fontFamilyKh: "Noto Sans Khmer",
+  fontFamilyEn: "Inter",
+  fontFamilyZh: "Huninn",
+  fontSizeKh: 16,
+  fontSizeEn: 16,
+  fontSizeZh: 16,
+  fontWeightKh: 400,
+  fontWeightEn: 400,
+  fontWeightZh: 400,
   fontSizeHero: 36,
   fontSizeSection: 24,
   fontSizeCard: 18,
@@ -128,7 +138,7 @@ export function applyTheme(s: Partial<SiteSettings> | null | undefined) {
   root.style.setProperty("--color-footer-muted", mix(t.footerTextColor, t.footerBgColor, 0.62));
   root.style.setProperty("--color-footer-border", mix(t.footerTextColor, t.footerBgColor, 0.16));
 
-  // Typography
+  // Typography — legacy
   root.style.setProperty("--font-heading", t.fontHeading);
   root.style.setProperty("--font-body", t.fontBody);
   root.style.setProperty("--font-article", t.fontArticle);
@@ -136,6 +146,17 @@ export function applyTheme(s: Partial<SiteSettings> | null | undefined) {
   root.style.setProperty("--size-section", `${t.fontSizeSection}px`);
   root.style.setProperty("--size-card", `${t.fontSizeCard}px`);
   root.style.setProperty("--size-body", `${t.fontSizeBody}px`);
+
+  // Per-language font customization
+  root.style.setProperty("--font-kh", t.fontFamilyKh);
+  root.style.setProperty("--font-en", t.fontFamilyEn);
+  root.style.setProperty("--font-zh", t.fontFamilyZh);
+  root.style.setProperty("--font-size-kh", `${t.fontSizeKh}px`);
+  root.style.setProperty("--font-size-en", `${t.fontSizeEn}px`);
+  root.style.setProperty("--font-size-zh", `${t.fontSizeZh}px`);
+  root.style.setProperty("--font-weight-kh", String(t.fontWeightKh));
+  root.style.setProperty("--font-weight-en", String(t.fontWeightEn));
+  root.style.setProperty("--font-weight-zh", String(t.fontWeightZh));
 
   // Corners / shadows
   root.style.setProperty("--radius-card", radius.card);

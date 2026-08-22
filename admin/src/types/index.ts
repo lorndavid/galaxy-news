@@ -250,6 +250,16 @@ export interface SiteSettings {
   fontHeading: string;
   fontBody: string;
   fontArticle: string;
+  // Per-language font customization
+  fontFamilyKh: string;
+  fontFamilyEn: string;
+  fontFamilyZh: string;
+  fontSizeKh: number;
+  fontSizeEn: number;
+  fontSizeZh: number;
+  fontWeightKh: number;
+  fontWeightEn: number;
+  fontWeightZh: number;
   fontSizeHero: number;
   fontSizeSection: number;
   fontSizeCard: number;

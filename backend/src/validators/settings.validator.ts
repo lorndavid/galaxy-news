@@ -7,18 +7,29 @@ const hexColor = z
 // Controlled font list — never allow arbitrary values into CSS.
 export const FONT_CHOICES = [
   "Noto Sans Khmer",
+  "Noto Serif Khmer",
   "Noto Sans SC",
-  "Kantumruy",
-  "Google Sans",
+  "Noto Serif SC",
+  "Kantumruy Pro",
+  "Battambang",
+  "Bayon",
+  "Koulen",
+  "Dangrek",
   "Suwannaphum",
-  "Roboto",
+  "Google Sans",
+  "Huninn",
   "Inter",
-  "Source Sans 3",
+  "Roboto",
   "Lato",
   "Merriweather",
   "Playfair Display",
+  "Poppins",
+  "Source Sans 3",
   "DM Sans",
   "Plus Jakarta Sans",
+  "Charis SIL",
+  "ZCOOL KuaiLe",
+  "ZCOOL QingKe HuangYou",
 ] as const;
 
 // Strip any HTML before storing — settings text is rendered in <title>/
@@ -120,6 +131,17 @@ export const settingsUpdateSchema = z.object({
     fontHeading: z.enum(FONT_CHOICES).optional(),
     fontBody: z.enum(FONT_CHOICES).optional(),
     fontArticle: z.enum(FONT_CHOICES).optional(),
+
+    // Per-language font customization
+    fontFamilyKh: z.enum(FONT_CHOICES).optional(),
+    fontFamilyEn: z.enum(FONT_CHOICES).optional(),
+    fontFamilyZh: z.enum(FONT_CHOICES).optional(),
+    fontSizeKh: z.number().int().min(10).max(40).optional(),
+    fontSizeEn: z.number().int().min(10).max(40).optional(),
+    fontSizeZh: z.number().int().min(10).max(40).optional(),
+    fontWeightKh: z.number().int().min(100).max(900).optional(),
+    fontWeightEn: z.number().int().min(100).max(900).optional(),
+    fontWeightZh: z.number().int().min(100).max(900).optional(),
 
     fontSizeHero: z.number().int().min(20).max(64).optional(),
     fontSizeSection: z.number().int().min(16).max(40).optional(),

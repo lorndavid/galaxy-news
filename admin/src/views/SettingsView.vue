@@ -162,20 +162,39 @@
             </div>
           </div>
 
-          <div class="card space-y-4 p-5">
-            <h3 class="text-sm font-semibold text-slate-700">ពុម្ពអក្សរ</h3>
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div v-for="f in fontFields" :key="f.key">
-                <label class="label">{{ f.label }}</label>
-                <select v-model="form[f.key]" class="input">
-                  <option v-for="opt in fontChoices" :key="opt" :value="opt">{{ opt }}</option>
+          <!-- ═══ Per-Language Font Cards ═══ -->
+          <div v-for="lang in langFontCards" :key="lang.key" class="card space-y-4 p-5">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex h-6 w-6 items-center justify-center rounded text-[11px] font-bold text-white" :style="{ background: lang.color }">{{ lang.badge }}</span>
+              <h3 class="text-sm font-semibold text-slate-700">{{ lang.label }}</h3>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-3">
+              <div>
+                <label class="label">{{ lang.fontLabel }}</label>
+                <select v-model="form[lang.fontKey]" class="input" :style="{ fontFamily: String(form[lang.fontKey]) }">
+                  <option v-for="opt in fontChoices" :key="opt" :value="opt" :style="{ fontFamily: String(opt) }">{{ opt }}</option>
+                </select>
+                <p class="mt-1 text-[11px] text-slate-400" :style="{ fontFamily: String(form[lang.fontKey]) }">{{ lang.sampleText }}</p>
+              </div>
+              <div>
+                <label class="label">{{ lang.sizeLabel }}</label>
+                <div class="flex items-center gap-2">
+                  <input v-model.number="form[lang.sizeKey]" type="range" :min="10" :max="36" class="flex-1 accent-brand-600" />
+                  <span class="w-10 text-center text-xs font-mono text-slate-600">{{ form[lang.sizeKey] }}px</span>
+                </div>
+              </div>
+              <div>
+                <label class="label">{{ lang.weightLabel }}</label>
+                <select v-model.number="form[lang.weightKey]" class="input">
+                  <option v-for="w in fontWeights" :key="w.value" :value="w.value">{{ w.label }}</option>
                 </select>
               </div>
             </div>
           </div>
 
+          <!-- ═══ Global Font Sizes ═══ -->
           <div class="card space-y-4 p-5">
-            <h3 class="text-sm font-semibold text-slate-700">ទំហំពុម្ពអក្សរ (px)</h3>
+            <h3 class="text-sm font-semibold text-slate-700">ទំហំពុម្ពអក្សររួម (px)</h3>
             <div class="grid gap-4 sm:grid-cols-2">
               <div v-for="s in sizeFields" :key="s.key">
                 <label class="label">{{ s.label }} ({{ s.min }}–{{ s.max }})</label>
@@ -331,17 +350,81 @@ const tabs = [
 
 const fontChoices = [
   "Noto Sans Khmer",
-  "Kantumruy",
-  "Google Sans",
+  "Noto Serif Khmer",
+  "Kantumruy Pro",
+  "Battambang",
+  "Bayon",
+  "Koulen",
+  "Dangrek",
   "Suwannaphum",
-  "Roboto",
   "Inter",
-  "Source Sans 3",
+  "Google Sans",
+  "Huninn",
+  "Noto Sans SC",
+  "Noto Serif SC",
+  "ZCOOL KuaiLe",
+  "ZCOOL QingKe HuangYou",
+  "Roboto",
   "Lato",
   "Merriweather",
   "Playfair Display",
+  "Poppins",
+  "Source Sans 3",
   "DM Sans",
   "Plus Jakarta Sans",
+  "Charis SIL",
+];
+
+const langFontCards = [
+  {
+    key: "kh",
+    label: "ភាសាខ្មែរ (Khmer)",
+    badge: "KH",
+    color: "#4f46e5",
+    fontKey: "fontFamilyKh",
+    fontLabel: "ពុម្ពអក្សរ",
+    sizeKey: "fontSizeKh",
+    sizeLabel: "ទំហំ (Size)",
+    weightKey: "fontWeightKh",
+    weightLabel: "ទម្ងន់ (Weight)",
+    sampleText: "សួស្តី ពិភពលោក — Hello World",
+  },
+  {
+    key: "en",
+    label: "English",
+    badge: "EN",
+    color: "#059669",
+    fontKey: "fontFamilyEn",
+    fontLabel: "Font Family",
+    sizeKey: "fontSizeEn",
+    sizeLabel: "Size",
+    weightKey: "fontWeightEn",
+    weightLabel: "Weight",
+    sampleText: "The quick brown fox jumps over the lazy dog",
+  },
+  {
+    key: "zh",
+    label: "中文 (Chinese)",
+    badge: "ZH",
+    color: "#dc2626",
+    fontKey: "fontFamilyZh",
+    fontLabel: "字体 (Font)",
+    sizeKey: "fontSizeZh",
+    sizeLabel: "大小 (Size)",
+    weightKey: "fontWeightZh",
+    weightLabel: "粗细 (Weight)",
+    sampleText: "你好世界 — Hello World",
+  },
+];
+
+const fontWeights = [
+  { value: 100, label: "Thin (100)" },
+  { value: 300, label: "Light (300)" },
+  { value: 400, label: "Regular (400)" },
+  { value: 500, label: "Medium (500)" },
+  { value: 600, label: "Semi Bold (600)" },
+  { value: 700, label: "Bold (700)" },
+  { value: 900, label: "Black (900)" },
 ];
 
 const colorFields = [
@@ -365,11 +448,7 @@ const layoutStyles = [
   { key: "fluid", label: "Fluid", width: "100%" },
 ] as const;
 
-const fontFields = [
-  { key: "fontHeading", label: "ពុម្ពចំណងជើង" },
-  { key: "fontBody", label: "ពុម្ពអត្ថបទធម្មតា" },
-  { key: "fontArticle", label: "ពុម្ពអត្ថបទអត្ថបទ" },
-] as const;
+
 
 const sizeFields = [
   { key: "fontSizeHero", label: "ចំណងជើង Hero", min: 20, max: 64 },
@@ -394,6 +473,9 @@ const form = reactive({
   footerBgColor: "#0b1c39", footerTextColor: "#ffffff",
   layoutStyle: "boxed",
   fontHeading: "Noto Sans Khmer", fontBody: "Noto Sans Khmer", fontArticle: "Suwannaphum",
+  fontFamilyKh: "Noto Sans Khmer", fontFamilyEn: "Inter", fontFamilyZh: "Huninn",
+  fontSizeKh: 16, fontSizeEn: 16, fontSizeZh: 16,
+  fontWeightKh: 400, fontWeightEn: 400, fontWeightZh: 400,
   fontSizeHero: 36, fontSizeSection: 24, fontSizeCard: 18, fontSizeBody: 16,
   radiusPreset: "sharp", shadowPreset: "none",
 } as Record<string, string | number>);
