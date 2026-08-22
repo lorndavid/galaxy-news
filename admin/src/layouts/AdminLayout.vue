@@ -65,7 +65,7 @@
           <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-600 text-sm font-bold ring-2 ring-white/10" :title="auth.user?.name ?? ''">
             {{ auth.user?.name?.charAt(0) ?? "U" }}
           </div>
-          <template v-if="!collapsed">
+          <div v-if="!collapsed" class="flex min-w-0 flex-1 items-center">
             <div class="min-w-0 flex-1">
               <p class="truncate text-[13px] font-medium">{{ auth.user?.name }}</p>
               <p class="truncate text-[11px] text-white/50">{{ roleLabel(auth.user?.role) }}</p>
@@ -73,7 +73,7 @@
             <button class="rounded-md p-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white" title="ចាកចេញ" @click="doLogout">
               <LogOut class="h-4 w-4" />
             </button>
-          </template>
+          </div>
           <button
             v-else
             class="mt-1 rounded-md p-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
