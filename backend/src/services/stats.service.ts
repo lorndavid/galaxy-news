@@ -10,28 +10,38 @@ const TREND_DAYS = 14;
  * zero-filled so the dashboard chart always has a complete series.
  */
 export async function getViewsByDay(days = TREND_DAYS) {
-  // Prisma stores SQLite DateTime as epoch milliseconds (INTEGER), so SQLite's
-  // strftime() needs /1000 + 'unixepoch' to interpret it as a timestamp.
   const today = new Date();
   const since = new Date(
     Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - (days - 1))
   );
 
-  // Aggregate raw view events into per-day counts (UTC calendar days).
-  const rows = await prisma.$queryRaw<
-    { day: string; count: bigint }[]
-  >`SELECT strftime('%Y-%m-%d', viewedAt / 1000, 'unixepoch') AS day, COUNT(*) AS count
-    FROM ViewLog
-    WHERE viewedAt >= ${since}
-    GROUP BY day`;
-
-  const byDay = new Map(rows.map((r) => [r.day, Number(r.count)]));
-
+  // Build zero-filled series as fallback
   const series: { date: string; count: number }[] = [];
   for (let i = 0; i < days; i++) {
     const key = new Date(since.getTime() + i * 86_400_000).toISOString().slice(0, 10);
-    series.push({ date: key, count: byDay.get(key) ?? 0 });
+    series.push({ date: key, count: 0 });
   }
+
+  try {
+    // Query ViewLog table if it exists (PostgreSQL).
+    // This may fail if the table hasn't been created yet — in that case we
+    // return the zero-filled series so the dashboard still renders.
+    const rows = await prisma.$queryRaw<
+      { day: string; count: bigint }[]
+    >`SELECT to_char("viewedAt", 'YYYY-MM-DD') AS day, COUNT(*)::int AS count
+      FROM "ViewLog"
+      WHERE "viewedAt" >= ${since}
+      GROUP BY day`;
+
+    const byDay = new Map(rows.map((r) => [r.day, Number(r.count)]));
+    for (const entry of series) {
+      const count = byDay.get(entry.date);
+      if (count !== undefined) entry.count = count;
+    }
+  } catch {
+    // ViewLog table doesn't exist yet — return zeros
+  }
+
   return series;
 }
 
