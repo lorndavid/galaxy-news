@@ -125,6 +125,9 @@ cloudflared tunnel route dns galaxytv api.galaxytv4k.online
 
 # Copy tunnel config (already in repo)
 cp cloudflared/config.yml ~/.cloudflared/config.yml
+# IMPORTANT: On Windows, use 127.0.0.1 instead of localhost in the config.
+# Windows resolves localhost to IPv6 (::1) first, but Docker binds to
+# IPv4 (127.0.0.1). Using localhost causes "database down" errors.
 
 # Start tunnel (in production, use systemd or Docker)
 cloudflared tunnel run galaxytv
@@ -204,7 +207,8 @@ docker compose -f docker-compose.prod.yml up -d --build
 
 - [ ] `https://www.galaxytv4k.online` — frontend loads
 - [ ] `https://admin.galaxytv4k.online` — admin loads
-- [ ] `https://api.galaxytv4k.online/health` — API responds
+- [ ] `https://api.galaxytv4k.online/health` — API responds (all deps ok)
+- [ ] Health check shows `database: ok`, `redis: ok`, `r2: ok`
 - [ ] Login works (refresh token cookie)
 - [ ] Article CRUD works
 - [ ] Image upload works (R2)

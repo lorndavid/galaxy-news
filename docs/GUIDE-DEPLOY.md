@@ -171,14 +171,20 @@
 #
 #   ingress:
 #     - hostname: api.galaxytv4k.online
-#       service: http://localhost:4000
+#       service: http://127.0.0.1:4000
 #     - hostname: admin.galaxytv4k.online
-#       service: http://localhost:3001
+#       service: http://127.0.0.1:3001
 #     - hostname: www.galaxytv4k.online
-#       service: http://localhost:3000
+#       service: http://127.0.0.1:3000
 #     - hostname: galaxytv4k.online
-#       service: http://localhost:3000
+#       service: http://127.0.0.1:3000
 #     - service: http_status:404
+#
+# ⚠️ IMPORTANT: Use 127.0.0.1, NOT localhost!
+# On Windows, localhost resolves to IPv6 (::1) first.
+# Docker binds to IPv4 (127.0.0.1). Using localhost causes
+# "database down" errors in the health check and 500 errors
+# on API routes.
 #
 # Start the tunnel (open a NEW Git Bash window):
 #   cloudflared tunnel run galaxytv
@@ -279,6 +285,12 @@
 # PROBLEM: Tunnel shows "Failed to connect"
 #   → Make sure cloudflared is logged in: cloudflared tunnel list
 #   → If not, re-run: cloudflared tunnel login
+#
+# PROBLEM: Health check shows database/redis "down" but API works inside container
+#   → On Windows, use 127.0.0.1 instead of localhost in ~/.cloudflared/config.yml
+#   → localhost resolves to IPv6 (::1) on Windows, Docker binds to IPv4
+#   → Verify: curl http://127.0.0.1:4000/health (should show all ok)
+#   → Fix: update config.yml and restart cloudflared
 #
 # PROBLEM: Domain shows "Error 1001" on Cloudflare
 #   → Tunnel not running. Start it: cloudflared tunnel run galaxytv

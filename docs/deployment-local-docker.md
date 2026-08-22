@@ -174,15 +174,20 @@ credentials-file: ~/.cloudflared/<YOUR-TUNNEL-ID>.json
 
 ingress:
   - hostname: api.galaxytv4k.online
-    service: http://localhost:4000
+    service: http://127.0.0.1:4000
   - hostname: admin.galaxytv4k.online
-    service: http://localhost:3001
+    service: http://127.0.0.1:3001
   - hostname: www.galaxytv4k.online
-    service: http://localhost:3000
+    service: http://127.0.0.1:3000
   - hostname: galaxytv4k.online
-    service: http://localhost:3000
+    service: http://127.0.0.1:3000
   - service: http_status:404
 ```
+
+> ⚠️ **Windows Users:** Use `127.0.0.1` instead of `localhost`.
+> On Windows, `localhost` resolves to IPv6 `::1` first, but Docker
+> binds to IPv4 `127.0.0.1`. Using `localhost` causes the health check
+> to report `database: down` and API routes to return 500 errors.
 
 ---
 
@@ -452,6 +457,13 @@ docker compose logs --tail 100 backend
 - Make sure Docker services are running: `docker compose ps`
 - Test locally first: `curl http://localhost:3000`
 - Check tunnel config: `cloudflared tunnel info galaxytv`
+
+### "Health check shows database/redis down"
+- On Windows, ensure tunnel config uses `127.0.0.1` not `localhost`
+- Windows resolves `localhost` to IPv6 `::1` which doesn't reach Docker
+- Verify: `curl http://127.0.0.1:4000/health` should show all `ok`
+- If `localhost:4000` shows `down` but `127.0.0.1:4000` shows `ok`,
+  update `~/.cloudflared/config.yml` to use `127.0.0.1`
 
 ### "Images not loading"
 - Check `R2_PUBLIC_URL` in `.env` matches your actual R2 URL
