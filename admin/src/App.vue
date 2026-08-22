@@ -1,6 +1,8 @@
 <template>
-  <RouterView />
-  <Toast />
+  <div>
+    <RouterView />
+    <Toast />
+  </div>
 </template>
 
 <script setup lang="ts">

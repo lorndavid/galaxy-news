@@ -28,7 +28,7 @@
           </div>
 
           <div class="max-h-[50vh] overflow-y-auto py-2">
-            <template v-if="results.length">
+            <div v-if="results.length">
               <p v-if="filteredPages.length" class="px-4 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                 {{ prefs.t("cmd.group.pages") }}
               </p>
@@ -58,7 +58,7 @@
                 <component :is="r.icon" class="h-4 w-4 shrink-0 text-slate-400" />
                 {{ r.label }}
               </button>
-            </template>
+            </div>
             <p v-else class="px-4 py-8 text-center text-sm text-slate-400">{{ prefs.t("cmd.empty") }}</p>
           </div>
         </div>

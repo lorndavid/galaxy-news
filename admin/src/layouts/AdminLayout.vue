@@ -27,7 +27,7 @@
 
       <!-- Nav -->
       <nav class="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-4 pt-3 text-[13px]">
-        <template v-for="group in navGroups" :key="group.label">
+        <div v-for="group in navGroups" :key="group.label">
           <p
             v-if="!collapsed"
             class="px-3 pb-1.5 pt-4 text-[10px] font-semibold uppercase tracking-wider text-white/40"
@@ -56,7 +56,7 @@
               <span v-if="item.badge && !collapsed" class="rounded-full bg-red-500/90 px-1.5 py-0.5 text-[10px] font-semibold text-white">{{ item.badge }}</span>
             </RouterLink>
           </div>
-        </template>
+        </div>
       </nav>
 
       <!-- User footer -->
