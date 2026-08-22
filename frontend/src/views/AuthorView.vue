@@ -9,11 +9,11 @@
             </div>
             <div>
               <h1>{{ authorName }}</h1>
-              <p class="text-muted">អ្នកនិពន្ធ · {{ total }} អត្ថបទ</p>
+              <p class="text-muted">{{ t.author.by }} · {{ total }} {{ t.author.articles }}</p>
             </div>
           </div>
 
-          <SectionTitle title="អត្ថបទរបស់អ្នកនិពន្ធ" />
+          <SectionTitle :title="t.author.theirArticles" />
 
           <div v-if="loading" class="mt-3">
             <div v-for="i in 4" :key="i" class="mb-3"><SkeletonCard /></div>
@@ -24,7 +24,7 @@
             <NewsRowCard v-for="a in items" :key="a.id" :article="a" />
             <Pagination :page="page" :total-pages="totalPages" @change="goToPage" />
           </template>
-          <EmptyState v-else message="អ្នកនិពន្ធនេះមិនទាន់មានអត្ថបទទេ" />
+          <EmptyState v-else :message="t.author.noArticles" />
         </div>
         <div class="col-lg-4">
           <SidebarPopular :articles="popular" />
@@ -39,6 +39,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useSeo } from "@/composables/useSeo";
+import { useLocalized } from "@/composables/useLocalized";
 import { articleService } from "@/services/article.service";
 import type { Article } from "@/types";
 import SectionTitle from "@/components/common/SectionTitle.vue";
@@ -51,6 +52,7 @@ import SidebarPopular from "@/components/article/SidebarPopular.vue";
 import NavatraPoster from "@/components/article/NavatraPoster.vue";
 
 const route = useRoute();
+const { t } = useLocalized();
 const items = ref<Article[]>([]);
 const popular = ref<Article[]>([]);
 const page = ref(1);
@@ -59,13 +61,13 @@ const total = ref(0);
 const loading = ref(true);
 const error = ref("");
 
-const authorName = computed(() => items.value[0]?.author?.name ?? "អ្នកនិពន្ធ");
+const authorName = computed(() => items.value[0]?.author?.name ?? t.value.author.default);
 const authorAvatar = computed(() => items.value[0]?.author?.avatar ?? "/assets/img/news/icon-user.png");
 
 useSeo(
   computed(() => ({
     title: `${authorName.value} | Galaxy TV V4K`,
-    description: `អត្ថបទទាំងអស់របស់ ${authorName.value}`,
+    description: `${t.value.author.allArticles} ${authorName.value}`,
   }))
 );
 

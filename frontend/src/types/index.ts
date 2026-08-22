@@ -204,6 +204,8 @@ export interface HomepageSectionConfig {
 export interface HomepageSectionPublic {
   key: string;
   label: string;
+  labelEn: string | null;
+  labelZh: string | null;
   config: HomepageSectionConfig | null;
 }
 

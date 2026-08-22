@@ -113,6 +113,18 @@ export const kh = {
     tagline: "មជ្ឈមណ្ឌលព័ត៌មានឌីជីថល ព័ត៌មានក្តៅៗ កម្សាន្ត និងបច្ចេកវិទ្យាប្រចាំថ្ងៃ",
     viewMore: "ចូលមើលបន្ថែម",
   },
+  author: {
+    default: "អ្នកនិពន្ធ",
+    by: "អ្នកនិពន្ធ",
+    articles: "អត្ថបទ",
+    theirArticles: "អត្ថបទរបស់អ្នកនិពន្ធ",
+    noArticles: "អ្នកនិពន្ធនេះមិនទាន់មានអត្ថបទទេ",
+    allArticles: "អត្ថបទទាំងអស់របស់",
+  },
+  category: {
+    default: "ប្រភេទ",
+    allArticles: "អត្ថបទទាំងអស់ក្នុង",
+  },
 } as const;
 
 export type KhMessages = typeof kh;

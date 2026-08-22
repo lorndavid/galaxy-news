@@ -54,9 +54,9 @@ export async function getPublicSections() {
   const rows = await prisma.homepageSection.findMany({
     where: { enabled: true },
     orderBy: { sortOrder: "asc" },
-    select: { key: true, label: true, config: true },
+    select: { key: true, label: true, labelEn: true, labelZh: true, config: true },
   });
-  return rows.map((r) => ({ key: r.key, label: r.label, config: parseConfig(r.config) }));
+  return rows.map((r) => ({ key: r.key, label: r.label, labelEn: r.labelEn, labelZh: r.labelZh, config: parseConfig(r.config) }));
 }
 
 /** Admin: full list with enabled + order + parsed config. */

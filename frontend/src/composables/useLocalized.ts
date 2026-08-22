@@ -1,3 +1,4 @@
+import { computed } from "vue";
 import { useLocaleStore } from "@/stores/locale";
 import { formatKhmerDate, formatKhmerDateFull, formatEnglishDate, formatChineseDate } from "@/utils/format";
 
@@ -9,14 +10,21 @@ import { formatKhmerDate, formatKhmerDateFull, formatEnglishDate, formatChineseD
 export function useLocalized() {
   const locale = useLocaleStore();
 
+  // Wrap store refs as computed refs so Vue tracks them in templates.
+  // Pinia store auto-unwraps refs, so locale.t returns a plain object.
+  // Wrapping with computed() restores reactivity for template bindings like {{ t.home.featured }}.
+  const t = computed(() => locale.t);
+  const isEn = computed(() => locale.isEn);
+  const isZh = computed(() => locale.isZh);
+
   /** Pick the right content based on locale, with zh → en → primary fallback chain. */
   function pickLocalized(
     primary: string | null | undefined,
     secondary: string | null | undefined,
     tertiary: string | null | undefined,
   ): string {
-    if (locale.isZh && tertiary) return tertiary;
-    if (locale.isEn && secondary) return secondary;
+    if (isZh.value && tertiary) return tertiary;
+    if (isEn.value && secondary) return secondary;
     return primary || secondary || tertiary || "";
   }
 
@@ -38,15 +46,15 @@ export function useLocalized() {
 
   /** Locale-aware short date: "១២ សីហា ២០២៦" / "12 Aug 2026" / "2026年8月12日" */
   const formatDate = (value: string | Date | null): string => {
-    if (locale.isEn) return formatEnglishDate(value);
-    if (locale.isZh) return formatChineseDate(value);
+    if (isEn.value) return formatEnglishDate(value);
+    if (isZh.value) return formatChineseDate(value);
     return formatKhmerDate(value);
   };
 
   /** Locale-aware full date: "ថ្ងៃទី១២ ខែសីហា ឆ្នាំ២០២៦" / "12 Aug 2026" / "2026年8月12日" */
   const formatDateFull = (value: string | Date | null): string => {
-    if (locale.isEn) return formatEnglishDate(value);
-    if (locale.isZh) return formatChineseDate(value);
+    if (isEn.value) return formatEnglishDate(value);
+    if (isZh.value) return formatChineseDate(value);
     return formatKhmerDateFull(value);
   };
 
@@ -56,5 +64,5 @@ export function useLocalized() {
   const navLabel = (item: { label: string; labelEn: string | null; labelZh?: string | null }) =>
     pickLocalized(item.label, item.labelEn, item.labelZh);
 
-  return { locale, isEn: locale.isEn, isZh: locale.isZh, t: locale.t, title, excerpt, content, catName, catDescription, tagName, navLabel, formatDate, formatDateFull };
+  return { locale, isEn, isZh, t, title, excerpt, content, catName, catDescription, tagName, navLabel, formatDate, formatDateFull };
 }

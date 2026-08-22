@@ -113,6 +113,18 @@ export const zh = {
     tagline: "柬埔寨数字新闻中心，每日突发新闻、娱乐和科技资讯",
     viewMore: "查看更多",
   },
+  author: {
+    default: "作者",
+    by: "作者",
+    articles: "篇文章",
+    theirArticles: "作者的文章",
+    noArticles: "此作者暂无文章",
+    allArticles: "所有文章由",
+  },
+  category: {
+    default: "分类",
+    allArticles: "所有文章在",
+  },
 } as const;
 
 export type ZhMessages = typeof zh;

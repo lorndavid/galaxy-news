@@ -102,6 +102,7 @@ async function loadPageLayout(slug: string) {
 }
 
 const catNameOf = (c: Category | null) => (c ? locale.pick(c.name, c.nameEn, c.nameZh) : "");
+const catDescription = (c: Category | null) => (c ? locale.pick(c.description, c.descriptionEn, c.descriptionZh) : "");
 const sectionTitle = computed(() => {
   const name = catNameOf(category.value);
   return name ? `${t.home.whatsNew} — ${name}` : t.home.whatsNew;
@@ -113,8 +114,8 @@ useSeo(
   computed(() => {
     const c = category.value;
     return {
-      title: `${c?.name ?? "ប្រភេទ"} | Galaxy TV V4K`,
-      description: c?.description ?? `អត្ថបទទាំងអស់ក្នុងប្រភេទ ${c?.name ?? ""}`,
+      title: `${catNameOf(c) || t.value.category.default} | Galaxy TV V4K`,
+      description: c ? catDescription(c) || `${t.value.category.allArticles} ${catNameOf(c)}` : t.value.category.default,
       url: c ? `${window.location.origin}/category/${c.slug}` : undefined,
       type: "website",
       jsonLd: c

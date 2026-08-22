@@ -5,11 +5,11 @@
         <div class="g-live-banner-header">
           <span class="g-live-badge-sm">
             <span class="g-live-dot-sm"></span>
-            {{ locale.isZh ? '直播中' : locale.pick('កំពុងផ្សាយផ្ទាល់', 'LIVE') }}
+            {{ locale.pick('កំពុងផ្សាយផ្ទាល់', 'LIVE', '直播中') }}
           </span>
-          <h3>{{ locale.pick(stream.titleKh, stream.titleEn) }}</h3>
+          <h3>{{ locale.pick(stream.titleKh, stream.titleEn, (stream as any).titleZh) }}</h3>
           <RouterLink to="/live" class="g-live-view-all">
-            {{ locale.isZh ? '查看全部' : locale.pick('មើលទាំងអស់', 'View All') }} <i class="fas fa-arrow-right"></i>
+            {{ locale.pick('មើលទាំងអស់', 'View All', '查看全部') }} <i class="fas fa-arrow-right"></i>
           </RouterLink>
         </div>
         <div class="g-live-banner-player">

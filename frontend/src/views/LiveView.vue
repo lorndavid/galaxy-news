@@ -3,16 +3,16 @@
     <div class="container">
       <!-- Breadcrumb -->
       <nav class="g-breadcrumb" aria-label="Breadcrumb">
-        <RouterLink to="/">{{ locale.pick('ទំព័រដើម', 'Home') }}</RouterLink>
+        <RouterLink to="/">{{ locale.pick('ទំព័រដើម', 'Home', '首页') }}</RouterLink>
         <span>/</span>
-        <span>{{ locale.pick('ផ្សាយផ្ទាល់', 'Live') }}</span>
+        <span>{{ locale.pick('ផ្សាយផ្ទាល់', 'Live', '直播') }}</span>
       </nav>
 
       <!-- Active Live Stream -->
       <section v-if="activeStream" class="g-live-hero" v-reveal>
         <div class="g-live-badge">
           <span class="g-live-dot"></span>
-          {{ locale.pick('កំពុងផ្សាយផ្ទាល់', 'LIVE NOW') }}
+          {{ locale.pick('កំពុងផ្សាយផ្ទាល់', 'LIVE NOW', '正在直播') }}
         </div>
         <div class="g-live-player">
           <iframe
@@ -24,9 +24,9 @@
           ></iframe>
         </div>
         <div class="g-live-info">
-          <h1>{{ locale.pick(activeStream.titleKh, activeStream.titleEn) }}</h1>
-          <p v-if="locale.pick(activeStream.descriptionKh, activeStream.descriptionEn)" class="g-live-desc">
-            {{ locale.pick(activeStream.descriptionKh, activeStream.descriptionEn) }}
+          <h1>{{ locale.pick(activeStream.titleKh, activeStream.titleEn, activeStream.titleZh) }}</h1>
+          <p v-if="locale.pick(activeStream.descriptionKh, activeStream.descriptionEn, activeStream.descriptionZh)" class="g-live-desc">
+            {{ locale.pick(activeStream.descriptionKh, activeStream.descriptionEn, activeStream.descriptionZh) }}
           </p>
           <div class="g-live-meta">
             <span v-if="activeStream.startAt"><i class="ti-calendar"></i> {{ formatDate(activeStream.startAt) }}</span>
@@ -37,8 +37,8 @@
       <!-- No active stream -->
       <section v-else-if="!loading" class="g-live-empty" v-reveal>
         <div class="g-live-empty-icon"><i class="fas fa-broadcast-tower"></i></div>
-        <h2>{{ locale.pick('មិនមានការផ្សាយផ្ទាល់', 'No Live Stream') }}</h2>
-        <p>{{ locale.pick('សូមពិនិត្យមើលទំព័រនេះនៅពេលក្រោយ', 'Check back later for live broadcasts') }}</p>
+        <h2>{{ locale.pick('មិនមានការផ្សាយផ្ទាល់', 'No Live Stream', '暂无直播') }}</h2>
+        <p>{{ locale.pick('សូមពិនិត្យមើលទំព័រនេះនៅពេលក្រោយ', 'Check back later for live broadcasts', '请稍后再来查看直播') }}</p>
       </section>
 
       <!-- Loading -->
@@ -50,7 +50,7 @@
       <!-- Upcoming Streams -->
       <section v-if="upcomingStreams.length" class="g-live-upcoming" v-reveal>
         <div class="g-live-section-header">
-          <h2>{{ locale.pick('ការផ្សាយនឹងមកដល់', 'Upcoming Streams') }}</h2>
+          <h2>{{ locale.pick('ការផ្សាយនឹងមកដល់', 'Upcoming Streams', '即将直播') }}</h2>
         </div>
         <div class="g-live-grid">
           <div v-for="s in upcomingStreams" :key="s.id" class="g-live-card">
@@ -58,11 +58,11 @@
               <img v-if="s.thumbnailUrl" :src="s.thumbnailUrl" :alt="s.titleKh" loading="lazy" />
               <div v-else class="g-live-card-placeholder"><i class="fas fa-video"></i></div>
               <span class="g-live-card-status g-live-card-status--scheduled">
-                {{ locale.pick('នឹងផ្សាយ', 'Scheduled') }}
+                {{ locale.pick('នឹងផ្សាយ', 'Scheduled', '已安排') }}
               </span>
             </div>
             <div class="g-live-card-body">
-              <h3>{{ locale.pick(s.titleKh, s.titleEn) }}</h3>
+              <h3>{{ locale.pick(s.titleKh, s.titleEn, s.titleZh) }}</h3>
               <p v-if="s.startAt" class="g-live-card-date">
                 <i class="ti-calendar"></i> {{ formatDate(s.startAt) }}
               </p>
@@ -74,7 +74,7 @@
       <!-- Recent / Ended Streams -->
       <section v-if="recentStreams.length" class="g-live-recent" v-reveal>
         <div class="g-live-section-header">
-          <h2>{{ locale.pick('ការផ្សាយកន្លងមក', 'Past Streams') }}</h2>
+          <h2>{{ locale.pick('ការផ្សាយកន្លងមក', 'Past Streams', '历史直播') }}</h2>
         </div>
         <div class="g-live-grid">
           <div v-for="s in recentStreams" :key="s.id" class="g-live-card">
@@ -82,13 +82,13 @@
               <img v-if="s.thumbnailUrl" :src="s.thumbnailUrl" :alt="s.titleKh" loading="lazy" />
               <div v-else class="g-live-card-placeholder"><i class="fas fa-video"></i></div>
               <span class="g-live-card-status g-live-card-status--ended">
-                {{ locale.pick('បានបញ្ចប់', 'Ended') }}
+                {{ locale.pick('បានបញ្ចប់', 'Ended', '已结束') }}
               </span>
             </div>
             <div class="g-live-card-body">
-              <h3>{{ locale.pick(s.titleKh, s.titleEn) }}</h3>
-              <p v-if="s.descriptionKh || s.descriptionEn" class="g-live-card-desc">
-                {{ locale.pick(s.descriptionKh, s.descriptionEn) }}
+              <h3>{{ locale.pick(s.titleKh, s.titleEn, s.titleZh) }}</h3>
+              <p v-if="s.descriptionKh || s.descriptionEn || s.descriptionZh" class="g-live-card-desc">
+                {{ locale.pick(s.descriptionKh, s.descriptionEn, s.descriptionZh) }}
               </p>
             </div>
           </div>
@@ -112,8 +112,8 @@ const streams = ref<LiveStream[]>([]);
 
 useSeo(
   computed(() => ({
-    title: locale.pick("ផ្សាយផ្ទាល់ | Galaxy TV V4K", "Live | Galaxy TV V4K"),
-    description: locale.pick("ការផ្សាយផ្ទាល់ព័ត៌មាន", "Live news broadcasts"),
+    title: locale.pick("ផ្សាយផ្ទាល់ | Galaxy TV V4K", "Live | Galaxy TV V4K", "直播 | Galaxy TV V4K"),
+    description: locale.pick("ការផ្សាយផ្ទាល់ព័ត៌មាន", "Live news broadcasts", "直播新闻"),
     url: window.location.href,
   }))
 );

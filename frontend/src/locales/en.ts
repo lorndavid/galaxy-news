@@ -113,6 +113,18 @@ export const en = {
     tagline: "Cambodia's digital news hub with daily breaking news, entertainment and technology",
     viewMore: "View More",
   },
+  author: {
+    default: "Author",
+    by: "Author",
+    articles: "articles",
+    theirArticles: "Author's Articles",
+    noArticles: "This author has no articles yet",
+    allArticles: "All articles by",
+  },
+  category: {
+    default: "Category",
+    allArticles: "All articles in",
+  },
 } as const;
 
 export type EnMessages = typeof en;

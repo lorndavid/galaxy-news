@@ -363,6 +363,8 @@ model HomepageSection {
   id        Int      @id @default(autoincrement())
   key       String   @unique // e.g. breaking, hero, weekly, whats-new, latest, video, recent
   label     String
+  labelEn   String?  // English label (falls back to label)
+  labelZh   String?  // Chinese label (falls back to labelEn)
   enabled   Boolean  @default(true)
   sortOrder Int      @default(0)
   config    String?  // optional JSON with per-section options (validated)

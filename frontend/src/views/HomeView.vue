@@ -205,6 +205,8 @@ const categories = ref<Category[]>([]);
 const categoryArticles = ref<Record<string, Article[]>>({});
 const sectionConfigs = ref<Record<string, HomepageSectionConfig | null>>({});
 const sectionLabels = ref<Record<string, string>>({});
+const sectionLabelsEn = ref<Record<string, string>>({});
+const sectionLabelsZh = ref<Record<string, string>>({});
 
 function showSection(key: string) {
   return sectionConfigs.value[key] !== undefined;
@@ -213,7 +215,10 @@ function sectionConfig(key: string): HomepageSectionConfig | null {
   return sectionConfigs.value[key] ?? null;
 }
 function sectionTitle(key: string, fallback: string): string {
-  return sectionLabels.value[key] ?? fallback;
+  const label = sectionLabels.value[key];
+  const labelEn = sectionLabelsEn.value[key];
+  const labelZh = sectionLabelsZh.value[key];
+  return locale.pick(label, labelEn ?? label, labelZh ?? labelEn ?? label) || fallback;
 }
 
 const heroSidebar = computed(() => sectionConfig("hero")?.sidebar ?? true);
@@ -265,7 +270,7 @@ const editorialSections = computed(() => {
     const articleLimit = adminConfig?.articleLimit ?? 6;
     return {
       key: `cat-${cat.slug}`,
-      title: locale.pick(cat.name, cat.nameEn),
+      title: locale.pick(cat.name, cat.nameEn, cat.nameZh),
       articles: articles.slice(0, articleLimit),
       layoutType,
       accentColor: cat.color || CAT_COLORS[i % CAT_COLORS.length],
@@ -284,6 +289,8 @@ onMounted(async () => {
       sections.map((s) => [s.key, s.config ?? null])
     );
     sectionLabels.value = Object.fromEntries(sections.map((s) => [s.key, s.label]));
+    sectionLabelsEn.value = Object.fromEntries(sections.map((s) => [s.key, s.labelEn ?? s.label]));
+    sectionLabelsZh.value = Object.fromEntries(sections.map((s) => [s.key, s.labelZh ?? s.labelEn ?? s.label]));
   } catch {
     sectionConfigs.value = {
       hero: { sidebar: true },

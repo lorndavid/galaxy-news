@@ -35,7 +35,7 @@ export const useLocaleStore = defineStore("locale", () => {
     } catch {
       // private mode — in-memory only
     }
-    document.documentElement.lang = next === "en" ? "en" : "km";
+    document.documentElement.lang = next === "en" ? "en" : next === "zh" ? "zh" : "km";
   }
 
   /** Pick the localized value with a fallback to the primary language.
