@@ -121,6 +121,13 @@ export interface TelegramSettingsView {
   buttonKh: string;
   buttonEn: string;
   connected: boolean;
+  footerEnabled: boolean;
+  footerJoinUs: string | null;
+  footerFacebook: string | null;
+  footerTiktok: string | null;
+  footerYoutube: string | null;
+  footerInstagram: string | null;
+  footerWebsite: string | null;
 }
 
 async function settingsRow() {
@@ -142,6 +149,13 @@ export async function getTelegramSettings(): Promise<TelegramSettingsView> {
     buttonKh: s.telegramButtonKh,
     buttonEn: s.telegramButtonEn,
     connected: Boolean(s.telegramBotToken && destinations.some((d) => d.enabled)),
+    footerEnabled: s.telegramFooterEnabled,
+    footerJoinUs: s.telegramFooterJoinUs,
+    footerFacebook: s.telegramFooterFacebook,
+    footerTiktok: s.telegramFooterTiktok,
+    footerYoutube: s.telegramFooterYoutube,
+    footerInstagram: s.telegramFooterInstagram,
+    footerWebsite: s.telegramFooterWebsite,
   };
 }
 
@@ -246,6 +260,13 @@ export async function saveTelegramSettings(
     languageMode?: "both" | "kh" | "en";
     buttonKh?: string;
     buttonEn?: string;
+    footerEnabled?: boolean;
+    footerJoinUs?: string;
+    footerFacebook?: string;
+    footerTiktok?: string;
+    footerYoutube?: string;
+    footerInstagram?: string;
+    footerWebsite?: string;
   },
   userId: number,
   ip?: string | null
@@ -302,6 +323,13 @@ export async function saveTelegramSettings(
   if (input.languageMode !== undefined) data.telegramLanguageMode = input.languageMode;
   if (input.buttonKh !== undefined) data.telegramButtonKh = input.buttonKh.trim();
   if (input.buttonEn !== undefined) data.telegramButtonEn = input.buttonEn.trim();
+  if (input.footerEnabled !== undefined) data.telegramFooterEnabled = input.footerEnabled;
+  if (input.footerJoinUs !== undefined) data.telegramFooterJoinUs = input.footerJoinUs.trim();
+  if (input.footerFacebook !== undefined) data.telegramFooterFacebook = input.footerFacebook.trim();
+  if (input.footerTiktok !== undefined) data.telegramFooterTiktok = input.footerTiktok.trim();
+  if (input.footerYoutube !== undefined) data.telegramFooterYoutube = input.footerYoutube.trim();
+  if (input.footerInstagram !== undefined) data.telegramFooterInstagram = input.footerInstagram.trim();
+  if (input.footerWebsite !== undefined) data.telegramFooterWebsite = input.footerWebsite.trim();
 
   await prisma.siteSettings.update({ where: { id: current.id }, data });
   await logActivity({
@@ -536,15 +564,43 @@ function isPublicUrl(raw: string): boolean {
   }
 }
 
-function buildCaption(article: ArticleWithRelations, articleUrl?: string): string {
+function buildCaption(
+  article: ArticleWithRelations,
+  articleUrl?: string,
+  footer?: {
+    enabled: boolean;
+    joinUs: string | null;
+    facebook: string | null;
+    tiktok: string | null;
+    youtube: string | null;
+    instagram: string | null;
+    website: string | null;
+  }
+): string {
   const title = escapeHtml(article.title || "Untitled");
-  const excerpt = escapeHtml((article.excerpt ?? "").trim()).slice(0, 300);
-  let caption = excerpt ? `<b>${title}</b>\n\n${excerpt}` : `<b>${title}</b>`;
+  let caption = `<b>${title}</b>`;
+
   // When there is no inline button (local / private URL) include the
   // article link as plain text so users can still see where to visit.
   if (articleUrl) {
-    caption += `\n\n🔗 ${articleUrl}`;
+    caption += `\n\n${articleUrl}`;
   }
+
+  // Social footer — clickable keywords with hidden links.
+  // Telegram auto-links bare URLs, so we append each link after its label.
+  if (footer?.enabled) {
+    const lines: string[] = [];
+    if (footer.joinUs?.trim()) lines.push(`\n<b>${escapeHtml(footer.joinUs.trim())}</b>`);
+    if (footer.facebook?.trim()) lines.push(`\n🌐 | FACEBOOK\n${footer.facebook.trim()}`);
+    if (footer.tiktok?.trim()) lines.push(`\n🌐 | TIKTOK\n${footer.tiktok.trim()}`);
+    if (footer.youtube?.trim()) lines.push(`\n🌐 | YOUTUBE\n${footer.youtube.trim()}`);
+    if (footer.instagram?.trim()) lines.push(`\n🌐 | INSTAGRAM\n${footer.instagram.trim()}`);
+    if (footer.website?.trim()) lines.push(`\n🌐 | WEBSITE\n${footer.website.trim()}`);
+    if (lines.length) {
+      caption += "\n" + lines.join("");
+    }
+  }
+
   // Telegram caption limit is 1024 chars — trim without breaking HTML.
   return caption.length <= 1024 ? caption : `${caption.slice(0, 1000)}…`;
 }
@@ -656,6 +712,13 @@ async function publishToDestination(
     telegramButtonKh: string;
     telegramButtonEn: string;
     telegramSiteUrl: string | null;
+    telegramFooterEnabled: boolean;
+    telegramFooterJoinUs: string | null;
+    telegramFooterFacebook: string | null;
+    telegramFooterTiktok: string | null;
+    telegramFooterYoutube: string | null;
+    telegramFooterInstagram: string | null;
+    telegramFooterWebsite: string | null;
   },
   destination: TelegramDestination
 ): Promise<void> {
@@ -701,7 +764,15 @@ async function publishToDestination(
     const keyboard = buildKeyboard(article, s);
     // When the site URL is local/private Telegram rejects inline buttons,
     // so we send the photo with a plain-text URL in the caption instead.
-    const caption = buildCaption(article, keyboard ? undefined : articleUrl);
+    const caption = buildCaption(article, keyboard ? undefined : articleUrl, {
+      enabled: s.telegramFooterEnabled,
+      joinUs: s.telegramFooterJoinUs,
+      facebook: s.telegramFooterFacebook,
+      tiktok: s.telegramFooterTiktok,
+      youtube: s.telegramFooterYoutube,
+      instagram: s.telegramFooterInstagram,
+      website: s.telegramFooterWebsite,
+    });
     const result = await sendPhoto({
       token: s.telegramBotToken,
       chatId: destination.chatId,

@@ -237,6 +237,13 @@ export const adminService = {
     languageMode?: string;
     buttonKh?: string;
     buttonEn?: string;
+    footerEnabled?: boolean;
+    footerJoinUs?: string | null;
+    footerFacebook?: string | null;
+    footerTiktok?: string | null;
+    footerYoutube?: string | null;
+    footerInstagram?: string | null;
+    footerWebsite?: string | null;
   }) {
     return unwrap<{ settings: TelegramSettings; test: TelegramTestResult }>(
       api.put("/admin/settings/telegram", payload)

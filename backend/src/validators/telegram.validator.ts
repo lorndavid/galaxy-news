@@ -53,6 +53,13 @@ export const telegramSettingsUpdateSchema = z.object({
     languageMode: languageMode.optional(),
     buttonKh: buttonText.optional(),
     buttonEn: buttonText.optional(),
+    footerEnabled: z.boolean().optional(),
+    footerJoinUs: z.string().trim().max(200).optional(),
+    footerFacebook: z.string().trim().max(500).optional(),
+    footerTiktok: z.string().trim().max(500).optional(),
+    footerYoutube: z.string().trim().max(500).optional(),
+    footerInstagram: z.string().trim().max(500).optional(),
+    footerWebsite: z.string().trim().max(500).optional(),
   }),
 });
 

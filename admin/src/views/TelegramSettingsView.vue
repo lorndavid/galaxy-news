@@ -174,6 +174,61 @@
         </div>
       </div>
 
+      <!-- Social Footer -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between rounded-lg border border-slate-200 p-4">
+          <div>
+            <p class="text-sm font-semibold text-slate-700">Social Footer (បណ្តាញសង្គម)</p>
+            <p class="mt-0.5 text-xs text-slate-400">បង្ហាញតំណភ្ជាប់សង្គមនៅក្រោមចំណងជើងអត្ថបទក្នុង Telegram</p>
+          </div>
+          <label class="relative inline-flex cursor-pointer items-center">
+            <input v-model="form.footerEnabled" type="checkbox" class="peer sr-only" />
+            <div class="h-6 w-11 rounded-full bg-slate-300 transition-colors peer-checked:bg-emerald-500 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-5"></div>
+          </label>
+        </div>
+
+        <div v-if="form.footerEnabled" class="space-y-3 rounded-lg border border-slate-100 p-4">
+          <div>
+            <label class="label">JOIN US Label</label>
+            <input v-model="form.footerJoinUs" type="text" class="input" placeholder="JOIN US" />
+            <p class="mt-1 text-[11px] text-slate-400">អត្ថបទបង្ហាញនៅលើតំណ Telegram group (ឧ. JOIN US ឬ ចូលរួមជាមួយពួកយើង)</p>
+          </div>
+          <div>
+            <label class="label">🌐 Facebook</label>
+            <input v-model="form.footerFacebook" type="url" class="input font-mono text-xs" placeholder="https://www.facebook.com/YourPage" />
+          </div>
+          <div>
+            <label class="label">🌐 TikTok</label>
+            <input v-model="form.footerTiktok" type="url" class="input font-mono text-xs" placeholder="https://www.tiktok.com/@yourusername" />
+          </div>
+          <div>
+            <label class="label">🌐 YouTube</label>
+            <input v-model="form.footerYoutube" type="url" class="input font-mono text-xs" placeholder="https://www.youtube.com/@YourChannel" />
+          </div>
+          <div>
+            <label class="label">🌐 Instagram</label>
+            <input v-model="form.footerInstagram" type="url" class="input font-mono text-xs" placeholder="https://www.instagram.com/yourusername" />
+          </div>
+          <div>
+            <label class="label">🌐 Website</label>
+            <input v-model="form.footerWebsite" type="url" class="input font-mono text-xs" placeholder="https://www.yourwebsite.com" />
+          </div>
+          <div class="rounded-lg bg-slate-50 p-3">
+            <p class="text-xs font-medium text-slate-500 mb-1">Preview:</p>
+            <div class="rounded border border-slate-200 bg-white p-3 text-xs leading-relaxed text-slate-600">
+              <b>ចំណងជើងអត្ថបទ</b>
+              <br/><br/>
+              <template v-if="form.footerJoinUs"><b>{{ form.footerJoinUs }}</b><br/><br/></template>
+              <template v-if="form.footerFacebook">🌐 | FACEBOOK<br/>{{ form.footerFacebook }}<br/><br/></template>
+              <template v-if="form.footerTiktok">🌐 | TIKTOK<br/>{{ form.footerTiktok }}<br/><br/></template>
+              <template v-if="form.footerYoutube">🌐 | YOUTUBE<br/>{{ form.footerYoutube }}<br/><br/></template>
+              <template v-if="form.footerInstagram">🌐 | INSTAGRAM<br/>{{ form.footerInstagram }}<br/><br/></template>
+              <template v-if="form.footerWebsite">🌐 | WEBSITE<br/>{{ form.footerWebsite }}</template>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Actions -->
       <div class="flex flex-wrap gap-2 border-t border-slate-100 pt-4">
         <button type="button" class="btn-primary" :disabled="busy" @click="saveAndTest">
@@ -264,6 +319,13 @@ const form = reactive({
   buttonKh: "🇰🇭 អានជាភាសាខ្មែរ",
   buttonEn: "🇬🇧 Read in English",
   connected: false,
+  footerEnabled: true,
+  footerJoinUs: "",
+  footerFacebook: "",
+  footerTiktok: "",
+  footerYoutube: "",
+  footerInstagram: "",
+  footerWebsite: "",
 } as TelegramSettings & { botToken: string });
 
 function typeLabel(type: string): string {
@@ -322,6 +384,13 @@ async function load() {
     form.buttonKh = settings.buttonKh;
     form.buttonEn = settings.buttonEn;
     form.connected = settings.connected;
+    form.footerEnabled = settings.footerEnabled ?? true;
+    form.footerJoinUs = settings.footerJoinUs ?? "";
+    form.footerFacebook = settings.footerFacebook ?? "";
+    form.footerTiktok = settings.footerTiktok ?? "";
+    form.footerYoutube = settings.footerYoutube ?? "";
+    form.footerInstagram = settings.footerInstagram ?? "";
+    form.footerWebsite = settings.footerWebsite ?? "";
     Object.assign(stats, s);
   } catch (e) {
     toast.error(e instanceof Error ? e.message : "ផ្ទុកការកំណត់ Telegram បរាជ័យ");
@@ -350,6 +419,13 @@ async function saveAndTest() {
       languageMode: form.languageMode,
       buttonKh: form.buttonKh,
       buttonEn: form.buttonEn,
+      footerEnabled: form.footerEnabled,
+      footerJoinUs: form.footerJoinUs,
+      footerFacebook: form.footerFacebook,
+      footerTiktok: form.footerTiktok,
+      footerYoutube: form.footerYoutube,
+      footerInstagram: form.footerInstagram,
+      footerWebsite: form.footerWebsite,
     });
     result.value = res.test;
     form.botTokenMasked = res.settings.botTokenMasked;

@@ -288,6 +288,13 @@ export interface TelegramSettings {
   buttonKh: string;
   buttonEn: string;
   connected: boolean;
+  footerEnabled: boolean;
+  footerJoinUs: string | null;
+  footerFacebook: string | null;
+  footerTiktok: string | null;
+  footerYoutube: string | null;
+  footerInstagram: string | null;
+  footerWebsite: string | null;
 }
 
 export interface TelegramTestResult {

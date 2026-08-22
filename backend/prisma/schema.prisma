@@ -333,6 +333,15 @@ model SiteSettings {
   telegramButtonKh     String   @default("🇰🇭 អានជាភាសាខ្មែរ")
   telegramButtonEn     String   @default("🇬🇧 Read in English")
 
+  // --- Telegram footer social links (shown below article title) ---
+  telegramFooterEnabled   Boolean @default(true)
+  telegramFooterJoinUs    String?  // e.g. "JOIN US" label + Telegram group link
+  telegramFooterFacebook  String?  // Facebook page URL(s), comma-separated
+  telegramFooterTiktok    String?  // TikTok URL
+  telegramFooterYoutube   String?  // YouTube channel URL
+  telegramFooterInstagram String?  // Instagram URL
+  telegramFooterWebsite   String?  // Website URL
+
   updatedAt DateTime @updatedAt
 }
 
