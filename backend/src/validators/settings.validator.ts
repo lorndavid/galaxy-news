@@ -6,18 +6,17 @@ const hexColor = z
 
 // Controlled font list — never allow arbitrary values into CSS.
 export const FONT_CHOICES = [
+  // ── Khmer ──
   "Noto Sans Khmer",
   "Noto Serif Khmer",
-  "Noto Sans SC",
-  "Noto Serif SC",
   "Kantumruy Pro",
   "Battambang",
   "Bayon",
   "Koulen",
   "Dangrek",
   "Suwannaphum",
+  // ── English / Latin ──
   "Google Sans",
-  "Huninn",
   "Inter",
   "Roboto",
   "Lato",
@@ -28,8 +27,19 @@ export const FONT_CHOICES = [
   "DM Sans",
   "Plus Jakarta Sans",
   "Charis SIL",
+  // ── Chinese (Simplified + Traditional) ──
+  "Noto Sans SC",
+  "Noto Serif SC",
+  "Noto Sans TC",
+  "Noto Serif TC",
+  "Huninn",
+  "LXGW WenKai",
+  "Ma Shan Zheng",
+  "Long Cang",
+  "Zhi Mang Xing",
   "ZCOOL KuaiLe",
   "ZCOOL QingKe HuangYou",
+  "ZCOOL XiaoWei",
 ] as const;
 
 // Strip any HTML before storing — settings text is rendered in <title>/

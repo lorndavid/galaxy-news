@@ -349,6 +349,7 @@ const tabs = [
 ] as const;
 
 const fontChoices = [
+  // Khmer
   "Noto Sans Khmer",
   "Noto Serif Khmer",
   "Kantumruy Pro",
@@ -357,13 +358,9 @@ const fontChoices = [
   "Koulen",
   "Dangrek",
   "Suwannaphum",
-  "Inter",
+  // English / Latin
   "Google Sans",
-  "Huninn",
-  "Noto Sans SC",
-  "Noto Serif SC",
-  "ZCOOL KuaiLe",
-  "ZCOOL QingKe HuangYou",
+  "Inter",
   "Roboto",
   "Lato",
   "Merriweather",
@@ -373,6 +370,19 @@ const fontChoices = [
   "DM Sans",
   "Plus Jakarta Sans",
   "Charis SIL",
+  // Chinese (Simplified + Traditional)
+  "Noto Sans SC",
+  "Noto Serif SC",
+  "Noto Sans TC",
+  "Noto Serif TC",
+  "Huninn",
+  "LXGW WenKai",
+  "Ma Shan Zheng",
+  "Long Cang",
+  "Zhi Mang Xing",
+  "ZCOOL KuaiLe",
+  "ZCOOL QingKe HuangYou",
+  "ZCOOL XiaoWei",
 ];
 
 const langFontCards = [
@@ -413,7 +423,7 @@ const langFontCards = [
     sizeLabel: "大小 (Size)",
     weightKey: "fontWeightZh",
     weightLabel: "粗细 (Weight)",
-    sampleText: "你好世界 — Hello World",
+    sampleText: "柬埔寨数字新闻 — 每日热点",
   },
 ];
 
