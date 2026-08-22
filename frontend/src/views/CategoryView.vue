@@ -105,7 +105,7 @@ const catNameOf = (c: Category | null) => (c ? locale.pick(c.name, c.nameEn, c.n
 const catDescription = (c: Category | null) => (c ? locale.pick(c.description, c.descriptionEn, c.descriptionZh) : "");
 const sectionTitle = computed(() => {
   const name = catNameOf(category.value);
-  return name ? `${t.home.whatsNew} — ${name}` : t.home.whatsNew;
+  return name ? `${t.value.home.whatsNew} — ${name}` : t.value.home.whatsNew;
 });
 
 const featured = computed(() => items.value[0] ?? null);
@@ -150,7 +150,7 @@ async function load() {
     popular.value = await articleService.popular(5).catch(() => []);
     await loadPageLayout(slug);
   } catch (e) {
-    error.value = e instanceof Error ? e.message : t.error.message;
+    error.value = e instanceof Error ? e.message : t.value.error.message;
   } finally {
     loading.value = false;
   }

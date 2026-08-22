@@ -65,7 +65,7 @@ import NavatraPoster from "@/components/article/NavatraPoster.vue";
 import { useLocalized } from "@/composables/useLocalized";
 
 const { t } = useLocalized();
-useSeo({ title: `${t.search.resultsFor} | Galaxy TV V4K` });
+useSeo({ title: computed(() => `${t.value.search.resultsFor} | Galaxy TV V4K`) });
 
 const route = useRoute();
 const router = useRouter();
@@ -112,7 +112,7 @@ async function runSearch() {
     totalPages.value = data.totalPages;
     searched.value = true;
   } catch (e) {
-    error.value = e instanceof Error ? e.message : t.error.message;
+    error.value = e instanceof Error ? e.message : t.value.error.message;
   } finally {
     loading.value = false;
   }

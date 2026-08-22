@@ -7,6 +7,6 @@
 
 <script setup lang="ts">
 withDefaults(defineProps<{ message?: string }>(), {
-  message: "មិនមានទិន្នន័យសម្រាប់បង្ហាញទេ",
+  message: "", // uses locale now
 });
 </script>

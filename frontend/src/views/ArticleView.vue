@@ -317,11 +317,11 @@ useSeo(
               "@context": "https://schema.org",
               "@type": "BreadcrumbList",
               itemListElement: [
-                { "@type": "ListItem", position: 1, name: t.nav.home, item: base },
+                { "@type": "ListItem", position: 1, name: t.value.nav.home, item: base },
                 {
                   "@type": "ListItem",
                   position: 2,
-                  name: catName(a) || t.nav.news,
+                  name: catName(a) || t.value.nav.news,
                   item: `${base}/category/${a.category?.slug ?? "news"}`,
                 },
                 { "@type": "ListItem", position: 3, name: title(a) },
@@ -348,7 +348,7 @@ async function load() {
     popular.value = pop;
 
   } catch (e) {
-    error.value = e instanceof Error ? e.message : t.article.loadFailed;
+    error.value = e instanceof Error ? e.message : t.value.article.loadFailed;
   } finally {
     loading.value = false;
   }

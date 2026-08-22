@@ -33,6 +33,7 @@ export function initPrefetch(routes: RouteRecordRaw[]) {
   document.addEventListener(
     "pointerenter",
     (e) => {
+      if (!(e.target instanceof Element)) return;
       const target = (e.target as HTMLElement).closest("a[href]");
       if (!target) return;
       const href = target.getAttribute("href") ?? "";

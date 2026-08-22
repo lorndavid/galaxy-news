@@ -78,7 +78,7 @@ const hasMore = computed(() => page.value < totalPages.value);
 
 const { t } = useLocalized();
 const isLatest = computed(() => route.name === "latest");
-const title = computed(() => (isLatest.value ? t.home.latest : t.nav.news));
+const title = computed(() => (isLatest.value ? t.value.home.latest : t.value.nav.news));
 
 /** Pull the layout/grid config the admin set for this page's nav item. */
 async function loadPageLayout() {
@@ -113,7 +113,7 @@ async function load() {
     page.value = data.page;
     totalPages.value = data.totalPages;
   } catch (e) {
-    error.value = e instanceof Error ? e.message : t.error.message;
+    error.value = e instanceof Error ? e.message : t.value.error.message;
   } finally {
     loading.value = false;
   }
