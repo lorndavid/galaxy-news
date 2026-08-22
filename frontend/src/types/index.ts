@@ -259,6 +259,26 @@ export interface TickerData {
   items: Article[];
 }
 
+export interface LiveStream {
+  id: number;
+  titleKh: string;
+  titleEn: string | null;
+  descriptionKh: string | null;
+  descriptionEn: string | null;
+  facebookUrl: string;
+  thumbnailUrl: string | null;
+  status: string;
+  visibility: string;
+  isHomepage: boolean;
+  isFeatured: boolean;
+  displayOrder: number;
+  startAt: string | null;
+  endAt: string | null;
+  effectiveStatus?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ArticleListParams {
   page?: number;
   pageSize?: number;

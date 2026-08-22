@@ -137,8 +137,8 @@ POSTGRES_PASSWORD=your-strong-password-here
 
 # ── JWT ──
 JWT_SECRET=your-random-64-char-string
-JWT_ACCESS_TTL=15m
-JWT_REFRESH_TTL_DAYS=7
+JWT_ACCESS_TTL=24h
+JWT_REFRESH_TTL_DAYS=1
 
 # ── Cloudflare R2 (image storage) ──
 R2_ACCOUNT_ID=your-cloudflare-account-id

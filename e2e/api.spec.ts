@@ -31,7 +31,7 @@ test.describe("backend API", () => {
     expect(body.data.status).toBe("ok");
     expect(body.data.dependencies.database).toBe("ok");
     expect(body.data.dependencies.redis).toBe("ok");
-    expect(body.data.dependencies.minio).toBe("ok");
+    expect(body.data.dependencies.r2).toBe("ok");
   });
 
   // ─── Authentication ────────────────────────────────────────────

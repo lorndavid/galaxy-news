@@ -21,8 +21,8 @@ export const env = {
   databaseUrl: required("DATABASE_URL", "file:./dev.db"),
   jwt: {
     secret: required("JWT_SECRET", "dev-only-insecure-secret-change-me"),
-    accessTtl: process.env.JWT_ACCESS_TTL ?? "15m",
-    refreshTtlDays: Number(process.env.JWT_REFRESH_TTL_DAYS ?? 7),
+    accessTtl: process.env.JWT_ACCESS_TTL ?? "24h",
+    refreshTtlDays: Number(process.env.JWT_REFRESH_TTL_DAYS ?? 1),
   },
   redis: {
     url: process.env.REDIS_URL ?? "redis://localhost:6379",

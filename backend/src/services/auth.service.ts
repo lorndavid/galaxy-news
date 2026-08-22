@@ -14,6 +14,7 @@ import { logActivity } from "./activity.service";
 export interface LoginInput {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }
 
 export async function login(input: LoginInput, ip?: string | null) {
@@ -29,12 +30,13 @@ export async function login(input: LoginInput, ip?: string | null) {
     throw ApiError.forbidden("This account has been deactivated");
   }
 
+  const ttlDays = input.rememberMe ? 7 : env.jwt.refreshTtlDays;
   const refreshToken = generateRefreshToken();
   await prisma.refreshToken.create({
     data: {
       token: hashRefreshToken(refreshToken),
       userId: user.id,
-      expiresAt: refreshTokenExpiry(),
+      expiresAt: new Date(Date.now() + ttlDays * 24 * 60 * 60 * 1000),
     },
   });
 

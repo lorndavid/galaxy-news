@@ -14,11 +14,11 @@ export const useAuthStore = defineStore("auth", () => {
     () => user.value?.role === "ADMIN" || user.value?.role === "SUPER_ADMIN" || user.value?.role === "EDITOR"
   );
 
-  async function login(email: string, password: string) {
+  async function login(email: string, password: string, rememberMe = false) {
     loading.value = true;
     try {
       const data = await unwrap<{ user: User; accessToken: string }>(
-        api.post("/auth/login", { email, password })
+        api.post("/auth/login", { email, password, rememberMe })
       );
       user.value = data.user;
       token.value = data.accessToken;

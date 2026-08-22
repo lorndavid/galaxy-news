@@ -327,6 +327,7 @@ const navGroups = computed(() => {
       items: [
         { to: "/homepage-builder", label: prefs.t("nav.homepage"), icon: LayoutTemplate, adminOnly: true },
         { to: "/live-news", label: prefs.t("nav.liveNews"), icon: Radio, adminOnly: true },
+        { to: "/live-streams", label: prefs.t("nav.liveStreams"), icon: Radio, adminOnly: true },
         { to: "/navigation-builder", label: prefs.t("nav.navigation"), icon: MenuSquare, adminOnly: true },
         { to: "/ads", label: prefs.t("nav.ads"), icon: Megaphone },
       ],

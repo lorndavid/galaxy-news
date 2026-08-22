@@ -17,6 +17,8 @@ import { categoryCreateSchema, categoryReorderSchema, categoryUpdateSchema, comm
 import { userCreateSchema, userListQuery, userUpdateSchema } from "../validators/user.validator";
 import { settingsUpdateSchema } from "../validators/settings.validator";
 import { telegramSendSchema, telegramSettingsUpdateSchema, telegramTestSchema } from "../validators/telegram.validator";
+import * as liveStreamController from "../controllers/admin.livestream.controller";
+import { liveStreamCreateSchema, liveStreamUpdateSchema, liveStreamStatusSchema, liveStreamHomepageSchema } from "../validators/livestream.validator";
 
 export const adminRouter = Router();
 
@@ -122,6 +124,15 @@ adminRouter.get("/ads", contentController.listAds);
 adminRouter.post("/ads", requireEditor, validate(adCreateSchema), contentController.createAd);
 adminRouter.patch("/ads/:id", requireEditor, validate(idParamsSchema), validate(adUpdateSchema), contentController.updateAd);
 adminRouter.delete("/ads/:id", requireEditor, validate(idParamsSchema), contentController.deleteAd);
+
+// ---- Live Streams ----
+adminRouter.get("/live-streams", liveStreamController.list);
+adminRouter.get("/live-streams/:id", validate(idParamsSchema), liveStreamController.get);
+adminRouter.post("/live-streams", validate(liveStreamCreateSchema), liveStreamController.create);
+adminRouter.patch("/live-streams/:id", validate(idParamsSchema), validate(liveStreamUpdateSchema), liveStreamController.update);
+adminRouter.delete("/live-streams/:id", validate(idParamsSchema), liveStreamController.remove);
+adminRouter.patch("/live-streams/:id/status", validate(idParamsSchema), validate(liveStreamStatusSchema), liveStreamController.updateStatus);
+adminRouter.patch("/live-streams/:id/homepage", validate(idParamsSchema), validate(liveStreamHomepageSchema), liveStreamController.updateHomepage);
 
 // ---- Telegram integration ----
 adminRouter.get("/settings/telegram", requireAdmin, telegramController.getSettings);

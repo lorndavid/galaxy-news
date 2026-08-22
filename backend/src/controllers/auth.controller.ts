@@ -29,9 +29,13 @@ function clearRefreshCookie(res: Response) {
 }
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
-  const { body } = req.validated as { body: { email: string; password: string } };
+  const { body } = req.validated as { body: { email: string; password: string; rememberMe?: boolean } };
   const result = await authService.login(body, req.ip);
-  setRefreshCookie(res, result.refreshToken);
+  const ttlDays = body.rememberMe ? 7 : env.jwt.refreshTtlDays;
+  res.cookie(REFRESH_COOKIE, result.refreshToken, {
+    ...refreshCookieOptions(),
+    maxAge: ttlDays * 24 * 60 * 60 * 1000,
+  });
   ok(res, { user: result.user, accessToken: result.accessToken }, "Logged in successfully");
 });
 

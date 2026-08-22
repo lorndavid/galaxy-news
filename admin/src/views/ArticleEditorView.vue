@@ -4,12 +4,27 @@
     <form class="card space-y-4 p-5 lg:col-span-2" @submit.prevent="save('PUBLISHED')">
       <div>
         <label class="label">ចំណងជើង *</label>
-        <input v-model="form.title" type="text" class="input text-base" placeholder="ចំណងជើងអត្ថបទ" required />
+        <textarea
+          :ref="el => autoResize(el as HTMLTextAreaElement)"
+          :value="form.title"
+          @input="e => { form.title = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
+          rows="1"
+          class="input text-base resize-none overflow-hidden"
+          placeholder="ចំណងជើងអត្ថបទ"
+          required
+        ></textarea>
       </div>
 
       <div>
         <label class="label">សេចក្តីសង្ខេប</label>
-        <textarea v-model="form.excerpt" rows="3" class="input" placeholder="សេចក្តីសង្ខេបខ្លីនៃអត្ថបទ (លេចឡើងក្នុងបញ្ជី និង SEO)"></textarea>
+        <textarea
+          :ref="el => autoResize(el as HTMLTextAreaElement)"
+          :value="form.excerpt"
+          @input="e => { form.excerpt = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
+          rows="3"
+          class="input resize-none overflow-hidden"
+          placeholder="សេចក្តីសង្ខេបខ្លីនៃអត្ថបទ (លេចឡើងក្នុងបញ្ជី និង SEO)"
+        ></textarea>
       </div>
 
       <div>
@@ -27,11 +42,25 @@
         <div class="space-y-4">
           <div>
             <label class="label">ចំណងជើង (English)</label>
-            <input v-model="form.titleEn" type="text" class="input" placeholder="Article title in English" />
+            <textarea
+              :ref="el => autoResize(el as HTMLTextAreaElement)"
+              :value="form.titleEn"
+              @input="e => { form.titleEn = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
+              rows="1"
+              class="input resize-none overflow-hidden"
+              placeholder="Article title in English"
+            ></textarea>
           </div>
           <div>
             <label class="label">សេចក្តីសង្ខេប (English)</label>
-            <textarea v-model="form.excerptEn" rows="2" class="input" placeholder="Short excerpt in English"></textarea>
+            <textarea
+              :ref="el => autoResize(el as HTMLTextAreaElement)"
+              :value="form.excerptEn"
+              @input="e => { form.excerptEn = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
+              rows="3"
+              class="input resize-none overflow-hidden"
+              placeholder="Short excerpt in English"
+            ></textarea>
           </div>
           <div>
             <label class="label">ខ្លឹមសារ (English)</label>
@@ -50,11 +79,25 @@
         <div class="space-y-4">
           <div>
             <label class="label">标题 (中文)</label>
-            <input v-model="form.titleZh" type="text" class="input" placeholder="Article title in Chinese" />
+            <textarea
+              :ref="el => autoResize(el as HTMLTextAreaElement)"
+              :value="form.titleZh"
+              @input="e => { form.titleZh = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
+              rows="1"
+              class="input resize-none overflow-hidden"
+              placeholder="Article title in Chinese"
+            ></textarea>
           </div>
           <div>
             <label class="label">摘要 (中文)</label>
-            <textarea v-model="form.excerptZh" rows="2" class="input" placeholder="Short excerpt in Chinese"></textarea>
+            <textarea
+              :ref="el => autoResize(el as HTMLTextAreaElement)"
+              :value="form.excerptZh"
+              @input="e => { form.excerptZh = (e.target as HTMLTextAreaElement).value; autoResize(e.target as HTMLTextAreaElement); }"
+              rows="3"
+              class="input resize-none overflow-hidden"
+              placeholder="Short excerpt in Chinese"
+            ></textarea>
           </div>
           <div>
             <label class="label">内容 (中文)</label>
@@ -434,6 +477,13 @@ const form = reactive({
 
 function markDirty() { dirty.value = true; }
 
+/** Auto-resize textarea to fit content */
+function autoResize(el: HTMLTextAreaElement | null) {
+  if (!el) return;
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + "px";
+}
+
 async function save(status: string) {
   saving.value = true;
   try {
@@ -678,6 +728,10 @@ onMounted(async () => {
     form.publishedAt = a.publishedAt ? new Date(a.publishedAt).toISOString().slice(0, 16) : "";
     await refreshPublication();
     await loadGallery();
+    // Auto-resize all textareas to fit loaded content
+    requestAnimationFrame(() => {
+      document.querySelectorAll<HTMLTextAreaElement>("textarea").forEach(autoResize);
+    });
   }
 });
 

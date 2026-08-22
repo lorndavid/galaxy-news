@@ -167,10 +167,10 @@ test.describe("admin dashboard", () => {
     await page.goto("/articles");
     await expect(page.locator("table")).toBeVisible({ timeout: 15000 });
 
-    // Find the row and click delete
+    // Find the row and click delete (the button uses an icon, not text)
     const row = page.locator("tr").filter({ hasText: /Delete Test/ }).first();
     if (await row.count() > 0) {
-      await row.getByRole("button", { name: "លុប" }).click();
+      await row.locator("button.text-red-600, button:has(.lucide-trash-2)").first().click({ force: true });
       // Confirmation dialog should appear
       const dialog = page.locator(".fixed.inset-0.z-50");
       await expect(dialog).toBeVisible({ timeout: 5000 });

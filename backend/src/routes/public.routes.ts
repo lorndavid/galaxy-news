@@ -4,6 +4,7 @@ import * as publicController from "../controllers/public.controller";
 import * as builderService from "../services/homepage.service";
 import * as navigationService from "../services/navigation.service";
 import * as tickerService from "../services/ticker.service";
+import * as liveStreamService from "../services/livestream.service";
 import { ttlCache } from "../middleware/cache";
 import { ok } from "../utils/respond";
 import { asyncHandler } from "../utils/asyncHandler";
@@ -25,6 +26,10 @@ publicRouter.get("/homepage/sections", publicCache, asyncHandler(async (_req, re
 publicRouter.get("/navigation", publicCache, asyncHandler(async (_req, res) => ok(res, await navigationService.getPublicNav())));
 // Live news ticker (settings + real published articles, cached)
 publicRouter.get("/ticker", publicCache, asyncHandler(async (_req, res) => ok(res, await tickerService.getTickerData())));
+// Facebook Live Streams
+publicRouter.get("/live-streams", publicCache, asyncHandler(async (_req, res) => ok(res, await liveStreamService.getPublicStreams())));
+publicRouter.get("/live-streams/active", publicCache, asyncHandler(async (_req, res) => ok(res, await liveStreamService.getActiveStream())));
+publicRouter.get("/live-streams/homepage", publicCache, asyncHandler(async (_req, res) => ok(res, await liveStreamService.getHomepageStream())));
 publicRouter.get("/ads/:position", publicCache, publicController.getAds);
 publicRouter.get("/sitemap.xml", publicCache, publicController.getSitemap);
 publicRouter.get("/robots.txt", publicCache, publicController.getRobots);

@@ -2,6 +2,7 @@ import { api, unwrap } from "./api";
 import type {
   ActivityLog,
   Advertisement,
+  LiveStream,
   Article,
   ArticleImage,
   Category,
@@ -199,6 +200,29 @@ export const adminService = {
   },
   deleteAd(id: number) {
     return api.delete(`/admin/ads/${id}`);
+  },
+
+  // Live Streams
+  liveStreams(params: Record<string, unknown> = {}) {
+    return unwrap<Paginated<LiveStream>>(api.get("/admin/live-streams", { params }));
+  },
+  liveStream(id: number) {
+    return unwrap<LiveStream>(api.get(`/admin/live-streams/${id}`));
+  },
+  createLiveStream(payload: Record<string, unknown>) {
+    return unwrap<LiveStream>(api.post("/admin/live-streams", payload));
+  },
+  updateLiveStream(id: number, payload: Record<string, unknown>) {
+    return unwrap<LiveStream>(api.patch(`/admin/live-streams/${id}`, payload));
+  },
+  deleteLiveStream(id: number) {
+    return api.delete(`/admin/live-streams/${id}`);
+  },
+  updateLiveStreamStatus(id: number, status: string) {
+    return unwrap<LiveStream>(api.patch(`/admin/live-streams/${id}/status`, { status }));
+  },
+  updateLiveStreamHomepage(id: number, isHomepage: boolean) {
+    return unwrap<LiveStream>(api.patch(`/admin/live-streams/${id}/homepage`, { isHomepage }));
   },
 
   // Telegram integration

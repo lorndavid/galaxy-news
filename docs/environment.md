@@ -8,8 +8,8 @@
 | PORT | No | 4000 | API server port |
 | DATABASE_URL | Yes | file:./dev.db | SQLite database path |
 | JWT_SECRET | Yes | — | Secret for JWT signing |
-| JWT_ACCESS_TTL | No | 15m | Access token lifetime |
-| JWT_REFRESH_TTL_DAYS | No | 7 | Refresh token lifetime (days) |
+| JWT_ACCESS_TTL | No | 24h | Access token lifetime |
+| JWT_REFRESH_TTL_DAYS | No | 1 | Refresh token lifetime (days) |
 | REDIS_URL | No | redis://localhost:6379 | Redis connection |
 | MINIO_ENDPOINT | No | localhost | MinIO server |
 | MINIO_PORT | No | 9000 | MinIO port |

@@ -56,11 +56,11 @@ test.describe("security", () => {
     }
   });
 
-  test("MinIO credentials never in public settings", async ({ request }) => {
+  test("R2 credentials never in public settings", async ({ request }) => {
     const res = await api(request, "/settings", null);
     const data = res.data as Record<string, unknown>;
-    expect(data.minioSecretKey).toBeUndefined();
-    expect(data.minioAccessKey).toBeUndefined();
+    expect(data.r2SecretAccessKey).toBeUndefined();
+    expect(data.r2AccessKeyId).toBeUndefined();
   });
 
   test("search handles malicious input safely", async ({ request }) => {

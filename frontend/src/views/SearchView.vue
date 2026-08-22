@@ -158,6 +158,14 @@ onMounted(async () => {
   padding: 16px 0 0;
   font-size: 13px;
   color: var(--color-muted);
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.g-breadcrumb::-webkit-scrollbar {
+  display: none;
 }
 .g-breadcrumb a {
   color: var(--color-muted);

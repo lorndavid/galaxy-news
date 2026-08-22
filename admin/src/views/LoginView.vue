@@ -43,6 +43,15 @@
             autocomplete="current-password"
           />
         </div>
+        <div class="mb-5 flex items-center gap-2">
+          <input
+            id="rememberMe"
+            v-model="rememberMe"
+            type="checkbox"
+            class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+          />
+          <label for="rememberMe" class="text-sm text-slate-600">ចងចាំការចូល (៧ ថ្ងៃ)</label>
+        </div>
 
         <!-- Error -->
         <Transition name="slide-fade">
@@ -78,12 +87,13 @@ const route = useRoute();
 
 const email = ref("");
 const password = ref("");
+const rememberMe = ref(false);
 const error = ref("");
 
 async function submit() {
   error.value = "";
   try {
-    await auth.login(email.value, password.value);
+    await auth.login(email.value, password.value, rememberMe.value);
     router.push(String(route.query.redirect ?? "/"));
   } catch (e) {
     error.value = e instanceof Error ? e.message : "ចូលប្រព័ន្ធបរាជ័យ";

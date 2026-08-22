@@ -122,7 +122,7 @@ test.describe.serial("critical admin publish flow", () => {
     await expect(page.locator("table")).toBeVisible();
     const row = page.locator("tr", { hasText: UPDATED_TITLE }).first();
     await expect(row).toBeVisible();
-    await row.getByRole("button", { name: "លុប" }).click();
+    await row.locator("button.text-red-600, button:has(.lucide-trash-2)").first().click({ force: true });
 
     const dialog = page.locator(".fixed.inset-0.z-50", { hasText: "បញ្ជាក់ការលុប" });
     await expect(dialog).toBeVisible();

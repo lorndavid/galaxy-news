@@ -57,6 +57,9 @@ const FEED = {
   ads: "pub/api/v1/ads",
   comments: "pub/api/v1/comments",
   ticker: "pub/api/v1/ticker",
+  liveStreams: "pub/api/v1/live-streams",
+  liveStreamsActive: "pub/api/v1/live-streams/active",
+  liveStreamsHomepage: "pub/api/v1/live-streams/homepage",
   sitemap: "pub/api/v1/sitemap.xml",
   articleDetail: (slug: string) => `pub/api/v1/articles/${slug}`,
   articleRelated: (slug: string) => `pub/api/v1/articles/${slug}/related`,
@@ -167,6 +170,10 @@ export async function invalidateAdminMutation(req: Request): Promise<void> {
       prefixes.add(FEED.homepage);
     } else if (path.startsWith("/navigation")) {
       prefixes.add(FEED.navigation);
+    } else if (path.startsWith("/live-streams")) {
+      prefixes.add(FEED.liveStreams);
+      prefixes.add(FEED.liveStreamsActive);
+      prefixes.add(FEED.liveStreamsHomepage);
     } else if (path.startsWith("/ads")) {
       prefixes.add(FEED.ads);
     } else if (path.startsWith("/comments")) {

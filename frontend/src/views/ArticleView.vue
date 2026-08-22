@@ -382,7 +382,14 @@ onUnmounted(() => {
   padding: 16px 0 0;
   font-size: 13px;
   color: var(--color-muted);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.g-breadcrumb::-webkit-scrollbar {
+  display: none;
 }
 .g-breadcrumb a {
   color: var(--color-muted);
@@ -395,10 +402,7 @@ onUnmounted(() => {
 .g-breadcrumb span:last-child {
   color: var(--color-text);
   font-weight: 600;
-  max-width: 300px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex-shrink: 0;
 }
 /* ─── Floating share rail (left side) ─── */
 .g-share-rail {
@@ -739,15 +743,9 @@ onUnmounted(() => {
   .g-breadcrumb {
     font-size: 12px;
     padding: 12px 0 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
   }
   .g-breadcrumb span:last-child {
-    max-width: 160px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    max-width: none;
   }
   .news-content-read {
     max-width: 100%;
@@ -807,9 +805,6 @@ onUnmounted(() => {
   }
   .news-lead {
     font-size: 15px !important;
-  }
-  .g-breadcrumb span:last-child {
-    max-width: 120px;
   }
 }
 </style>

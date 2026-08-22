@@ -69,6 +69,12 @@ export const router = createRouter({
       meta: { title: "ព័ត៌មានថ្មីៗ | Galaxy TV V4K" },
     },
     {
+      path: "/live",
+      name: "live",
+      component: () => import("@/views/LiveView.vue"),
+      meta: { title: "ផ្សាយផ្ទាល់ | Galaxy TV V4K" },
+    },
+    {
       path: "/about",
       name: "about",
       component: () => import("@/views/AboutView.vue"),

@@ -32,8 +32,8 @@ services:
       PORT: 4000
       DATABASE_URL: postgresql://${POSTGRES_USER:-galaxy_admin}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-galaxy_tv}
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
-      JWT_ACCESS_TTL: ${JWT_ACCESS_TTL:-15m}
-      JWT_REFRESH_TTL_DAYS: ${JWT_REFRESH_TTL_DAYS:-7}
+      JWT_ACCESS_TTL: ${JWT_ACCESS_TTL:-24h}
+      JWT_REFRESH_TTL_DAYS: ${JWT_REFRESH_TTL_DAYS:-1}
       REDIS_URL: redis://redis:6379
       R2_ACCOUNT_ID: ${R2_ACCOUNT_ID}
       R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}

@@ -138,7 +138,7 @@
 
 /* Tiptap editor styles */
 .ProseMirror {
-  @apply min-h-[320px] px-4 py-3 text-[15px] leading-relaxed outline-none;
+  @apply min-h-[380px] px-4 py-3 text-[15px] leading-relaxed outline-none;
 }
 .dark .ProseMirror {
   @apply text-slate-200;

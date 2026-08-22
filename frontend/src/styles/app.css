@@ -1295,12 +1295,40 @@ html {
     aspect-ratio: 16 / 9;
   }
 
-  /* Breadcrumb — prevent overflow */
+  /* Breadcrumb — single line, horizontally scrollable with fade hint */
   .g-breadcrumb {
-    overflow: hidden;
-    text-overflow: ellipsis;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overflow-y: hidden;
     white-space: nowrap;
     max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 2px;
+    position: relative;
+  }
+  .g-breadcrumb::-webkit-scrollbar {
+    display: none;
+  }
+  .g-breadcrumb span:last-child {
+    max-width: none !important;
+    flex-shrink: 0;
+  }
+  /* Fade gradient on right edge to hint scroll */
+  .g-breadcrumb::after {
+    content: "";
+    position: sticky;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    flex-shrink: 0;
+    width: 36px;
+    min-width: 36px;
+    height: 100%;
+    background: linear-gradient(to right, transparent, var(--color-bg, #f8f7f4));
+    pointer-events: none;
+    z-index: 1;
   }
 }
 

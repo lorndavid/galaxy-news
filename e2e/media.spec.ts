@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { api, getAdminToken, loginAsAdmin } from "./helpers";
 
 /**
- * Media / MinIO E2E tests:
+ * Media / R2 E2E tests:
  *   - Upload image via API
  *   - Metadata saved correctly
  *   - Image accessible via public proxy
@@ -14,7 +14,7 @@ import { api, getAdminToken, loginAsAdmin } from "./helpers";
 const VALID_PNG =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
 
-test.describe("media / MinIO", () => {
+test.describe("media / R2", () => {
   let token: string;
 
   test.beforeEach(async ({ page }) => {
@@ -23,7 +23,7 @@ test.describe("media / MinIO", () => {
     expect(token).toBeTruthy();
   });
 
-  test("upload image — MinIO stores it, metadata saved", async ({ request }) => {
+  test("upload image — R2 stores it, metadata saved", async ({ request }) => {
     const res = await request.post("http://localhost:4000/api/v1/admin/media/upload", {
       headers: { Authorization: `Bearer ${token}` },
       multipart: {
@@ -39,7 +39,7 @@ test.describe("media / MinIO", () => {
     const data = (await res.json()) as { data: { url: string; secureUrl?: string } };
     const url = data.data.secureUrl || data.data.url;
     expect(url).toBeTruthy();
-    expect(url).toContain("/minio/");
+    expect(url).toContain("https://");
   });
 
   test("upload rejects non-image file", async ({ request }) => {
@@ -79,14 +79,16 @@ test.describe("media / MinIO", () => {
     expect(Array.isArray(data.items)).toBe(true);
   });
 
-  test("MinIO bucket is accessible and images are served", async ({ request }) => {
+  test("R2 bucket is accessible and images are served", async ({ request }) => {
     // Get a media item and try to access its image URL
     const mediaList = await api(request, "/admin/media", token);
     expect(mediaList.status).toBe(200);
     const media = mediaList.data as { items: { url: string }[] };
     if (media.items.length > 0) {
       const imageUrl = media.items[0].url;
-      const imgRes = await request.get(`http://localhost:4000${imageUrl}`);
+      // URL may be absolute (https://media.galaxytv4k.online/...) or relative (/media/...)
+      const fullUrl = imageUrl.startsWith("http") ? imageUrl : `http://localhost:4000${imageUrl}`;
+      const imgRes = await request.get(fullUrl);
       expect(imgRes.status()).toBe(200);
     }
   });

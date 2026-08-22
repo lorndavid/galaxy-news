@@ -367,6 +367,33 @@ model NavigationItem {
   @@index([isActive, sortOrder])
 }
 
+// ---------- Facebook Live Streams ----------
+
+model LiveStream {
+  id            Int       @id @default(autoincrement())
+  titleKh      String
+  titleEn      String?
+  descriptionKh String?
+  descriptionEn String?
+  facebookUrl  String
+  thumbnailUrl String?
+  status       String    @default("DRAFT") // DRAFT | SCHEDULED | LIVE | ENDED | DISABLED
+  visibility   String    @default("HOMEPAGE") // HOMEPAGE | PAGE_ONLY | HIDDEN
+  isHomepage   Boolean   @default(false)
+  isFeatured   Boolean   @default(false)
+  displayOrder Int       @default(0)
+  startAt      DateTime?
+  endAt        DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([status])
+  @@index([isHomepage])
+  @@index([isFeatured])
+  @@index([startAt])
+  @@index([displayOrder])
+}
+
 // ---------- Activity & contact ----------
 
 model ActivityLog {

@@ -364,6 +364,25 @@ export interface NavigationItemConfig {
   columns?: number;
 }
 
+export interface LiveStream {
+  id: number;
+  titleKh: string;
+  titleEn: string | null;
+  descriptionKh: string | null;
+  descriptionEn: string | null;
+  facebookUrl: string;
+  thumbnailUrl: string | null;
+  status: "DRAFT" | "SCHEDULED" | "LIVE" | "ENDED" | "DISABLED";
+  visibility: "HOMEPAGE" | "PAGE_ONLY" | "HIDDEN";
+  isHomepage: boolean;
+  isFeatured: boolean;
+  displayOrder: number;
+  startAt: string | null;
+  endAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface NavigationItem {
   id: number;
   label: string;

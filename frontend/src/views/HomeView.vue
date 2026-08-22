@@ -76,6 +76,9 @@
       </div>
     </section>
 
+    <!-- ═══════════ FACEBOOK LIVE STREAM ═══════════ -->
+    <LiveStreamBanner />
+
     <!-- ═══════════ MORE NEWS — secondary editorial grid ═══════════ -->
     <MoreNewsSection :exclude-ids="primaryArticleIds" />
 
@@ -169,6 +172,7 @@ import EditorialSection from "@/components/editorial/EditorialSection.vue";
 import SectionHeaderComp from "@/components/editorial/SectionHeader.vue";
 import EditorialCompactLayout from "@/components/editorial/layouts/EditorialCompactLayout.vue";
 import EditorialListLayout from "@/components/editorial/layouts/EditorialListLayout.vue";
+import LiveStreamBanner from "@/components/common/LiveStreamBanner.vue";
 
 const categoryStore = useCategoryStore();
 const settingsStore = useSettingsStore();
