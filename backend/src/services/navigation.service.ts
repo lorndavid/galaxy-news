@@ -35,6 +35,7 @@ export async function listNav() {
 export interface NavInput {
   label: string;
   labelEn?: string | null;
+  labelZh?: string | null;
   type: (typeof NAV_TYPES)[number];
   value?: string | null;
   isActive?: boolean;
@@ -47,6 +48,7 @@ export async function createNavItem(input: NavInput, userId: number, ip?: string
     data: {
       label: input.label,
       labelEn: input.labelEn ?? null,
+      labelZh: input.labelZh ?? null,
       type: input.type,
       value: input.value || null,
       isActive: input.isActive ?? true,
@@ -66,6 +68,7 @@ export async function updateNavItem(id: number, input: Partial<NavInput>, userId
     data: {
       ...(input.label !== undefined ? { label: input.label } : {}),
       ...(input.labelEn !== undefined ? { labelEn: input.labelEn || null } : {}),
+      ...(input.labelZh !== undefined ? { labelZh: input.labelZh || null } : {}),
       ...(input.type !== undefined ? { type: input.type } : {}),
       ...(input.value !== undefined ? { value: input.value || null } : {}),
       ...(input.isActive !== undefined ? { isActive: input.isActive } : {}),

@@ -50,5 +50,11 @@ export function useLocalized() {
     return formatKhmerDateFull(value);
   };
 
-  return { locale, isEn: locale.isEn, isZh: locale.isZh, t: locale.t, title, excerpt, content, catName, catDescription, formatDate, formatDateFull };
+  const tagName = (t: { name: string; nameEn: string | null; nameZh?: string | null }) =>
+    pickLocalized(t.name, t.nameEn, t.nameZh);
+
+  const navLabel = (item: { label: string; labelEn: string | null; labelZh?: string | null }) =>
+    pickLocalized(item.label, item.labelEn, item.labelZh);
+
+  return { locale, isEn: locale.isEn, isZh: locale.isZh, t: locale.t, title, excerpt, content, catName, catDescription, tagName, navLabel, formatDate, formatDateFull };
 }

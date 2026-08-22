@@ -77,6 +77,7 @@ model Tag {
   id       Int          @id @default(autoincrement())
   name     String       @unique
   nameEn   String?      // English tag name (falls back to name)
+  nameZh   String?      // Chinese tag name (falls back to nameEn)
   slug     String       @unique
   articles ArticleTag[]
 
@@ -376,6 +377,7 @@ model NavigationItem {
   id        Int      @id @default(autoincrement())
   label     String
   labelEn   String?  // English label (falls back to label)
+  labelZh   String?  // Chinese label (falls back to labelEn)
   type      String   @default("link") // home | category | page | link
   value     String?  // slug/URL depending on type
   config    String?  // JSON: {"layout":"grid|list","columns":2-4}

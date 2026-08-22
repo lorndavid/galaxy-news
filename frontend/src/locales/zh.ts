@@ -5,6 +5,9 @@ export const zh = {
     news: "新闻列表",
     categories: "分类",
     more: "更多",
+    live: "直播",
+    liveNews: "实时新闻",
+    search: "搜索",
   },
   common: {
     search: "搜索新闻",
@@ -28,6 +31,13 @@ export const zh = {
     all: "全部",
     minuteRead: "分钟阅读",
     times: "次浏览",
+    share: "分享",
+    subscribe: "订阅",
+    backToTop: "回到顶部",
+    openMenu: "打开菜单",
+    closeMenu: "关闭菜单",
+    socialMedia: "社交媒体",
+    homePage: "首页",
   },
   home: {
     breaking: "突发新闻",
@@ -92,6 +102,16 @@ export const zh = {
     title: "出现了一些问题",
     message: "请重试",
     notFound: "页面未找到",
+    loadDataFailed: "加载数据失败",
+    tryAgain: "重试",
+  },
+  skeleton: {
+    loadingArticle: "正在加载文章...",
+    loading: "加载中...",
+  },
+  poster: {
+    tagline: "柬埔寨数字新闻中心，每日突发新闻、娱乐和科技资讯",
+    viewMore: "查看更多",
   },
 } as const;
 

@@ -79,7 +79,7 @@ export const articleListSelect = {
   updatedAt: true,
   author: { select: { id: true, name: true, avatar: true, role: true } },
   category: true,
-  tags: { include: { tag: { select: { id: true, name: true, nameEn: true, slug: true } } } },
+  tags: { include: { tag: { select: { id: true, name: true, nameEn: true, nameZh: true, slug: true } } } },
   images: false,
 } satisfies Prisma.ArticleSelect;
 

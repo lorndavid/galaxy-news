@@ -4,8 +4,8 @@
       v-if="visible"
       type="button"
       class="back-to-top"
-      :aria-label="isEn ? 'Back to top' : 'ត្រឡប់ទៅកំពូល'"
-      :title="isEn ? 'Back to top' : 'ត្រឡប់ទៅកំពូល'"
+      :aria-label="locale.t.common.backToTop"
+      :title="locale.t.common.backToTop"
       @click="scrollTop"
     >
       <i class="ti-angle-up" aria-hidden="true"></i>
@@ -18,7 +18,6 @@ import { onMounted, onUnmounted, ref } from "vue";
 import { useLocaleStore } from "@/stores/locale";
 
 const locale = useLocaleStore();
-const isEn = locale.isEn;
 const visible = ref(false);
 let timer: number | undefined;
 

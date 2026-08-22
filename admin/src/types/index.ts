@@ -404,6 +404,7 @@ export interface NavigationItem {
   id: number;
   label: string;
   labelEn: string | null;
+  labelZh: string | null;
   type: string;
   value: string | null;
   config: NavigationItemConfig | null;

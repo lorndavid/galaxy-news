@@ -7,7 +7,7 @@
             <nav aria-label="Page navigation">
               <ul class="pagination justify-content-start">
                 <li class="page-item" :class="{ disabled: page <= 1 }">
-                  <button class="page-link" :disabled="page <= 1" @click="$emit('change', page - 1)" aria-label="មុន">
+                  <button class="page-link" :disabled="page <= 1" @click="$emit('change', page - 1)" aria-label="Previous">
                     <span class="flaticon-arrow roted"></span>
                   </button>
                 </li>
@@ -15,7 +15,7 @@
                   <button class="page-link" @click="$emit('change', p)">{{ String(p).padStart(2, "0") }}</button>
                 </li>
                 <li class="page-item" :class="{ disabled: page >= totalPages }">
-                  <button class="page-link" :disabled="page >= totalPages" @click="$emit('change', page + 1)" aria-label="បន្ទាប់">
+                  <button class="page-link" :disabled="page >= totalPages" @click="$emit('change', page + 1)" aria-label="Next">
                     <span class="flaticon-arrow right-arrow"></span>
                   </button>
                 </li>

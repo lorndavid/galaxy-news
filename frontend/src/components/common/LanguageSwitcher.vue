@@ -1,5 +1,5 @@
 <template>
-  <div class="language-switcher" role="group" aria-label="ភាសា / Language">
+  <div class="language-switcher" role="group" aria-label="Language">
     <button
       type="button"
       class="lang-btn"

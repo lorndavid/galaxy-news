@@ -1,5 +1,5 @@
 <template>
-  <div class="skeleton-article" role="status" aria-label="កំពុងផ្ទុកអត្ថបទ">
+  <div class="skeleton-article" role="status" aria-label="Loading article...">
     <div class="skeleton skeleton-kicker"></div>
     <div class="skeleton skeleton-title"></div>
     <div class="skeleton skeleton-title short"></div>
@@ -8,7 +8,7 @@
     <div class="skeleton skeleton-line"></div>
     <div class="skeleton skeleton-line w-90"></div>
     <div class="skeleton skeleton-line w-95"></div>
-    <span class="sr-only">កំពុងផ្ទុក...</span>
+    <span class="sr-only">Loading...</span>
   </div>
 </template>
 

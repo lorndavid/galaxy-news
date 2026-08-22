@@ -38,6 +38,7 @@ export interface Tag {
   id: number;
   name: string;
   nameEn: string | null;
+  nameZh: string | null;
   slug: string;
 }
 
@@ -224,6 +225,7 @@ export interface NavigationItem {
   id: number;
   label: string;
   labelEn: string | null;
+  labelZh: string | null;
   type: "home" | "category" | "page" | "link";
   value: string | null;
   config: NavigationItemConfig | null;

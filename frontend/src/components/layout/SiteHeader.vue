@@ -9,7 +9,7 @@
         </p>
         <div class="g-utility-right">
           <LanguageSwitcher />
-          <ul class="g-utility-social" aria-label="បណ្តាញសង្គម">
+          <ul class="g-utility-social" :aria-label="locale.t.common.socialMedia">
             <li v-if="settings?.facebook"><a :href="settings.facebook" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a></li>
             <li v-if="settings?.youtube"><a :href="settings.youtube" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a></li>
             <li v-if="settings?.tiktok"><a :href="settings.tiktok" target="_blank" rel="noopener" aria-label="TikTok"><i class="fab fa-tiktok"></i></a></li>
@@ -36,7 +36,7 @@
         <button
           class="g-burger"
           :class="{ open: mobileOpen }"
-          aria-label="បើកម៉ឺនុយ"
+          :aria-label="locale.t.common.openMenu"
           :aria-expanded="mobileOpen"
           @click="mobileOpen = !mobileOpen"
         >
@@ -53,7 +53,7 @@
           <img :src="logoUrl" :alt="siteName" />
         </RouterLink>
 
-        <nav class="g-nav" aria-label="ម៉ឺនុយចម្បង">
+        <nav class="g-nav" :aria-label="locale.t.common.search">
           <ul>
             <!-- Home + main items (max 6 direct, 7th slot = "More") -->
             <li v-for="item in navBarItems" :key="item.id">
@@ -62,7 +62,7 @@
                 :to="`/category/${item.value ?? ''}`"
                 :class="{ 'is-active': isActive(`/category/${item.value}`) }"
               >
-                {{ locale.pick(item.label, item.labelEn) }}
+                {{ locale.pick(item.label, item.labelEn, item.labelZh) }}
               </RouterLink>
               <a
                 v-else-if="item.type === 'link'"
@@ -70,14 +70,14 @@
                 target="_blank"
                 rel="noopener"
               >
-                {{ locale.pick(item.label, item.labelEn) }}
+                {{ locale.pick(item.label, item.labelEn, item.labelZh) }}
               </a>
               <RouterLink
                 v-else
                 :to="navPath(item)"
                 :class="{ 'is-active': isActive(navPath(item)) }"
               >
-                {{ locale.pick(item.label, item.labelEn) }}
+                {{ locale.pick(item.label, item.labelEn, item.labelZh) }}
               </RouterLink>
             </li>
 
@@ -94,10 +94,10 @@
                     target="_blank"
                     rel="noopener"
                   >
-                    {{ locale.pick(item.label, item.labelEn) }}
+                    {{ locale.pick(item.label, item.labelEn, item.labelZh) }}
                   </a>
                   <RouterLink v-else :to="navPath(item)">
-                    {{ locale.pick(item.label, item.labelEn) }}
+                    {{ locale.pick(item.label, item.labelEn, item.labelZh) }}
                   </RouterLink>
                 </li>
               </ul>
@@ -156,7 +156,7 @@
         <div v-if="mobileOpen" class="g-mobile-drawer">
           <div class="g-drawer-header">
             <span class="g-drawer-title">{{ locale.pick(settings?.siteName ?? 'Galaxy TV', settings?.siteNameEn) }}</span>
-            <button class="g-drawer-close" aria-label="បិទម៉ឺនុយ" @click="mobileOpen = false">
+            <button class="g-drawer-close" :aria-label="locale.t.common.closeMenu" @click="mobileOpen = false">
               <i class="fas fa-times" aria-hidden="true"></i>
             </button>
           </div>
@@ -172,7 +172,7 @@
               <i class="fas fa-arrow-right"></i>
             </button>
           </form>
-          <nav aria-label="ម៉ឺនុយទូរស័ព្ទ">
+          <nav :aria-label="locale.t.common.search">
             <ul class="g-drawer-nav">
               <li v-for="item in allNavItems" :key="item.id">
                 <RouterLink
@@ -181,7 +181,7 @@
                   class="g-drawer-nav-item"
                   @click="mobileOpen = false"
                 >
-                  <span>{{ locale.pick(item.label, item.labelEn) }}</span>
+                  <span>{{ locale.pick(item.label, item.labelEn, item.labelZh) }}</span>
                   <i class="fas fa-chevron-right g-drawer-arrow" aria-hidden="true"></i>
                 </RouterLink>
                 <a
@@ -192,7 +192,7 @@
                   class="g-drawer-nav-item"
                   @click="mobileOpen = false"
                 >
-                  <span>{{ locale.pick(item.label, item.labelEn) }}</span>
+                  <span>{{ locale.pick(item.label, item.labelEn, item.labelZh) }}</span>
                   <i class="fas fa-arrow-up-right-from-square g-drawer-arrow" aria-hidden="true"></i>
                 </a>
                 <RouterLink
@@ -201,7 +201,7 @@
                   class="g-drawer-nav-item"
                   @click="mobileOpen = false"
                 >
-                  <span>{{ locale.pick(item.label, item.labelEn) }}</span>
+                  <span>{{ locale.pick(item.label, item.labelEn, item.labelZh) }}</span>
                   <i class="fas fa-chevron-right g-drawer-arrow" aria-hidden="true"></i>
                 </RouterLink>
               </li>
@@ -320,6 +320,7 @@ const homeItem = computed<NavigationItem>(() => ({
   id: -1,
   label: locale.t.nav.home,
   labelEn: "Home",
+  labelZh: "首页",
   type: "home",
   value: "/",
   config: null,
@@ -372,9 +373,9 @@ onMounted(() => {
     .then((items) => { navItems.value = items; })
     .catch(() => {
       navItems.value = [
-        { id: 0, label: "ទំព័រដើម", labelEn: "Home", type: "home", value: "/", config: null, sortOrder: 1, isActive: true },
-        { id: 0, label: "បញ្ជីព័ត៌មាន", labelEn: "News List", type: "page", value: "news", config: null, sortOrder: 2, isActive: true },
-        { id: 0, label: "ប្រភេទ", labelEn: "Categories", type: "page", value: "categories", config: null, sortOrder: 3, isActive: true },
+        { id: 0, label: "ទំព័រដើម", labelEn: "Home", labelZh: "首页", type: "home", value: "/", config: null, sortOrder: 1, isActive: true },
+        { id: 0, label: "បញ្ជីព័ត៌មាន", labelEn: "News List", labelZh: "新闻列表", type: "page", value: "news", config: null, sortOrder: 2, isActive: true },
+        { id: 0, label: "ប្រភេទ", labelEn: "Categories", labelZh: "分类", type: "page", value: "categories", config: null, sortOrder: 3, isActive: true },
       ];
     });
   window.addEventListener("scroll", onScroll, { passive: true });

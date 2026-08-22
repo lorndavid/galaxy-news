@@ -14,6 +14,7 @@ export async function listAll() {
 export interface TagInput {
   name?: string;
   nameEn?: string | null;
+  nameZh?: string | null;
   slug?: string;
 }
 
@@ -24,7 +25,7 @@ export async function createTag(input: TagInput, userId: number, ip?: string | n
   const clash = await prisma.tag.findUnique({ where: { slug } });
   if (clash) throw ApiError.conflict("A tag with this slug already exists");
 
-  const tag = await prisma.tag.create({ data: { name, nameEn: input.nameEn ?? null, slug } });
+  const tag = await prisma.tag.create({ data: { name, nameEn: input.nameEn ?? null, nameZh: input.nameZh ?? null, slug } });
   await logActivity({ userId, action: "TAG_CREATED", entity: "Tag", entityId: tag.id, meta: { name }, ip });
   return tag;
 }
@@ -39,6 +40,7 @@ export async function updateTag(id: number, input: TagInput, userId: number, ip?
     if (!input.slug) data.slug = slugify(data.name) || existing.slug;
   }
   if (input.nameEn !== undefined) data.nameEn = input.nameEn || "";
+  if (input.nameZh !== undefined) data.nameZh = input.nameZh || "";
   if (input.slug !== undefined && input.slug.trim()) {
     const slug = slugify(input.slug);
     if (slug && slug !== existing.slug) {

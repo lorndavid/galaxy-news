@@ -39,11 +39,11 @@ export const useLocaleStore = defineStore("locale", () => {
   }
 
   /** Pick the localized value with a fallback to the primary language.
-   *  For Chinese, we try to use English as the secondary content. */
-  function pick(primary: string | null | undefined, secondary: string | null | undefined): string {
+   *  pick(kh, en, zh) — zh overrides en when active. */
+  function pick(primary: string | null | undefined, secondary: string | null | undefined, tertiary?: string | null): string {
+    if (isZh.value && tertiary) return tertiary;
     if (isEn.value && secondary) return secondary;
-    if (isZh.value && secondary) return secondary;
-    return primary || secondary || "";
+    return primary || secondary || tertiary || "";
   }
 
   /** Translate a nested key, e.g. tKey("common.search") */

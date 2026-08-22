@@ -8,7 +8,7 @@
           <img :src="logoUrl" :alt="siteName" loading="lazy" decoding="async" />
         </RouterLink>
         <p class="g-footer-desc">{{ footerDescription }}</p>
-        <ul class="g-footer-social" aria-label="បណ្តាញសង្គម">
+        <ul class="g-footer-social" :aria-label="locale.t.common.socialMedia">
           <li v-if="settings?.facebook"><a :href="settings.facebook" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a></li>
           <li v-if="settings?.youtube"><a :href="settings.youtube" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a></li>
           <li v-if="settings?.tiktok"><a :href="settings.tiktok" target="_blank" rel="noopener" aria-label="TikTok"><i class="fab fa-tiktok"></i></a></li>
@@ -117,13 +117,13 @@ async function subscribe() {
   newsletterErr.value = "";
   try {
     await contentService.subscribeNewsletter(email);
-    newsletterMsg.value = "សូមអរគុណ! អ្នកបានចុះឈ្មោះទទួលព័ត៌មានដោយជោគជ័យ។";
+    newsletterMsg.value = locale.t.footer.subscribed;
     newsletterEmail.value = "";
   } catch (e) {
     newsletterErr.value =
       e instanceof Error && e.message
         ? e.message
-        : "មិនអាចចុះឈ្មោះបានទេ សូមព្យាយាមម្តងទៀត។";
+        : locale.t.footer.subscribeFailed;
   } finally {
     subscribing.value = false;
   }

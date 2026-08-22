@@ -5,6 +5,9 @@ export const kh = {
     news: "បញ្ជីព័ត៌មាន",
     categories: "ប្រភេទ",
     more: "បន្ថែម",
+    live: "ផ្សាយផ្ទាល់",
+    liveNews: "បន្ទាត់ព័ត៌មានផ្ទាល់",
+    search: "ស្វែងរក",
   },
   common: {
     search: "ស្វែងរកព័ត៌មាន",
@@ -28,6 +31,13 @@ export const kh = {
     all: "ទាំងអស់",
     minuteRead: "នាទីអាន",
     times: "ដង",
+    share: "ចែករំលែក",
+    subscribe: "ចុះឈ្មោះ",
+    backToTop: "ត្រឡប់ទៅកំពូល",
+    openMenu: "បើកម៉ឺនុយ",
+    closeMenu: "បិទម៉ឺនុយ",
+    socialMedia: "បណ្តាញសង្គម",
+    homePage: "ទំព័រដើម",
   },
   home: {
     breaking: "បន្ទាត់ព័ត៌មានក្តៅ",
@@ -92,6 +102,16 @@ export const kh = {
     title: "មានបញ្ហាអ្វីមួយបានកើតឡើង",
     message: "សូមព្យាយាមម្តងទៀត",
     notFound: "រកមិនឃើញទំព័រ",
+    loadDataFailed: "មិនអាចផ្ទុកទិន្នន័យបានទេ",
+    tryAgain: "ព្យាយាមម្តងទៀត",
+  },
+  skeleton: {
+    loadingArticle: "កំពុងផ្ទុកអត្ថបទ...",
+    loading: "កំពុងផ្ទុក...",
+  },
+  poster: {
+    tagline: "មជ្ឈមណ្ឌលព័ត៌មានឌីជីថល ព័ត៌មានក្តៅៗ កម្សាន្ត និងបច្ចេកវិទ្យាប្រចាំថ្ងៃ",
+    viewMore: "ចូលមើលបន្ថែម",
   },
 } as const;
 

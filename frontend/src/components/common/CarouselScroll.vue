@@ -3,10 +3,10 @@
     <div ref="track" class="carousel-track" @scroll="updateArrows">
       <slot />
     </div>
-    <button v-if="canPrev" class="carousel-arrow prev" aria-label="មុន" @click="scrollBy(-1)">
+    <button v-if="canPrev" class="carousel-arrow prev" aria-label="Previous" @click="scrollBy(-1)">
       <i class="ti-angle-left"></i>
     </button>
-    <button v-if="canNext" class="carousel-arrow next" aria-label="បន្ទាប់" @click="scrollBy(1)">
+    <button v-if="canNext" class="carousel-arrow next" aria-label="Next" @click="scrollBy(1)">
       <i class="ti-angle-right"></i>
     </button>
   </div>

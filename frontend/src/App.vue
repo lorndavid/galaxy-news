@@ -1,6 +1,6 @@
 <template>
   <div class="news-app">
-    <a href="#main-content" class="skip-link">{{ isEn ? "Skip to content" : "រំលងទៅកាន់មាតិកា" }}</a>
+    <a href="#main-content" class="skip-link">{{ isZh ? "跳到内容" : isEn ? "Skip to content" : "រំលងទៅកាន់មាតិកា" }}</a>
     <PageLoader />
     <SiteHeader v-if="!route.meta.bare" />
     <LiveNewsTicker v-if="!route.meta.bare" />
@@ -32,13 +32,15 @@ const route = useRoute();
 const settingsStore = useSettingsStore();
 const locale = useLocaleStore();
 const isEn = computed(() => locale.isEn);
+const isZh = computed(() => locale.isZh);
 const currentLang = computed(() => {
   // Language-prefixed article URLs (/kh/news/*, /en/news/*) win; otherwise
   // the user's stored preference applies.
   const metaLocale = route.meta.locale as string | undefined;
   if (metaLocale === "kh") return "km";
   if (metaLocale === "en") return "en";
-  return isEn.value ? "en" : "km";
+  if (metaLocale === "zh") return "zh";
+  return isZh.value ? "zh" : isEn.value ? "en" : "km";
 });
 useTheme();
 

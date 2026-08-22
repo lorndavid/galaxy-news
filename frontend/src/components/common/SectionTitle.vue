@@ -15,7 +15,7 @@ withDefaults(
     to?: string;
     viewAllText?: string;
   }>(),
-  { viewAllText: "មើលទាំងអស់" }
+  { viewAllText: "" }
 );
 </script>
 

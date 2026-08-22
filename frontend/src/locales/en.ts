@@ -5,6 +5,9 @@ export const en = {
     news: "News List",
     categories: "Categories",
     more: "More",
+    live: "Live",
+    liveNews: "Live News",
+    search: "Search",
   },
   common: {
     search: "Search news",
@@ -28,6 +31,13 @@ export const en = {
     all: "All",
     minuteRead: "min read",
     times: "views",
+    share: "Share",
+    subscribe: "Subscribe",
+    backToTop: "Back to top",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
+    socialMedia: "Social Media",
+    homePage: "Homepage",
   },
   home: {
     breaking: "Breaking News",
@@ -92,6 +102,16 @@ export const en = {
     title: "Something went wrong",
     message: "Please try again",
     notFound: "Page not found",
+    loadDataFailed: "Failed to load data",
+    tryAgain: "Try Again",
+  },
+  skeleton: {
+    loadingArticle: "Loading article...",
+    loading: "Loading...",
+  },
+  poster: {
+    tagline: "Cambodia's digital news hub with daily breaking news, entertainment and technology",
+    viewMore: "View More",
   },
 } as const;
 
