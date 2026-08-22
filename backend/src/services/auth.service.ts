@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { Role } from "../constants";
+import { env } from "../config/env";
 import { prisma } from "../lib/prisma";
 import {
   generateRefreshToken,
