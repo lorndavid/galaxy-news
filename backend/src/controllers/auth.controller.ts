@@ -41,7 +41,14 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
 export const refresh = asyncHandler(async (req: Request, res: Response) => {
   const result = await authService.refreshTokens(req.cookies?.[REFRESH_COOKIE], req.ip);
-  setRefreshCookie(res, result.refreshToken);
+  // Use remaining lifetime for the cookie so sessions with "Remember me"
+  // keep their 7-day window across rotations.
+  const remainingMs = result.expiresAt.getTime() - Date.now();
+  const ttlMs = remainingMs > 0 ? remainingMs : env.jwt.refreshTtlDays * 24 * 60 * 60 * 1000;
+  res.cookie(REFRESH_COOKIE, result.refreshToken, {
+    ...refreshCookieOptions(),
+    maxAge: ttlMs,
+  });
   ok(res, { user: result.user, accessToken: result.accessToken });
 });
 

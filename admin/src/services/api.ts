@@ -19,21 +19,74 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Auto-refresh interceptor: when a 401 occurs, attempt to refresh the
+// access token using the httpOnly refresh cookie before giving up.
+let isRefreshing = false;
+let failedQueue: Array<{ resolve: (token: string) => void; reject: (err: unknown) => void }> = [];
+
+function processQueue(error: unknown, token: string | null) {
+  failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve(token!)));
+  failedQueue = [];
+}
+
 api.interceptors.response.use(
   (res) => res,
-  (error) => {
+  async (error) => {
     const status = error?.response?.status;
-    if (status === 401 && !error.config?.url?.includes("/auth/login")) {
-      localStorage.removeItem(TOKEN_KEY);
-      if (window.location.pathname !== "/login") {
-        // Show session expiry notice before redirect
-        const msg = document.createElement("div");
-        msg.className = "fixed inset-0 z-[100] flex items-center justify-center bg-black/60";
-        msg.innerHTML = '<div class="rounded-xl bg-white p-6 text-center shadow-xl max-w-sm mx-4"><p class="text-sm font-medium text-slate-800">សម័យអ្នកប្រើប្រាស់បានផុតកំណត់</p><p class="mt-1 text-xs text-slate-500">សូមចូលប្រព័ន្ធឡើងវិញ</p></div>';
-        document.body.appendChild(msg);
-        setTimeout(() => { window.location.href = "/login"; }, 1200);
+    const originalRequest = error?.config;
+
+    // If 401 and not already retrying and not the login/refresh endpoints
+    if (
+      status === 401 &&
+      originalRequest &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes("/auth/login") &&
+      !originalRequest.url?.includes("/auth/refresh")
+    ) {
+      if (isRefreshing) {
+        // Queue this request while refresh is in progress
+        return new Promise<string>((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then((newToken) => {
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return api(originalRequest);
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // Call refresh endpoint — the httpOnly cookie is sent automatically
+        const { data: refreshRes } = await axios.post(
+          `${API_BASE}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
+        const newToken = refreshRes?.data?.accessToken;
+        if (newToken) {
+          localStorage.setItem(TOKEN_KEY, newToken);
+          processQueue(null, newToken);
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return api(originalRequest);
+        }
+        throw new Error("No token in refresh response");
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        // Refresh failed — redirect to login
+        localStorage.removeItem(TOKEN_KEY);
+        if (window.location.pathname !== "/login") {
+          const msg = document.createElement("div");
+          msg.className = "fixed inset-0 z-[100] flex items-center justify-center bg-black/60";
+          msg.innerHTML = '<div class="rounded-xl bg-white p-6 text-center shadow-xl max-w-sm mx-4"><p class="text-sm font-medium text-slate-800">សម័យអ្នកប្រើប្រាស់បានផុតកំណត់</p><p class="mt-1 text-xs text-slate-500">សូមចូលប្រព័ន្ធឡើងវិញ</p></div>';
+          document.body.appendChild(msg);
+          setTimeout(() => { window.location.href = "/login"; }, 1200);
+        }
+      } finally {
+        isRefreshing = false;
       }
     }
+
     const message =
       error?.response?.data?.message ?? "សំណើបរាជ័យ សូមព្យាយាមម្តងទៀត";
     return Promise.reject(new Error(message));

@@ -73,14 +73,20 @@ export async function refreshTokens(refreshToken: string | undefined, ip?: strin
   }
 
   // Rotate the refresh token (reuse detection friendly).
+  // Preserve the remaining lifetime so sessions with "Remember me" keep
+  // their 7-day window instead of being shortened to the default TTL.
   const nextToken = generateRefreshToken();
+  const remainingMs = stored.expiresAt.getTime() - Date.now();
+  const nextExpiry = remainingMs > 0
+    ? new Date(Date.now() + remainingMs)
+    : refreshTokenExpiry();
   await prisma.$transaction([
     prisma.refreshToken.delete({ where: { id: stored.id } }),
     prisma.refreshToken.create({
       data: {
         token: hashRefreshToken(nextToken),
         userId: stored.userId,
-        expiresAt: refreshTokenExpiry(),
+        expiresAt: nextExpiry,
       },
     }),
   ]);
@@ -91,6 +97,7 @@ export async function refreshTokens(refreshToken: string | undefined, ip?: strin
     user: stored.user,
     accessToken: signAccessToken({ id: stored.user.id, role: stored.user.role as Role }),
     refreshToken: nextToken,
+    expiresAt: nextExpiry,
   };
 }
 
